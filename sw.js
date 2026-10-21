@@ -1,5 +1,5 @@
 // Service Worker do Espelho SMA — permite instalar o app e abrir offline.
-const VERSION = 'v2';
+const VERSION = 'v4';
 const SHELL_CACHE = 'espelho-shell-' + VERSION;
 const RUNTIME_CACHE = 'espelho-runtime-' + VERSION;
 const SHELL = [
@@ -45,8 +45,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(SHELL_CACHE).then((c) => c.put('./index.html', copy));
+          if (res.ok) { const copy = res.clone(); caches.open(SHELL_CACHE).then((c) => c.put('./index.html', copy)); }
           return res;
         })
         .catch(() => caches.match('./index.html').then((r) => r || caches.match('./')))

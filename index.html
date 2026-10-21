@@ -5,6 +5,12 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='13' height='13' rx='2.5' fill='%232fbf71'/%3E%3Crect x='17' y='2' width='13' height='13' rx='2.5' fill='%23f2c230'/%3E%3Crect x='2' y='17' width='13' height='13' rx='2.5' fill='%23e5484d'/%3E%3Crect x='17' y='17' width='13' height='13' rx='2.5' fill='%232f6fb0'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#0d1116">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Espelho SMA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<script>window.__pwaPrompt=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.__pwaPrompt=e;dispatchEvent(new Event('pwa-ready'))});</script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -278,7 +284,10 @@ body.so .side nav button,body.so .sbt{justify-content:flex-start;padding:0 10px}
   <div class="rl"><b>Todos os itens</b><span class="xp" data-kind="est_all"></span></div><div class="rl"><b>Somente com demanda</b><span class="xp" data-kind="est_com"></span></div><div class="rl"><b>Somente sem demanda</b><span class="xp" data-kind="est_sem"></span></div></div>
   <div class="cd"><h3>Versões de item</h3><p class="note">Por código de cada grupo de versões: situação, cliente, demanda e etiquetas em estoque com posição e peso.</p>
   <div class="rl"><b>Candidatos ao reaproveitamento</b><span class="xp" data-kind="ver_c"></span></div><div class="rl"><b>Todas as versões</b><span class="xp" data-kind="ver_a"></span></div></div>
-  <div class="cd"><h3>Análises</h3><div class="rl"><b>Cobertura por item</b><span class="xp" data-kind="cob"></span></div><div class="rl"><b>Embalagens: necessidade x estoque</b><span class="xp" data-kind="emb"></span></div><div class="rl"><b>Embalagens → itens → etiquetas e posições</b><span class="xp" data-kind="embi"></span></div><div class="rl"><b>Etiquetas no plano padrão e alternativo</b><span class="xp" data-kind="embl"></span></div><div class="rl"><b>Valorização por item</b><span class="xp" data-kind="val"></span></div></div></div></section>
+  <div class="cd"><h3>Análises</h3><div class="rl"><b>Cobertura por item</b><span class="xp" data-kind="cob"></span></div><div class="rl"><b>Embalagens: necessidade x estoque</b><span class="xp" data-kind="emb"></span></div><div class="rl"><b>Embalagens → itens → etiquetas e posições</b><span class="xp" data-kind="embi"></span></div><div class="rl"><b>Etiquetas no plano padrão e alternativo</b><span class="xp" data-kind="embl"></span></div><div class="rl"><b>Valorização por item</b><span class="xp" data-kind="val"></span></div></div>
+  <div class="cd" id="appcd"><h3>Aplicativo</h3><p class="note">Instale o Espelho SMA no celular para abrir direto da tela inicial, em tela cheia e com acesso mais rápido.</p>
+  <div class="rl"><b>Espelho SMA no celular</b><button class="btn" id="appInstall" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span id="appInstallTx">Baixar aplicativo</span></button></div>
+  <p class="note" id="appHint" style="margin:10px 0 0" aria-live="polite"></p></div></div></section>
  <section class="tab" id="cob">
   <div class="tools"><div id="cobpk"></div></div><p id="plbl" class="plbl"></p>
   <div class="part" id="part"></div><div class="cst" id="cst"></div>
@@ -890,13 +899,40 @@ addEventListener('resize',sync);sync()})();
  <!-- Importação da configuração do Firebase -->
 <script type="module" src="./firebase-db.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then((reg) => console.log('Service Worker registrado com sucesso:', reg.scope))
-        .catch((err) => console.log('Falha ao registrar o Service Worker:', err));
-    });
+(()=>{
+  if('serviceWorker' in navigator){
+    addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('SW:',e)));
   }
+  const btn=document.getElementById('appInstall'),tx=document.getElementById('appInstallTx'),hint=document.getElementById('appHint');
+  if(!btn)return;
+  const ua=navigator.userAgent,
+    ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+    standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  const set=(t,h,off)=>{tx.textContent=t;hint.textContent=h||'';btn.disabled=!!off};
+  const refresh=()=>{
+    if(standalone())return set('Aplicativo instalado','Você já está usando o aplicativo instalado.',true);
+    if(window.__pwaPrompt)return set('Baixar aplicativo','Toque para instalar na tela inicial.');
+    if(ios)return set('Baixar aplicativo','No iPhone/iPad, abra no Safari, toque em Compartilhar e escolha “Adicionar à Tela de Início”.');
+    set('Baixar aplicativo','');
+  };
+  btn.addEventListener('click',async()=>{
+    const p=window.__pwaPrompt;
+    if(p){
+      p.prompt();
+      const r=await p.userChoice.catch(()=>null);
+      window.__pwaPrompt=null;
+      if(r&&r.outcome==='accepted')set('Instalando…','O aplicativo será adicionado à sua tela inicial.',true);
+      else refresh();
+      return;
+    }
+    if(ios)hint.textContent='Toque em Compartilhar (quadrado com seta) no Safari e escolha “Adicionar à Tela de Início”.';
+    else hint.textContent='Abra o menu do navegador (⋮) e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”. Se a opção não aparecer, abra esta página pelo Chrome (Android) em endereço https.';
+  });
+  addEventListener('pwa-ready',refresh);
+  addEventListener('appinstalled',()=>{window.__pwaPrompt=null;set('Aplicativo instalado','Pronto! Procure o ícone “Espelho SMA” na tela inicial.',true)});
+  matchMedia('(display-mode: standalone)').addEventListener?.('change',refresh);
+  refresh();
+})();
 </script>
 </body>
 </html>

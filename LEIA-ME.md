@@ -43,7 +43,7 @@ No HTML, adicione um script de módulo (ou incorpore estas chamadas ao fluxo de 
 
 ## 4. Estrutura de dados
 
-O módulo grava cada versão em `espelhoSMA/versions/{versao}` e atualiza `espelhoSMA/current` somente depois que todos os pedaços da nova versão foram gravados. Os dados grandes são divididos em documentos menores para contornar o limite de 1 MiB por documento do Firestore.
+O módulo grava cada versão em `espelhoSMA/versions/items/{versao}` (e os pedaços em `.../chunks/{id}`) e atualiza `espelhoSMA/current` somente depois que todos os pedaços da nova versão foram gravados. Os dados grandes são divididos em documentos menores para contornar o limite de 1 MiB por documento do Firestore.
 
 As versões antigas permanecem no banco. Depois de validar o funcionamento, pode-se adicionar uma rotina de limpeza das versões antigas.
 

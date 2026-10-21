@@ -1,15 +1,19 @@
 {
+  "id": "./",
   "name": "Espelho SMA Porta-pallet",
   "short_name": "Espelho SMA",
+  "description": "Espelho SMA de porta-pallet: estoque, demanda, cobertura e relatórios.",
+  "lang": "pt-BR",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0d1116",
   "theme_color": "#0d1116",
+  "categories": ["business", "productivity"],
   "icons": [
-    {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='13' height='13' rx='2.5' fill='%232fbf71'/%3E%3Crect x='17' y='2' width='13' height='13' rx='2.5' fill='%23f2c230'/%3E%3Crect x='2' y='17' width='13' height='13' rx='2.5' fill='%23e5484d'/%3E%3Crect x='17' y='17' width='13' height='13' rx='2.5' fill='%232f6fb0'/%3E%3C/svg%3E",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml"
-    }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

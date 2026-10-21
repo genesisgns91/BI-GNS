@@ -82,7 +82,7 @@ export async function saveEspelho(data) {
   }
 
   const versionId = `${Date.now()}_${user.uid.slice(0, 8)}`;
-  const versionRef = doc(db, ROOT, "versions", versionId);
+  const versionRef = doc(db, ROOT, "versions", "items", versionId);
   const chunksRef = collection(versionRef, "chunks");
   const manifest = {};
 
@@ -145,7 +145,7 @@ export async function loadEspelho() {
   const { versionId } = currentSnap.data();
   if (!versionId) return null;
 
-  const versionRef = doc(db, ROOT, "versions", versionId);
+  const versionRef = doc(db, ROOT, "versions", "items", versionId);
   const versionSnap = await getDoc(versionRef);
   if (!versionSnap.exists()) {
     throw new Error("A versão atual foi referenciada, mas não foi encontrada.");

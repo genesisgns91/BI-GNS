@@ -1,16 +1,9 @@
-// Firebase Cloud Database para o Espelho SMA
+// Firebase Cloud Database para o Espelho SMA (acesso direto pelo link, SEM login)
 // Compatível com GitHub Pages / HTML estático: usa o SDK modular via CDN.
-// Não é necessário executar "npm install firebase" para este arquivo.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import {
-  getFirestore,
+  initializeFirestore,
   doc,
   getDoc,
   setDoc,
@@ -31,8 +24,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Detecta automaticamente redes (ex.: proxy/firewall de empresa) que bloqueiam a conexão padrão.
+const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
 const ROOT = "espelhoSMA";
 const CURRENT_DOC = "current";
@@ -44,46 +37,17 @@ function splitText(text, size = CHUNK_SIZE) {
   return parts.length ? parts : [""];
 }
 
-function requireUser() {
-  if (!auth.currentUser) {
-    throw new Error("Faça login no Firebase antes de sincronizar os dados.");
-  }
-  return auth.currentUser;
-}
-
-export async function login(email, password) {
-  const result = await signInWithEmailAndPassword(auth, email.trim(), password);
-  return { uid: result.user.uid, email: result.user.email };
-}
-
-export async function logout() {
-  await signOut(auth);
-}
-
-export function onLoginChange(callback) {
-  return onAuthStateChanged(auth, user => {
-    callback(user ? { uid: user.uid, email: user.email } : null);
-  });
-}
-
-export function currentUser() {
-  const user = auth.currentUser;
-  return user ? { uid: user.uid, email: user.email } : null;
-}
-
 /**
  * Salva o objeto completo do Espelho em uma nova versão.
  * O conteúdo é dividido em documentos para não ultrapassar o limite de 1 MiB.
- * Exemplo: await saveEspelho(raw);
  */
 export async function saveEspelho(data) {
-  const user = requireUser();
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     throw new TypeError("Os dados do Espelho devem ser um objeto.");
   }
 
-  const versionId = `${Date.now()}_${user.uid.slice(0, 8)}`;
   const dataTime = Number(data.__t) || Date.now();
+  const versionId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const versionRef = doc(db, ROOT, "versions", "items", versionId);
   const chunksRef = collection(versionRef, "chunks");
   const manifest = {};
@@ -99,11 +63,7 @@ export async function saveEspelho(data) {
 
     for (let index = 0; index < chunks.length; index++) {
       const chunkId = `${encodeURIComponent(key)}_${String(index).padStart(5, "0")}`;
-      batch.set(doc(chunksRef, chunkId), {
-        key,
-        index,
-        payload: chunks[index]
-      });
+      batch.set(doc(chunksRef, chunkId), { key, index, payload: chunks[index] });
       writes++;
 
       if (writes >= 400) {
@@ -120,8 +80,6 @@ export async function saveEspelho(data) {
   await setDoc(versionRef, {
     manifest,
     savedAt: serverTimestamp(),
-    savedBy: user.uid,
-    savedByEmail: user.email || null,
     t: dataTime,
     formatVersion: 1
   });
@@ -129,13 +87,11 @@ export async function saveEspelho(data) {
   await setDoc(doc(db, ROOT, CURRENT_DOC), {
     versionId,
     t: dataTime,
-    savedAt: serverTimestamp(),
-    savedBy: user.uid,
-    savedByEmail: user.email || null
+    savedAt: serverTimestamp()
   });
 
   pruneOldVersions(versionId); // limpeza em segundo plano; não bloqueia o salvamento
-  return { versionId, savedBy: user.email || user.uid };
+  return { versionId };
 }
 
 /** Apaga versões antigas (e seus pedaços) para não acumular dados no Firestore. */
@@ -160,32 +116,8 @@ async function pruneOldVersions(keepId) {
   }
 }
 
-/** Lê só o ponteiro da versão atual (leve): { t, versionId } ou null. */
-export async function getCurrentMeta() {
-  requireUser();
-  const snap = await getDoc(doc(db, ROOT, CURRENT_DOC));
-  if (!snap.exists()) return null;
-  const d = snap.data();
-  return { t: Number(d.t) || 1, versionId: d.versionId };
-}
-
-/** Avisa em tempo real quando outro aparelho publica uma versão nova. Retorna a função para cancelar. */
-export function onCurrentChange(callback, onError) {
-  requireUser();
-  return onSnapshot(doc(db, ROOT, CURRENT_DOC), snap => {
-    if (!snap.exists()) return callback(null);
-    const d = snap.data();
-    callback({ t: Number(d.t) || 1, versionId: d.versionId });
-  }, err => onError && onError(err));
-}
-
-/**
- * Carrega a versão apontada como atual.
- * Retorna null se ainda não houver dados salvos.
- */
+/** Carrega a versão apontada como atual. Retorna null se ainda não houver dados salvos. */
 export async function loadEspelho() {
-  requireUser();
-
   const currentSnap = await getDoc(doc(db, ROOT, CURRENT_DOC));
   if (!currentSnap.exists()) return null;
 
@@ -217,22 +149,25 @@ export async function loadEspelho() {
     result[key] = JSON.parse(parts.slice(0, count).join(""));
   }
 
-  return {
-    data: result,
-    versionId,
-    savedBy: versionSnap.data().savedByEmail || versionSnap.data().savedBy || "",
-    savedAt: versionSnap.data().savedAt?.toDate?.() || null
-  };
+  return { data: result, versionId };
 }
 
-// Disponibiliza uma API global para o HTML do Espelho usar após importar este módulo.
-window.FirebaseDB = {
-  login,
-  logout,
-  currentUser,
-  onLoginChange,
-  saveEspelho,
-  loadEspelho,
-  getCurrentMeta,
-  onCurrentChange
-};
+/** Lê só o ponteiro da versão atual (leve): { t, versionId } ou null. */
+export async function getCurrentMeta() {
+  const snap = await getDoc(doc(db, ROOT, CURRENT_DOC));
+  if (!snap.exists()) return null;
+  const d = snap.data();
+  return { t: Number(d.t) || 1, versionId: d.versionId };
+}
+
+/** Avisa em tempo real quando outro aparelho publica uma versão nova. Retorna a função para cancelar. */
+export function onCurrentChange(callback, onError) {
+  return onSnapshot(doc(db, ROOT, CURRENT_DOC), snap => {
+    if (!snap.exists()) return callback(null);
+    const d = snap.data();
+    callback({ t: Number(d.t) || 1, versionId: d.versionId });
+  }, err => onError && onError(err));
+}
+
+// API global usada pelo HTML do Espelho.
+window.FirebaseDB = { saveEspelho, loadEspelho, getCurrentMeta, onCurrentChange };

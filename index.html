@@ -70,8 +70,8 @@ body[data-md=kg] .hA{--c:#ff1744}body[data-md=kg] .hB{--c:#2fbf71}body[data-md=k
 .klim input+input{margin-left:2px}
 html{-webkit-tap-highlight-color:transparent}#mnav{display:none}#ctxt{display:none}
 #qs{position:fixed;inset:0;z-index:90;background:var(--bg);overflow:auto;padding:12px 14px calc(28px + env(safe-area-inset-bottom))}#qs[hidden]{display:none}.qh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:10px}.qin{display:flex;gap:8px}.qin input{flex:1;min-width:0;height:46px;font-size:16px}.qb{display:flex;gap:8px;margin:10px 0}.qb .btn{flex:1;justify-content:center;min-height:44px}#qvid{width:100%;max-height:46vh;border-radius:12px;background:#000;object-fit:cover}#qv{margin:8px 0}#qv .btn{margin-top:8px;width:100%}
-.qc{background:var(--s1);border:1px solid var(--ln);border-radius:12px;padding:14px;margin-top:12px}.qc h4{font-size:20px;margin:0 0 6px}.qa{display:inline-block;margin:2px 6px 6px 0;padding:3px 10px;border-radius:99px;background:var(--s2);border:1px solid var(--ln2);font-size:13px}.qg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.qg div{background:var(--s2);border-radius:8px;padding:8px 10px}.qg b{display:block;font-size:16px}.qg span{font-size:11.5px;color:var(--mu)}
-.qd{border-radius:10px;padding:10px 12px;margin-top:8px;border:1px solid}.qd b{display:block;font-size:15px}.qd span{font-size:12.5px;display:block;margin-top:2px}.qd ul{margin:6px 0 0;padding-left:18px;font-size:13px}.qd.ok{background:rgba(47,191,113,.12);border-color:rgba(47,191,113,.5)}.qd.wn{background:rgba(242,194,48,.12);border-color:rgba(242,194,48,.5)}.qd.no{background:rgba(229,72,77,.12);border-color:rgba(229,72,77,.5)}.qo{font-size:13px;color:var(--mu);margin:6px 0 0}
+.qa{display:inline-block;margin:2px 6px 6px 0;padding:3px 10px;border-radius:99px;background:var(--s2);border:1px solid var(--ln2);font-size:13px}
+
 @media(max-width:760px){#qopen,#gsb{display:none}#pubb{font-size:0;padding:0 11px}#pubb svg{margin:0}#pubb #pubd{font-size:11px;margin-left:4px}.crumb span{display:none}.btn,.ib{min-height:40px}.bar{position:sticky;top:0;z-index:50}
 #mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(62px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--s1);border-top:1px solid var(--ln);align-items:center;justify-content:space-around;user-select:none}#mnav button{background:none;border:0;color:var(--mu);font:600 11px var(--bd);display:flex;flex-direction:column;align-items:center;gap:3px;min-width:58px;min-height:50px}#mnav button.on{color:var(--ink)}#mnav .fab{width:58px;height:58px;min-width:58px;border-radius:50%;background:#2fbf71;color:#08130d;margin-top:-26px;box-shadow:0 4px 14px rgba(0,0,0,.45);justify-content:center}main{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 #ctxt{display:flex;justify-content:space-between;margin:8px 12px 0;width:calc(100% - 24px)}.ctx.cl>.fgrp{display:none!important}.gk{grid-template-columns:1fr 1fr}}html.lt{filter:invert(1) hue-rotate(180deg)}
@@ -224,6 +224,44 @@ body.so .side nav button,body.so .sbt{justify-content:flex-start;padding:0 10px}
 .seg.mm{flex-wrap:wrap}.seg.mm button{white-space:nowrap}
 #abcblk>.modebar{padding:10px 14px;background:var(--s1);border:1px solid var(--ln);border-radius:var(--rad)}#abcblk>.note{margin:0 0 14px}
 @media(max-width:760px){.mrow{flex-direction:column;align-items:stretch}.mgrp{justify-content:space-between}.seg.mm{width:100%}.seg.mm button{flex:1;padding:0 8px}.plbar .zm{width:100%;justify-content:space-between}}
+#qs>*{width:100%;max-width:760px;margin-left:auto;margin-right:auto}
+.qc{background:var(--s1);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-top:12px}
+.qhero{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--s2);border:1px solid var(--ln2);border-left:8px solid var(--c)}
+@supports(background:color-mix(in srgb,red 10%,blue)){.qhero{background:color-mix(in srgb,var(--c) 15%,var(--s1));border-color:color-mix(in srgb,var(--c) 55%,transparent)}}
+.qic{flex:none;width:46px;height:46px;border-radius:50%;background:var(--c);color:#0b1015;display:grid;place-items:center;font-size:26px;font-weight:700;line-height:1}
+.qhero b{display:block;font:600 26px/1.1 var(--hd);letter-spacing:.02em;color:var(--c)}
+.qhero span{display:block;font-size:14px;margin-top:3px}.qhero small{display:block;font-size:12px;color:var(--mu);margin-top:2px}
+.qtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:14px 0 2px}.qtop>div{min-width:0}
+.qtop h4{font:600 26px/1.15 var(--hd);margin:0;word-break:break-all}.qdesc{margin:2px 0 0;color:var(--mu);font-size:14px}
+.qloc{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px;margin:12px 0}
+.qloc div{background:var(--s2);border:1px solid var(--ln);border-radius:10px;padding:8px 12px}.qloc .w{grid-column:1/-1}
+.qloc span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.qloc b{font:600 24px/1.15 var(--hd);word-break:break-all}.qloc .w b{font-size:22px;letter-spacing:.04em}
+.qabc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.qab{display:flex;gap:12px;align-items:center;background:var(--s2);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;min-width:0}
+.qab i{flex:none;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font:700 26px var(--hd);font-style:normal}
+.qab span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.qab b{display:block;font-size:16px}.qab small{display:block;font-size:12px;color:var(--mu);margin-top:1px}
+.qnote{font-size:12px;color:var(--mu);margin:6px 0 0}.qnote b{color:var(--ink)}
+.qtags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.qt{display:flex;flex-direction:column;gap:1px;padding:6px 12px 6px 10px;border-radius:10px;background:var(--s2);border:1px solid var(--ln);border-left:4px solid var(--c);min-width:0}
+.qt small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.qt b{font-size:13.5px}
+.qg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
+.qg div{background:var(--s2);border-radius:8px;padding:8px 10px;min-width:0}.qg .w{grid-column:span 2}.qg b{display:block;font-size:15px;word-break:break-word}.qg span{font-size:11.5px;color:var(--mu)}
+.qsec{margin-top:16px;border-top:1px solid var(--ln);padding-top:12px}.qsec h5{margin:0 0 8px;font:600 12px var(--bd);letter-spacing:.08em;text-transform:uppercase;color:var(--mu2)}
+.qnum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.qnum div{background:var(--s2);border-radius:8px;padding:8px 10px}.qnum b{display:block;font:600 20px var(--hd)}.qnum span{font-size:11.5px;color:var(--mu)}
+.qbar{height:10px;border-radius:5px;background:var(--s3);overflow:hidden;margin:12px 0 0}.qbar i{display:block;height:100%;background:var(--c);border-radius:5px}
+.qdl{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.qdl li{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;background:var(--s2);border-radius:8px;border:1px solid var(--ln);font-size:13px}
+.qdl li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mu)}.qdl li em{font-style:normal;font-weight:600}.qdl li u{text-decoration:none;font-size:11px;font-weight:600;color:var(--r)}.qdl li u.nx{color:var(--g)}
+.qdl li.late{border-color:rgba(229,72,77,.6)}.qdl li.nx{border-color:rgba(47,191,113,.6)}
+.qwarn{margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(242,194,48,.12);border:1px solid rgba(242,194,48,.5)}.qwarn b{display:block}.qwarn span{font-size:13px}
+.qlk{cursor:pointer;color:var(--ink)}.qlk:hover{border-color:var(--ink)}
+.qnx{display:flex;justify-content:flex-end;margin-top:10px}
+.qcc{padding:0}.qcc>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center;padding:12px 14px;border-left:6px solid var(--c);border-radius:14px}
+.qcc>summary::-webkit-details-marker{display:none}.qcc[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.qdot{display:none}.qsm{flex:1;min-width:0}.qsm b{display:block;font-size:16px;word-break:break-all}.qsm small{color:var(--mu);font-size:12px}
+.qmini{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.qmi{font-style:normal;font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;white-space:nowrap}
+.qchev{text-decoration:none;color:var(--mu);transition:transform .15s}.qcc[open] .qchev{transform:rotate(90deg)}.qbody{padding:0 14px 14px}
+@media(max-width:560px){.qabc{grid-template-columns:1fr}.qnum{grid-template-columns:1fr 1fr 1fr}.qnum b{font-size:17px}.qcc>summary{flex-wrap:wrap}.qmini{order:5;width:100%;justify-content:flex-start}.qg .w{grid-column:1/-1}}
 </style></head><body>
 <div class="app">
 <aside class="side" id="side"><div class="brand"><span class="mk"><i class="g"></i><i class="y"></i><i class="r"></i><i class="e"></i></span><div><b>Espelho SMA</b><span>Porta-pallet R01–R04</span></div></div>
@@ -862,19 +900,57 @@ function vwApply(i){const v=VW()[i];if(!v)return;S.pf=v.pf;S.pt=v.pt;S.pa=v.pa;P
 /* consulta por QR / código de barras / digitação */
 const qe=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));let QS=null,QT=0;
 const qad=l=>`${l.rua} · col ${l.col} · nível ${l.niv}`,qLines=()=>[...M.pos.values()].flat();
-function qdm(item){const d=M.dem.get(item),st=qLines().filter(l=>l.item==item).reduce((t,l)=>t+l.q,0);if(!d)return '<div class="qd no"><b>Sem demanda</b><span>Nenhuma entrega cadastrada para este item.</span></div>';
- const late=d.rows.filter(r=>r.d<today).reduce((t,r)=>t+r.q,0),ok=st>=d.tot;
- return `<div class="qd ${ok?'ok':'wn'}"><b>Demanda: ${nf(d.tot)} pç</b><span>Estoque total do item ${nf(st)} pç · ${ok?'cobre toda a demanda':'faltam '+nf(d.tot-st)+' pç'}${late?' · '+nf(late)+' pç atrasadas':''}</span><ul>${d.rows.slice(0,4).map(r=>`<li class="${r.d<today?'bad':''}">${fd(r.d)} · ${qe(r.cli)} · <b>${nf(r.q)}</b> pç${r.d<today?' · atrasada':''}</li>`).join('')}</ul>${d.rows.length>4?'<small class="mut">+ '+(d.rows.length-4)+' entregas</small>':''}</div>`}
-function qCard(l,full){const k=`${l.rua}|${l.col}|${l.niv}`,id=ageD(l),oth=full?qLines().filter(x=>x.item==l.item&&x.etq!=l.etq):[];
- return `<div class="qc"><h4>${qe(l.item)}</h4><span class="qa">Etiqueta ${qe(l.etq)}</span><span class="qa">${qad(l)}</span>${l.id?'<span class="qa">ID '+qe(l.id)+'</span>':''} <button class="btn sm" data-qk="${k}">Ver no espelho</button><div class="qg"><div><b>${nf(l.q)} pç</b><span>Quantidade</span></div><div><b>${kg(l.peso)}</b><span>Peso</span></div><div><b>${qe(l.cli)||'—'}</b><span>Cliente</span></div><div><b>${qe(l.lote)||'—'}</b><span>Lote</span></div><div><b>${l.val?cb(l.val):'—'}</b><span>Valor</span></div><div><b>${id==null?'—':id+' dias'}</b><span>Idade da etiqueta</span></div></div>${qdm(l.item)}${oth.length?'<p class="qo">Mesmo item em outras posições: '+oth.slice(0,6).map(x=>qad(x)+' ('+nf(x.q)+' pç)').join(' · ')+(oth.length>6?' · +'+(oth.length-6):'')+'</p>':''}</div>`}
+const qPct=x=>(x*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%',qAbcC=c=>ABCC[ABCK.indexOf(c)]||ABCC[3],qAbcT=c=>c=='B'?'#0b1015':'#fff',qL=c=>!c||c=='N'?'—':c;
+const qAgeB=d=>d==null?['Sem data legível','#59667a']:[d>360?'Mais de 360 dias':d>180?'181 a 360 dias':d>90?'91 a 180 dias':d>60?'61 a 90 dias':d>30?'31 a 60 dias':'Até 30 dias (recente)',ageC(d)];
+function qState(l){const s=M.stock.get(l.item)||{q:l.q,n:1,pos:new Set()},d=M.dem.get(l.item),rs=demRows(l.item),dem=rs.reduce((t,r)=>t+r.q,0),q=s.q,cat=!l.hp?'A':q<dem?'D':q==dem?'B':'C';let k,c,t,sub;
+ if(l.hp){if(q>=dem){k='ok';c=COL.g;t='COM DEMANDA';sub=q==dem?'O estoque do item atende a demanda justa':'O estoque cobre a demanda, com excesso de '+nf(q-dem)+' pç'}else{k='wn';c=CAT.D[1];t='COM DEMANDA';sub='Estoque insuficiente · faltam '+nf(dem-q)+' pç para atender'}}
+ else if(d){k='no';c=COL.r;t='SEM DEMANDA NO PERÍODO';sub='Existe demanda fora do período filtrado (total '+nf(d.tot)+' pç)'}
+ else{k='no';c=COL.r;t='SEM DEMANDA';sub='Nenhuma entrega cadastrada na GESTAO para este item'}
+ return{s,d,rs,dem,q,cat,k,c,t,sub}}
+function qAbcBox(kind,l){const v=kind=='v',c=v?l.cv:l.cq,m=v?ABC.v:ABC.d,it=l.item,o=m.get(it);let sub;
+ if(o){let r=0;for(const k of m.keys()){r++;if(k===it)break}sub=`#${nf(r)} de ${nf(m.size)} itens · ${qPct(o.pct)} ${v?'do valor':'da demanda'} · acum. ${qPct(o.cum)}`}
+ else sub=v?((M.stock.get(it)||{}).pr==null?'Item sem preço no CE0404':'Sem valor em estoque'):'Sem demanda no período';
+ return`<div class="qab"><i style="background:${qAbcC(c)};color:${qAbcT(c)}">${qL(c)}</i><div><span>${v?'ABC por valor':'ABC por demanda'}</span><b>${!c||c=='N'?'Fora da curva':'Curva '+c}</b><small>${sub}</small></div></div>`}
+function qBody(l){const k=`${l.rua}|${l.col}|${l.niv}`,Z=qState(l),s=Z.s,id=ageD(l),ag=qAgeB(id),pw=(M.pos.get(k)||[]).reduce((t,x)=>t+x.peso,0),
+ pwT=pw<=0?['Sem peso cadastrado','#59667a']:[pw>=KH()?'Peso muito alto':pw>=KL()?'Peso adequado':'Pouco peso · posição mal ocupada',kgC(pw)],pk=l.em?planK(l):null,
+ oth=qLines().filter(x=>x.item==l.item&&x.etq!=l.etq),ext=!VERT.includes(l.rua),q=Z.q,dem=Z.dem,rs=Z.rs,ic={ok:'✔',wn:'!',no:'✖'}[Z.k],desc=PP[l.item]&&PP[l.item][0];
+ const tags=[['Situação do item',CAT[Z.cat][0],CAT[Z.cat][1]],['Idade da etiqueta',id==null?ag[0]:ag[0]+' · '+nf(id)+' d',ag[1]],['Peso da posição',pwT[0]+(pw>0?' · '+kg(pw):''),pwT[1]]];
+ if(l.em)tags.push(['Plano de embalagem',PLN[pk],PLC[pk]]);if(l.vr)tags.push(['Versão a avaliar','Sim · ver aviso abaixo','#f2c230']);if(tipo(l.item)!='Item normal')tags.push(['Tipo do código',tipo(l.item),'#4aa3ff']);if(ext)tags.push(['Local','Rua externa · fora do espelho','#6b7788']);
+ const cells=[['Quantidade',nf(l.q)+' pç'],['Peso da etiqueta',l.np?'peso n/d':kg(l.peso)],['Valor da etiqueta',l.val!=null?brl(l.val):'—'],['Preço unitário',l.pr!=null?brl(l.pr):'—'],['Peso unitário',PP[l.item]&&PP[l.item][1]?kg(PP[l.item][1]):'—'],['Lote',l.lote||'—'],['Cliente',l.cli||'—','w'],
+  ['Embalagem',l.em?`${l.em[0]} · ${nf(l.ne)} emb. de ${nf(l.em[1])} pç${l.mult?'':' (parcial)'}`:'Não cadastrada','w']];
+ let cov='';if(rs.length){let cum=0,okd=null,fail=null;for(const r of rs){cum+=r.q;if(cum<=q)okd=r.d;else{fail=r.d;break}}
+  cov=`<p class="qnote"><b>${fail?(okd?'Estoque cobre as entregas até '+fd(okd):'Não cobre nem a 1ª entrega'):'Cobre todas as entregas até '+fd(rs[rs.length-1].d)}</b>${fail?' · ruptura em '+fd(fail):''}</p>`}
+ const dl=rs.length?`<ul class="qdl">${rs.slice(0,5).map((r,i)=>`<li class="${r.d<today?'late':i==0?'nx':''}"><b>${fd(r.d)}</b><span>${qe(r.cli)}</span><em>${nf(r.q)} pç</em>${r.d<today?'<u>atrasada</u>':i==0?'<u class="nx">próxima</u>':''}</li>`).join('')}</ul>${rs.length>5?`<p class="qnote">+ ${rs.length-5} entregas no período</p>`:''}`:'';
+ const out=!l.hp&&Z.d?`<p class="qnote">Demanda fora do período: <b>${nf(Z.d.tot)} pç</b> · 1ª entrega ${fd(Z.d.rows[0].d)} · ${qe([...Z.d.cli].join(' / '))}</p>`:'';
+ return`<div class="qhero ${Z.k}" style="--c:${Z.c}"><div class="qic">${ic}</div><div><b>${Z.t}</b><span>${Z.sub}</span><small>Período considerado: ${qe(ptxt())}</small></div></div>
+<div class="qtop"><div><h4>${qe(l.item)}</h4>${desc?`<p class="qdesc">${qe(desc)}</p>`:''}</div><button class="btn" data-qk="${k}">Ver no espelho</button></div>
+<div class="qloc"><div class="w"><span>Etiqueta WMS</span><b>${qe(l.etq)}</b></div><div><span>Rua</span><b>${qe(l.rua)}</b></div><div><span>Coluna</span><b>${qe(l.col)}</b></div><div><span>Nível</span><b>${qe(l.niv)}</b></div>${l.id?`<div><span>ID endereço</span><b>${qe(l.id)}</b></div>`:''}</div>
+<div class="qabc">${qAbcBox('v',l)}${qAbcBox('d',l)}</div><p class="qnote">Curva A = itens que somam 80% do total · B = próximos 15% · C = últimos 5%.</p>
+<div class="qtags">${tags.map(([a,b,c])=>`<span class="qt" style="--c:${c}"><small>${a}</small><b>${qe(b)}</b></span>`).join('')}</div>
+<div class="qg">${cells.map(([a,b,w])=>`<div${w?' class="w"':''}><b>${qe(b)}</b><span>${a}</span></div>`).join('')}</div>
+<div class="qsec"><h5>Demanda e cobertura do item</h5><div class="qnum"><div><b>${nf(q)} pç</b><span>Estoque do item · ${nf(s.n||1)} etiq. · ${nf(s.pos?s.pos.size:1)} pos.</span></div><div><b>${nf(dem)} pç</b><span>Demanda no período</span></div><div class="${q-dem<0?'bad':''}"><b>${q-dem>0?'+':''}${nf(q-dem)} pç</b><span>Saldo</span></div></div>
+${dem?`<div class="qbar" style="--c:${Z.c}"><i style="width:${Math.min(100,q/dem*100).toFixed(0)}%"></i></div><p class="qnote">O estoque cobre <b>${Math.round(q/dem*100)}%</b> da demanda do período.</p>`:''}${cov}${dl}${out}</div>
+${l.vr?`<div class="qwarn"><b>Versão a avaliar</b><span>Este código tem saldo sem demanda e há demanda em ${l.vr.map(qe).join(', ')}. Avalie reaproveitar antes de produzir.</span></div>`:''}
+${oth.length?`<div class="qsec"><h5>Mesmo item em outras posições (${oth.length})</h5><div>${oth.slice(0,8).map(x=>`<button class="qa qlk" data-qk="${x.rua}|${x.col}|${x.niv}">${qad(x)} · ${nf(x.q)} pç</button>`).join('')}${oth.length>8?`<span class="mut"> + ${oth.length-8}</span>`:''}</div></div>`:''}`}
+function qCard(l,full,open){if(full)return`<div class="qc">${qBody(l)}</div>`;const Z=qState(l),m=(c,t)=>`<em class="qmi" title="${t}" style="background:${qAbcC(c)};color:${qAbcT(c)}">${t[4].toUpperCase()} ${qL(c)}</em>`;
+ return`<details class="qc qcc" style="--c:${Z.c}"${open?' open':''}><summary><i class="qdot"></i><div class="qsm"><b>${qe(l.item)}</b><small>${qe(l.etq)} · ${nf(l.q)} pç</small></div><span class="pill" style="background:${Z.c}">${Z.t}</span><span class="qmini">${m(l.cv,'ABC valor')}${m(l.cq,'ABC demanda')}</span><u class="qchev">▸</u></summary><div class="qbody">${qBody(l)}</div></details>`}
+const qShow=h=>{const o=$('#qr');o.innerHTML='<div class="qnx"><button class="btn" data-qnext>⟳ Nova leitura</button></div>'+h;try{o.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}};
 function qGo(){const t=$('#qi').value.trim(),o=$('#qr'),m=$('#qm');o.innerHTML='';if(!t){m.textContent='Digite ou escaneie um código.';return}
  const U=t.toUpperCase(),dg=t.replace(/\D/g,''),l=qLines().find(x=>{const e=String(x.etq).toUpperCase();return U.includes(e)||(dg.length>=8&&e.includes(dg))});
- if(l){m.textContent='Etiqueta encontrada.';o.innerHTML=qCard(l,true);return}
+ if(l){m.textContent='Etiqueta encontrada.';qShow(qCard(l,true));return}
  const hid=qLines().find(x=>x.id&&String(x.id).toUpperCase()==U)||qLines().find(x=>x.id&&String(x.id).length>=4&&U.includes(String(x.id).toUpperCase())),a=hid?[0,String(hid.rua).replace(/\D/g,''),String(hid.col),String(hid.niv)]:/R\s*(\d{1,2})\D+(\d{1,2})\D+(\d{1,2})/.exec(U);
  if(a){const R='R'+a[1].padStart(2,'0'),ks=[+a[2],a[2].padStart(2,'0')].flatMap(c=>[+a[3],a[3].padStart(2,'0')].map(n=>`${R}|${c}|${n}`)),k=ks.find(x=>M.pos.has(x)&&M.pos.get(x).length);
-  if(k){const A=M.pos.get(k);m.textContent=hid?'Endereço encontrado pelo ID '+t+'.':'Endereço encontrado.';o.innerHTML=`<div class="qc"><h4>${R} · col ${k.split('|')[1]} · nível ${k.split('|')[2]}</h4>${A[0].id?'<span class="qa">ID '+qe(A[0].id)+'</span>':''}<div class="qg"><div><b>${A.length}</b><span>Etiquetas</span></div><div><b>${nf(A.reduce((s2,x)=>s2+x.q,0))} pç</b><span>Peças</span></div><div><b>${kg(A.reduce((s2,x)=>s2+x.peso,0))}</b><span>Peso</span></div><div><b>${new Set(A.map(x=>x.item)).size}</b><span>Itens</span></div></div><button class="btn sm" data-qk="${k}">Ver no espelho</button></div>`+A.map(x=>qCard(x,false)).join('');return}
+  if(k){const A=M.pos.get(k),ps=st(A),com=A.filter(x=>x.hp).length,cl={g:COL.g,r:COL.r,y:COL.y}[ps],tt={g:'COM DEMANDA',r:'SEM DEMANDA',y:'COM E SEM DEMANDA'}[ps],ic={g:'✔',r:'✖',y:'!'}[ps],
+   cnt=f=>['A','B','C','N'].map(c=>{const n=A.filter(x=>x[f]==c).length;return n?`<span class="qa" style="border-color:${qAbcC(c)}"><b style="color:${qAbcC(c)}">${c=='N'?'Fora':c}</b> × ${n}</span>`:''}).join(''),
+   srt=[...A].sort((x,y)=>(y.hp-x.hp)||((y.val||0)-(x.val||0)));
+   m.textContent=hid?'Endereço encontrado pelo ID '+t+'.':'Endereço encontrado.';
+   qShow(`<div class="qc"><div class="qhero" style="--c:${cl}"><div class="qic">${ic}</div><div><b>${tt}</b><span>${com} de ${A.length} etiqueta${A.length>1?'s':''} com demanda nesta posição</span><small>Período considerado: ${qe(ptxt())}</small></div></div>
+<div class="qtop"><div><h4>${R} · col ${k.split('|')[1]} · nível ${k.split('|')[2]}</h4>${A[0].id?`<p class="qdesc">ID do endereço ${qe(A[0].id)}</p>`:''}</div><button class="btn" data-qk="${k}">Ver no espelho</button></div>
+<div class="qg"><div><b>${A.length}</b><span>Etiquetas</span></div><div><b>${nf(A.reduce((s2,x)=>s2+x.q,0))} pç</b><span>Peças</span></div><div><b>${kg(A.reduce((s2,x)=>s2+x.peso,0))}</b><span>Peso</span></div><div><b>${new Set(A.map(x=>x.item)).size}</b><span>Itens</span></div></div>
+<div class="qsec"><h5>Curvas ABC das etiquetas</h5><p class="qnote" style="margin:0 0 6px">Por valor: ${cnt('cv')||'—'}</p><p class="qnote" style="margin:0">Por demanda: ${cnt('cq')||'—'}</p></div></div>`+srt.map(x=>qCard(x,false,A.length==1)).join(''));return}
   m.textContent='Endereço '+R+' · col '+(+a[2])+' · nível '+(+a[3])+' sem etiqueta (posição vazia ou fora do espelho).';return}
  m.textContent='Nada encontrado para “'+t+'”. Use a etiqueta WMS, o ID do endereço ou o formato R02-33-2.'}
+document.addEventListener('click',e=>{if(!e.target.closest('[data-qnext]'))return;$('#qr').innerHTML='';$('#qm').textContent='';$('#qi').value='';$('#qs').scrollTo({top:0,behavior:'smooth'});if(window.isSecureContext&&navigator.mediaDevices&&'BarcodeDetector' in window)qCam();else $('#qi').focus()});
 function qStop(){if(QS){QS.getTracks().forEach(x=>x.stop());QS=null}clearInterval(QT);$('#qv').hidden=true}
 async function qCam(){const m=$('#qm');qStop();if(!window.isSecureContext||!navigator.mediaDevices){m.textContent='A câmera só funciona quando o BI é aberto por endereço seguro (https ou localhost). Digite o código ou use “Foto”.';return}
  if(!('BarcodeDetector' in window)){m.textContent='Este navegador não lê códigos pela câmera (comum no iPhone). Digite o código manualmente.';return}

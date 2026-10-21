@@ -17,6 +17,7 @@ import {
   collection,
   getDocs,
   writeBatch,
+  onSnapshot,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
@@ -82,6 +83,7 @@ export async function saveEspelho(data) {
   }
 
   const versionId = `${Date.now()}_${user.uid.slice(0, 8)}`;
+  const dataTime = Number(data.__t) || Date.now();
   const versionRef = doc(db, ROOT, "versions", "items", versionId);
   const chunksRef = collection(versionRef, "chunks");
   const manifest = {};
@@ -90,6 +92,7 @@ export async function saveEspelho(data) {
   let writes = 0;
 
   for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
     const json = JSON.stringify(value);
     const chunks = splitText(json);
     manifest[key] = chunks.length;
@@ -119,17 +122,61 @@ export async function saveEspelho(data) {
     savedAt: serverTimestamp(),
     savedBy: user.uid,
     savedByEmail: user.email || null,
+    t: dataTime,
     formatVersion: 1
   });
 
   await setDoc(doc(db, ROOT, CURRENT_DOC), {
     versionId,
+    t: dataTime,
     savedAt: serverTimestamp(),
     savedBy: user.uid,
     savedByEmail: user.email || null
   });
 
+  pruneOldVersions(versionId); // limpeza em segundo plano; não bloqueia o salvamento
   return { versionId, savedBy: user.email || user.uid };
+}
+
+/** Apaga versões antigas (e seus pedaços) para não acumular dados no Firestore. */
+async function pruneOldVersions(keepId) {
+  try {
+    const versions = await getDocs(collection(db, ROOT, "versions", "items"));
+    for (const v of versions.docs) {
+      if (v.id === keepId) continue;
+      // preserva versões muito recentes (podem estar sendo gravadas por outro aparelho)
+      if (Number(v.id.split("_")[0]) > Date.now() - 120000) continue;
+      const chunks = await getDocs(collection(v.ref, "chunks"));
+      let batch = writeBatch(db), n = 0;
+      for (const c of chunks.docs) {
+        batch.delete(c.ref);
+        if (++n % 400 === 0) { await batch.commit(); batch = writeBatch(db); }
+      }
+      batch.delete(v.ref);
+      await batch.commit();
+    }
+  } catch (e) {
+    console.warn("Limpeza de versões antigas não concluída:", e);
+  }
+}
+
+/** Lê só o ponteiro da versão atual (leve): { t, versionId } ou null. */
+export async function getCurrentMeta() {
+  requireUser();
+  const snap = await getDoc(doc(db, ROOT, CURRENT_DOC));
+  if (!snap.exists()) return null;
+  const d = snap.data();
+  return { t: Number(d.t) || 1, versionId: d.versionId };
+}
+
+/** Avisa em tempo real quando outro aparelho publica uma versão nova. Retorna a função para cancelar. */
+export function onCurrentChange(callback, onError) {
+  requireUser();
+  return onSnapshot(doc(db, ROOT, CURRENT_DOC), snap => {
+    if (!snap.exists()) return callback(null);
+    const d = snap.data();
+    callback({ t: Number(d.t) || 1, versionId: d.versionId });
+  }, err => onError && onError(err));
 }
 
 /**
@@ -185,5 +232,7 @@ window.FirebaseDB = {
   currentUser,
   onLoginChange,
   saveEspelho,
-  loadEspelho
+  loadEspelho,
+  getCurrentMeta,
+  onCurrentChange
 };

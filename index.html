@@ -325,7 +325,8 @@ body.so .side nav button,body.so .sbt{justify-content:flex-start;padding:0 10px}
  <section class="tab" id="rel"><p class="note">Os arquivos saem com os dados atuais da tela. Escolha XLSX ou CSV (CSV separado por ponto e vírgula, abre direto no Excel).</p>
  <div class="cg">
   <div class="cd pub2" id="pubx"><h3 id="pubt">Versão compartilhada</h3><p class="note">Cada relatório importado é enviado sozinho para a nuvem e aparece em qualquer aparelho online. “Salvar versão” grava, além disso, uma cópia dentro do arquivo HTML, para quem abre a cópia offline da pasta compartilhada.</p>
-  <div class="rl"><div><b>Nuvem (Firebase)</b><small id="cloudt" class="mut" style="display:block;font-size:12px;margin-top:2px"></small></div><button class="btn sm" id="cloudb" type="button" hidden>Sincronizar agora</button></div>
+  <div class="rl"><div><b>Nuvem (Firebase)</b><small id="cloudt" class="mut" style="display:block;font-size:12px;margin-top:2px"></small></div><div class="pa" style="display:flex;gap:6px"><button class="btn sm" id="cloudb" type="button" hidden>Sincronizar agora</button><button class="btn sm ghost" id="cloudout" type="button" hidden>Sair</button></div></div>
+  <form id="cloudf" hidden style="display:none;gap:6px;flex-wrap:wrap;padding:8px 0"><input type="email" id="cloudem" placeholder="E-mail" autocomplete="username" aria-label="E-mail" style="flex:1 1 180px;min-width:0;background:var(--s2);border:1px solid var(--ln2);border-radius:6px;padding:7px 9px;font:inherit;color:inherit"><input type="password" id="cloudpw" placeholder="Senha" autocomplete="current-password" aria-label="Senha" style="flex:1 1 140px;min-width:0;background:var(--s2);border:1px solid var(--ln2);border-radius:6px;padding:7px 9px;font:inherit;color:inherit"><button class="btn sm" type="submit">Entrar</button></form>
   <div class="rl"><div><b>Arquivo HTML</b><small id="pubs" class="mut" style="display:block;font-size:12px;margin-top:2px"></small></div><button class="btn" id="pubb" type="button" title="Grava os dados atuais dentro do arquivo, para todos que abrirem verem a mesma versão"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h8l2 2v9H3z"/><path d="M5.5 2.5v3.5h4V2.5"/><path d="M5.5 13.5v-4h5v4"/></svg>Salvar versão<span class="pill y" id="pubd">!</span></button></div>
   <small class="mut" style="display:block;font-size:11.5px;margin-top:8px">No Chrome/Edge o arquivo é regravado direto na pasta; em outros navegadores será baixada uma cópia para você substituir.</small></div>
   <div class="cd"><h3>Estoque por posição</h3><p class="note">Uma linha por etiqueta WMS: posição, item, cliente, quantidade, peso, embalagem, valor e datas de entrega.</p>
@@ -448,11 +449,12 @@ let _cp=0;const CS=window.CS={st:'off',t:0,known:0,msg:''};
 const snapOf=()=>({e:raw.e,g:raw.g,p:raw.p,c:raw.c,m:raw.m,v:raw.v,src:raw.src,ts:raw.ts||{},views:raw.views||[],hist:raw.hist||[],__t:raw.__t||(raw.__t=Date.now())});
 function queueCloud(){clearTimeout(_cp);_cp=setTimeout(()=>window.CLOUD&&window.CLOUD.push(),1500)}
 async function applyCloud(j){raw={...raw,...j.raw,src:{...raw.src,...j.raw.src}};raw.__t=j.t;dirty=j.t>(SNAP?SNAP.t:0);S.cl=null;PK.c2.sel=null;PK.cob.sel=null;PK.map.sel=null;PK.emb.sel=null;await save(true);paint();vwUI();const f=RN[$('.tab.on').id];f&&f();pubUI()}
-function cloudUI(){const t=$('#cloudt'),b=$('#cloudb');if(!t)return;const s=CS.st,pm=/permission/i.test(CS.msg||'');
- const M={off:'Ainda não iniciada.',conn:'Conectando…',nocfg:'Firebase não configurado: preencha o bloco FIREBASE_CONFIG no começo do script de sincronização deste arquivo.',sync:'Enviando/recebendo dados…',
-  ok:CS.t?'Sincronizado · versão de '+fmT(CS.t)+'. Qualquer aparelho online vê estes mesmos dados.':'Conectado · a nuvem ainda está vazia.',
-  err:pm?'Sem permissão no Firestore. Ajuste as regras do banco (veja as instruções).':'Sem conexão com a nuvem'+(CS.msg?' ('+CS.msg+')':'')+'. Os dados ficam neste aparelho e são enviados quando conectar.'};
- t.textContent=M[s]||'';b.hidden=!(s=='ok'||s=='err');stampUI()}
+function cloudUI(){const t=$('#cloudt'),b=$('#cloudb');if(!t)return;const s=CS.st,pm=/permission/i.test(CS.msg||''),f=$('#cloudf');
+ const M={off:'Ainda não iniciada.',conn:'Conectando…',nocfg:'Nuvem indisponível: o firebase-db.js não carregou (sem internet ou arquivo aberto direto da pasta). Os dados seguem só neste aparelho e no arquivo.',sync:'Enviando/recebendo dados…',
+  login:CS.msg||'Entre com seu e-mail e senha do Firebase para sincronizar este aparelho com a nuvem.',
+  ok:(CS.user?CS.user+' · ':'')+(CS.t?'sincronizado, versão de '+fmT(CS.t)+'. Qualquer aparelho logado vê estes mesmos dados.':'conectado; a nuvem ainda está vazia.'),
+  err:pm?'Sem permissão no Firestore. Confira as regras e se este usuário existe no Authentication.':'Sem conexão com a nuvem'+(CS.msg?' ('+CS.msg+')':'')+'. Os dados ficam neste aparelho e são enviados quando conectar.'};
+ t.textContent=M[s]||'';b.hidden=!(s=='ok'||s=='err');f.style.display=s=='login'?'flex':'none';$('#cloudout').hidden=!(CS.user&&s!='login');stampUI()}
 window.ESP={cs:CS,ui:cloudUI,snap:snapOf,t:()=>raw.__t||0,setT:v=>{raw.__t=v},apply:applyCloud,
  hasData:()=>Object.values(raw.src||{}).some(s=>s&&s!='vazio'&&s!='exemplo'),
  unsynced:()=>dirty&&(raw.__t||0)>CS.known,
@@ -1006,7 +1008,7 @@ function qOpen(cam){$('#qs').hidden=false;$('#qr').innerHTML='';$('#qm').textCon
 const RN={ger:()=>{renderGer();renderHist()},mapa:()=>{renderMap();renderExt()},ext:renderExt,ind:renderInd,cob:renderCob,ver:renderVer,emb:renderEmb,val:renderVal};
 window.all=s=>{if(s){compute();slots();(RN[$('.tab.on').id]||(()=>0))()}else paint()};
 paint();setTimeout(fit,60);
-$('#pubb').onclick=publish;$('#cloudb').onclick=()=>window.CLOUD&&window.CLOUD.sync(true);pubUI();cloudUI();
+$('#pubb').onclick=publish;$('#cloudb').onclick=()=>window.CLOUD&&window.CLOUD.sync(true);$('#cloudout').onclick=()=>window.CLOUD&&window.CLOUD.logout();$('#cloudf').onsubmit=ev=>{ev.preventDefault();window.CLOUD&&window.CLOUD.login($('#cloudem').value.trim(),$('#cloudpw').value)};pubUI();cloudUI();
 idb('get').then(r=>{const ok=r&&r.e&&r.g&&r.p;
  if(ok&&(!SNAP||(r.__t||0)>SNAP.t)){raw={...raw,...r,src:{...raw.src,...r.src}};dirty=true;pubUI();paint()}
  else if(SNAP){raw.__t=SNAP.t;idb('set',raw).catch(()=>{})}}).catch(()=>{}).then(()=>pullRemote(true)).catch(()=>{}).then(()=>{window.__cloudGo=true;window.CLOUD&&window.CLOUD.start()});
@@ -1022,72 +1024,40 @@ addEventListener('resize',sync);sync()})();
  <!-- Importação da configuração do Firebase -->
 <script type="module" src="./firebase-db.js"></script>
 <script type="module">
-/* ===================== Sincronização com a nuvem (Firebase / Firestore) =====================
+/* ===================== Sincronização com a nuvem (usa o firebase-db.js) =====================
    Os relatórios importados são enviados sozinhos para o Firestore e todos os aparelhos online
-   passam a ver a mesma versão. O "Salvar versão" (arquivo HTML) continua funcionando em paralelo.
-
-   Configuração: se o seu firebase-db.js já exporta a configuração do Firebase, ela é aproveitada
-   automaticamente. Se não, preencha FIREBASE_CONFIG abaixo (Console do Firebase > Configurações
-   do projeto > Seus apps > Configuração do SDK). */
-const FIREBASE_CONFIG={apiKey:'',authDomain:'',projectId:'',storageBucket:'',messagingSenderId:'',appId:''};
-
-const SDK='https://www.gstatic.com/firebasejs/10.12.2/',COL='espelho_sma',CHK='espelho_sma_chunks',DOC='atual';
+   (logados) passam a ver a mesma versão. O "Salvar versão" (arquivo HTML) continua em paralelo. */
 const E=window.ESP,sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let F,db,started=false,pushing=false,again=false,lastPush=0,chain=Promise.resolve();
+const API=()=>window.FirebaseDB;
+let started=false,authed=false,pushing=false,again=false,lastPush=0,chain=Promise.resolve(),unsub=null;
 const st=(s,m)=>{E.cs.st=s;E.cs.msg=m||'';E.ui()};
-
-/* --- compactação (gzip + base64) e divisão em pedaços < 1 MB --- */
-const b64=u=>{let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
-const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-const gz=async s=>new Uint8Array(await new Response(new Blob([s]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
-const gunz=async u=>await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
-async function pack(obj){const s=JSON.stringify(obj);let str=s,z=0;
- if(typeof CompressionStream=='function'){try{str=b64(await gz(s));z=1}catch(e){str=s;z=0}}
- const N=z?700000:300000,out=[];for(let i=0;i<str.length;i+=N)out.push(str.slice(i,i+N));return{chunks:out.length?out:[''],z}}
-async function fetchPayload(m){
- for(let k=0;k<3;k++){
-  try{const ds=await Promise.all(Array.from({length:m.n},(_,i)=>F.getDoc(F.doc(db,CHK,m.t+'_'+i))));
-   if(ds.every(d=>d.exists())){const str=ds.map(d=>d.data().d).join('');return JSON.parse(m.z?await gunz(unb64(str)):str)}}
-  catch(e){console.error(e)}
-  await sleep(1500)}
- return null}
-
-/* --- configuração --- */
-async function findConfig(){
- if(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId)return FIREBASE_CONFIG;
- const w=window.firebaseConfig||window.FIREBASE_CONFIG;if(w&&w.apiKey&&w.projectId)return w;
- try{const m=await import('./firebase-db.js');
-  for(const v of Object.values(m)){
-   if(v&&v.apiKey&&v.projectId)return v;
-   if(v&&v.options&&v.options.apiKey)return v.options;
-   if(v&&v.app&&v.app.options&&v.app.options.apiKey)return v.app.options;
-   if(v&&v.firebaseConfig&&v.firebaseConfig.apiKey)return v.firebaseConfig}}catch(e){}
- return null}
+const errMsg=e=>{const c=(e&&e.code)||'';
+ if(/invalid-credential|wrong-password|user-not-found|invalid-email/.test(c))return'E-mail ou senha incorretos.';
+ if(/operation-not-allowed/.test(c))return'Ative o login por e-mail/senha no Firebase (Authentication).';
+ if(/network/.test(c))return'sem conexão';
+ if(/too-many/.test(c))return'muitas tentativas; aguarde um pouco.';
+ return c||(e&&e.message)||'erro'};
 
 /* --- enviar --- */
 async function push(above){
- if(!db)return;if(pushing){again=true;return}pushing=true;
+ if(!authed)return;if(pushing){again=true;return}pushing=true;
  try{do{again=false;
    const snap=E.snap();if(above&&snap.__t<=above){E.setT(above+1);snap.__t=above+1}above=0;
    const t=snap.__t;st('sync');
-   const{chunks,z}=await pack(snap);
-   await Promise.all(chunks.map((d,i)=>F.setDoc(F.doc(db,CHK,t+'_'+i),{t,i,d})));
-   await F.setDoc(F.doc(db,COL,DOC),{t,n:chunks.length,z,v:2});
-   lastPush=t;E.cs.t=t;E.cs.known=t;await E.saveKnown();cleanup(t);
+   await API().saveEspelho(snap);
+   lastPush=t;E.cs.t=t;E.cs.known=t;await E.saveKnown();
   }while(again);st('ok')}
- catch(e){console.error(e);st('err',e.code||e.message)}
+ catch(e){console.error(e);st('err',errMsg(e))}
  finally{pushing=false}}
-async function cleanup(t){
- try{const s=await F.getDocs(F.query(F.collection(db,CHK),F.where('t','<',t)));
-  let b=F.writeBatch(db),n=0;for(const d of s.docs){b.delete(d.ref);if(++n%400==0){await b.commit();b=F.writeBatch(db)}}
-  if(n%400)await b.commit()}catch(e){}}
 
 /* --- receber --- */
 async function pull(m){
- st('sync');const j=await fetchPayload(m);
- if(!j){st('err','não consegui ler os dados da nuvem');return}
- await E.apply({t:m.t,raw:j});E.cs.t=m.t;E.cs.known=m.t;await E.saveKnown();st('ok');
- E.toast('Dados atualizados pela nuvem · '+E.fmT(m.t))}
+ st('sync');let r=null;
+ for(let k=0;k<3&&!r;k++){try{r=await API().loadEspelho()}catch(e){console.error(e);await sleep(1500)}}
+ if(!r||!r.data){st('err','não consegui ler os dados da nuvem');return}
+ const t=Number(r.data.__t)||m.t;
+ await E.apply({t,raw:r.data});E.cs.t=t;E.cs.known=t;await E.saveKnown();st('ok');
+ E.toast('Dados atualizados pela nuvem · '+E.fmT(t))}
 
 /* --- decide quem vale: a versão mais nova ganha --- */
 async function reconcile(m){
@@ -1099,29 +1069,34 @@ async function reconcile(m){
    if(E.unsynced()&&!confirm('A nuvem tem uma versão mais nova ('+E.fmT(m.t)+'), mas este aparelho tem alterações que ainda não foram enviadas ('+E.fmT(lt)+').\n\nOK = usar a versão da nuvem (descarta as alterações daqui)\nCancelar = manter as daqui e substituir a nuvem')){await push(m.t);return}
    await pull(m);return}
   await push()
- }catch(e){console.error(e);st('err',e.code||e.message)}}
+ }catch(e){console.error(e);st('err',errMsg(e))}}
 
 async function start(){
  if(started)return;started=true;
- try{st('conn');
-  const cfg=await findConfig();if(!cfg){st('nocfg');return}
-  const[A,FS]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-firestore.js')]);F=FS;
-  const app=A.getApps().find(a=>a.name=='espelho-sync')||A.initializeApp(cfg,'espelho-sync');
-  try{const AU=await import(SDK+'firebase-auth.js'),au=AU.getAuth(app);if(!au.currentUser)await Promise.race([AU.signInAnonymously(au),sleep(4000)])}catch(e){}
-  try{db=F.initializeFirestore(app,{experimentalAutoDetectLongPolling:true})}catch(e){db=F.getFirestore(app)}
-  E.cs.known=await E.loadKnown();
-  F.onSnapshot(F.doc(db,COL,DOC),s=>{chain=chain.then(()=>reconcile(s.exists()?s.data():null)).catch(console.error)},e=>{console.error(e);st('err',e.code||e.message)})
- }catch(e){console.error(e);started=false;st('err',e.code||e.message)}}
+ if(!API()){st('nocfg');return}
+ st('conn');E.cs.known=await E.loadKnown();
+ API().onLoginChange(u=>{
+  E.cs.user=u?(u.email||u.uid):'';
+  if(unsub){try{unsub()}catch(e){}unsub=null}
+  if(!u){authed=false;st('login');return}
+  authed=true;st('conn');
+  unsub=API().onCurrentChange(m=>{chain=chain.then(()=>reconcile(m)).catch(console.error)},e=>{console.error(e);st('err',errMsg(e))})})}
 
 async function sync(){
- if(!db){started=false;return start()}
- try{st('sync');const s=await F.getDocFromServer(F.doc(db,COL,DOC));
-  chain=chain.then(()=>reconcile(s.exists()?s.data():null)).then(()=>E.cs.st=='ok'&&E.toast('Sincronizado com a nuvem')).catch(console.error)}
- catch(e){console.error(e);st('err',e.code||e.message)}}
+ if(!authed)return;
+ try{st('sync');const m=await API().getCurrentMeta();
+  chain=chain.then(()=>reconcile(m)).then(()=>E.cs.st=='ok'&&E.toast('Sincronizado com a nuvem')).catch(console.error)}
+ catch(e){console.error(e);st('err',errMsg(e))}}
 
-window.CLOUD={start,sync,push:()=>{if(db)push()}};
-addEventListener('online',()=>{if(started)sync()});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&started&&E.cs.st=='err')sync()});
+async function login(email,pw){
+ if(!API())return;
+ if(!email||!pw){st('login','Informe e-mail e senha.');return}
+ try{st('conn');await API().login(email,pw)}catch(e){console.error(e);st('login',errMsg(e))}}
+async function logout(){try{await API().logout()}catch(e){console.error(e)}}
+
+window.CLOUD={start,sync,login,logout,push:()=>{if(authed)push()}};
+addEventListener('online',()=>{if(authed)sync()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authed&&E.cs.st=='err')sync()});
 if(window.__cloudGo)start();
 
 </script>

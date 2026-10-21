@@ -29,9 +29,27 @@ const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true })
 
 const ROOT = "espelhoSMA";
 const CURRENT_DOC = "current";
-const CHUNK_SIZE = 150_000; // margem segura abaixo do limite de 1 MiB/documento
+const CHUNK_RAW = 150_000;   // sem compressão: margem segura abaixo de 1 MiB/documento
+const CHUNK_GZ = 400_000;    // com compressão (texto base64, só ASCII)
+const MAX_BATCH_BYTES = 3_000_000; // o Firestore aceita no máx. 10 MiB por gravação em lote
 
-function splitText(text, size = CHUNK_SIZE) {
+// --- compressão gzip (nos navegadores atuais; senão grava sem comprimir) ---
+const canGzip = () => typeof CompressionStream === "function" && typeof DecompressionStream === "function";
+async function gzipToB64(text) {
+  const buf = await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+  const u8 = new Uint8Array(buf);
+  let s = "";
+  for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+async function gunzipFromB64(b64) {
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+}
+
+function splitText(text, size = CHUNK_RAW) {
   const parts = [];
   for (let i = 0; i < text.length; i += size) parts.push(text.slice(i, i + size));
   return parts.length ? parts : [""];
@@ -52,25 +70,31 @@ export async function saveEspelho(data) {
   const chunksRef = collection(versionRef, "chunks");
   const manifest = {};
 
+  const z = canGzip();
   let batch = writeBatch(db);
   let writes = 0;
+  let bytes = 0;
 
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined) continue;
     const json = JSON.stringify(value);
-    const chunks = splitText(json);
+    const payload = z ? await gzipToB64(json) : json;
+    const chunks = splitText(payload, z ? CHUNK_GZ : CHUNK_RAW);
     manifest[key] = chunks.length;
 
     for (let index = 0; index < chunks.length; index++) {
-      const chunkId = `${encodeURIComponent(key)}_${String(index).padStart(5, "0")}`;
-      batch.set(doc(chunksRef, chunkId), { key, index, payload: chunks[index] });
-      writes++;
-
-      if (writes >= 400) {
+      const size = chunks[index].length + 200;
+      // fecha o lote antes de passar do limite de bytes ou de gravações
+      if (writes && (writes >= 400 || bytes + size > MAX_BATCH_BYTES)) {
         await batch.commit();
         batch = writeBatch(db);
         writes = 0;
+        bytes = 0;
       }
+      const chunkId = `${encodeURIComponent(key)}_${String(index).padStart(5, "0")}`;
+      batch.set(doc(chunksRef, chunkId), { key, index, payload: chunks[index] });
+      writes++;
+      bytes += size;
     }
   }
 
@@ -81,7 +105,8 @@ export async function saveEspelho(data) {
     manifest,
     savedAt: serverTimestamp(),
     t: dataTime,
-    formatVersion: 1
+    z: z ? 1 : 0,
+    formatVersion: 2
   });
 
   await setDoc(doc(db, ROOT, CURRENT_DOC), {
@@ -130,7 +155,7 @@ export async function loadEspelho() {
     throw new Error("A versão atual foi referenciada, mas não foi encontrada.");
   }
 
-  const { manifest } = versionSnap.data();
+  const { manifest, z } = versionSnap.data();
   const chunkSnap = await getDocs(collection(versionRef, "chunks"));
   const byKey = new Map();
 
@@ -146,7 +171,8 @@ export async function loadEspelho() {
     if (parts.length < count || parts.slice(0, count).some(part => typeof part !== "string")) {
       throw new Error(`Dados incompletos no Firebase para "${key}".`);
     }
-    result[key] = JSON.parse(parts.slice(0, count).join(""));
+    const joined = parts.slice(0, count).join("");
+    result[key] = JSON.parse(z ? await gunzipFromB64(joined) : joined);
   }
 
   return { data: result, versionId };

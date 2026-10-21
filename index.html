@@ -1034,6 +1034,8 @@ const st=(s,m)=>{E.cs.st=s;E.cs.msg=m||'';E.ui()};
 const errMsg=e=>{const c=(e&&e.code)||'';
  if(/permission/.test(c))return'permission-denied';
  if(/unavailable|network/.test(c))return'sem conexão';
+ if(/resource-exhausted|quota/.test(c))return'limite diário do plano gratuito do Firestore atingido; tente amanhã';
+ if(/invalid-argument/.test(c))return'dados grandes demais para o Firestore ('+((e&&e.message)||c)+')';
  return c||(e&&e.message)||'erro'};
 
 async function push(above){

@@ -17,11 +17,11 @@ button{font:inherit;color:inherit;cursor:pointer}b,th{font-weight:600}
 .g{--c:var(--g)}.r{--c:var(--r)}.y{--c:var(--y)}.e{--c:var(--e)}.o{--c:#455366}
 /* shell */
 .app{display:flex;min-height:100vh}
-.side{position:sticky;top:env(safe-area-inset-top,0px);align-self:flex-start;height:100vh;width:236px;flex:none;background:var(--s1);border-right:1px solid var(--ln);display:flex;flex-direction:column;padding:18px 10px;overflow:auto;z-index:40}
+.side{position:sticky;top:env(safe-area-inset-top,0px);align-self:flex-start;height:100vh;width:236px;flex:none;background:var(--s1);border-right:1px solid var(--ln);display:flex;flex-direction:column;padding:18px 10px;overflow:auto;z-index:100;isolation:isolate;pointer-events:auto}
 .brand{display:flex;align-items:center;gap:12px;padding:0 8px 18px}.mk{display:grid;grid-template-columns:repeat(2,17px);gap:3px;flex:none;cursor:pointer}.mk i{height:17px;background:var(--c);border-radius:3px;transition:transform .3s cubic-bezier(.3,1.4,.5,1)}.brand:hover .mk i{transform:rotate(90deg) scale(.88)}.mk:active i{transform:rotate(180deg) scale(.75)}.mk i:nth-child(2){transition-delay:.04s}.mk i:nth-child(3){transition-delay:.08s}.mk i:nth-child(4){transition-delay:.12s}
 .brand div b{display:block;font-size:15px;line-height:1.2}.brand div span{display:block;font-size:12px;color:var(--mu)}
 .ng{font:600 11px var(--bd);letter-spacing:.08em;text-transform:uppercase;color:var(--mu2);padding:16px 10px 6px}
-.side nav button{display:flex;align-items:center;gap:11px;width:100%;height:38px;padding:0 10px;border:0;background:none;color:var(--mu);border-radius:var(--rad);position:relative;text-align:left;white-space:nowrap;transition:background .15s,color .15s}
+.side nav{position:relative;z-index:1;pointer-events:auto}.side nav button{pointer-events:auto;display:flex;align-items:center;gap:11px;width:100%;height:38px;padding:0 10px;border:0;background:none;color:var(--mu);border-radius:var(--rad);position:relative;text-align:left;white-space:nowrap;transition:background .15s,color .15s}
 .side nav button:hover{background:var(--s2);color:var(--ink)}.side nav button.on{background:var(--s3);color:var(--ink);font-weight:600}
 .side nav button.on:before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--ink)}
 .ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -788,7 +788,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('#src,#srcb'))$('#src
  const ex2=e.target.closest('[data-embx]');if(ex2){S.embSel=decodeURIComponent(ex2.dataset.embx);const f=ex2.dataset.f;dl(embLabelRows(S.embSel),'etiquetas_da_embalagem',f);S.embSel=null;return}
  const evb=e.target.closest('[data-ev]');if(evb){S.ev=evb.dataset.ev;S.evw='emb';return renderEmb()}
  const vw=e.target.closest('#evw button');if(vw){S.evw=vw.dataset.vw;return renderEmb()}
- const t=e.target.closest('#nav button');if(t){$$('#nav button,.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$('#'+t.dataset.t).classList.add('on');closeD();$('#vt').textContent=t.querySelector('.nl').textContent;$('#ctx').hidden=false;$('#mapkw').style.display=['mapa'].includes(t.dataset.t)?'flex':'none';document.body.classList.remove('nav-open');scrollTo(0,0);all(1);if(t.dataset.t=='mapa'&&!S.z)fit();return}
+ const t=e.target.closest('#nav button');if(t){$$('#nav button,.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$('#'+t.dataset.t).classList.add('on');closeD();$('#gs').hidden=true;$('#qs').hidden=true;qStop();$('#vt').textContent=t.querySelector('.nl').textContent;$('#ctx').hidden=false;$('#mapkw').style.display=['mapa'].includes(t.dataset.t)?'flex':'none';document.body.classList.remove('nav-open');scrollTo(0,0);all(1);if(t.dataset.t=='mapa'&&!S.z)fit();return}
  const m=e.target.closest('#mseg button');if(m){S.m=m.dataset.m;$$('#mseg button').forEach(x=>x.classList.toggle('on',x==m));return renderInd()}
  const vb=e.target.closest('#vseg button');if(vb){S.vv=vb.dataset.v;return renderVer()}
  const v=e.target.closest('#cseg button');if(v){S.v=v.dataset.v;return tbl()}
@@ -802,6 +802,32 @@ $$('.pfi,.pti').forEach(i=>i.onchange=e=>{if(e.target.classList.contains('pfi'))
 function all(soft){compute();slots();if(!soft||!cnt)renderMap();else if(!$('#rack').children.length)renderMap();renderExt();const on=$('.tab.on').id;if(!soft||on=='ind')renderInd();if(!soft||on=='cob')renderCob()}
 function paint(){compute();slots();renderMap();renderExt();renderInd();renderCob();renderVer();renderEmb();renderVal()}
 function all2(){paint()}
+
+/* Navegação resiliente: processa o menu antes dos manipuladores delegados da página.
+   Evita que filtros/elementos internos interrompam a troca de abas. */
+$('#nav').addEventListener('click',e=>{
+ const t=e.target.closest('#nav button[data-t]');
+ if(!t)return;
+ e.preventDefault();
+ e.stopPropagation();
+ e.stopImmediatePropagation();
+ $$('#nav button,.tab').forEach(x=>x.classList.remove('on'));
+ t.classList.add('on');
+ const pane=$('#'+t.dataset.t);
+ if(pane)pane.classList.add('on');
+ closeD();
+ $('#gs').hidden=true;
+ $('#qs').hidden=true;
+ if(typeof qStop==='function')qStop();
+ $('#vt').textContent=t.querySelector('.nl')?.textContent||t.title||'';
+ $('#ctx').hidden=false;
+ $('#mapkw').style.display=t.dataset.t==='mapa'?'flex':'none';
+ document.body.classList.remove('nav-open');
+ window.scrollTo(0,0);
+ all(1);
+ if(t.dataset.t==='mapa'&&!S.z)fit();
+},true);
+
 const capR=R=>['L','R'].reduce((t,sd)=>{const ex=EX[sd][R];let n=0;for(let i=0;i<24;i++){const c=sd=='L'?24-i:25+i;if(!(ex&&c>=ex[0]&&c<=ex[1]))n++}return t+n*6},0);
 function renderGer(){const E=[...M.pos.entries()],L=E.flatMap(([k,a])=>a),oc=R=>E.filter(([k,a])=>a.length&&k.split('|')[0]==R).length,vo=VERT.reduce((t,R)=>t+oc(R),0),cp=VERT.reduce((t,R)=>t+capR(R),0),
  pc=L.reduce((t,l)=>t+l.q,0),pw=L.reduce((t,l)=>t+l.peso,0),vv=L.reduce((t,l)=>t+(l.val||0),0),sd=L.filter(l=>!l.has).reduce((t,l)=>t+l.q,0),ag=L.map(ageD).filter(x=>x!=null),am=ag.length?Math.round(ag.reduce((a,b)=>a+b,0)/ag.length):null,hasV=!['vazio','exemplo'].includes(raw.src.v||'vazio');

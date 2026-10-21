@@ -886,7 +886,7 @@ try{const v=localStorage.getItem(K);if(v=='c')b.classList.add('sc');if(v=='o')b.
 t.addEventListener('click',()=>{const c=col();b.classList.toggle('sc',!c);b.classList.toggle('so',c);try{localStorage.setItem(K,c?'o':'c')}catch(e){}sync();setTimeout(()=>dispatchEvent(new Event('resize')),260)});
 addEventListener('resize',sync);sync()})();
 </script>
-</body>
-<!-- Importação da configuração do Firebase -->
+ <!-- Importação da configuração do Firebase -->
 <script type="module" src="./firebase-db.js"></script>
+</body>
 </html>

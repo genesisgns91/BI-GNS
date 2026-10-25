@@ -1,5 +1,5 @@
 // Service Worker do Espelho SMA — permite instalar o app e abrir offline.
-const VERSION = 'v5';
+const VERSION = 'v7';
 const SHELL_CACHE = 'espelho-shell-' + VERSION;
 const RUNTIME_CACHE = 'espelho-runtime-' + VERSION;
 const SHELL = [
@@ -7,6 +7,9 @@ const SHELL = [
   './index.html',
   './manifest.json',
   './firebase-db.js',
+  './Menu.html',
+  './Espelho_SMC.html',
+  './BI_Embalagens.html',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
@@ -15,10 +18,19 @@ const SHELL = [
 // Bibliotecas/fontes de CDN: guardadas após o 1º uso para o app abrir offline.
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
 
+const CDN_PRE = [
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap'
+];
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
       .then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {}))))
+      .then(() => caches.open(RUNTIME_CACHE))
+      .then((rc) => Promise.all(CDN_PRE.map((u) => fetch(new Request(u, { mode: 'no-cors' })).then((res) => rc.put(u, res)).catch(() => {}))))
       .then(() => self.skipWaiting())
   );
 });
@@ -42,13 +54,15 @@ self.addEventListener('fetch', (event) => {
 
   // Páginas: rede primeiro (pega a versão publicada mais nova), cache se offline.
   if (req.mode === 'navigate') {
+    const isHome = /\/(index\.html)?$/.test(url.pathname);
+    const key = isHome ? './index.html' : req;
     event.respondWith(
       fetch(req)
         .then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(SHELL_CACHE).then((c) => c.put('./index.html', copy)); }
+          if (res.ok) { const copy = res.clone(); caches.open(SHELL_CACHE).then((c) => c.put(key, copy)); }
           return res;
         })
-        .catch(() => caches.match('./index.html').then((r) => r || caches.match('./')))
+        .catch(() => caches.match(key).then((r) => r || caches.match('./index.html') || caches.match('./')))
     );
     return;
   }

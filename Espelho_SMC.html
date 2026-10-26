@@ -767,6 +767,8 @@ input[type=checkbox]{color-scheme:dark}:root[data-theme=light] input[type=checkb
 @media(max-width:900px){.kp[style*="--cols"]{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){.kp[style*="--cols"]{grid-template-columns:repeat(2,minmax(0,1fr))}}
 #rel{display:flex;flex-direction:column;gap:14px}#rel>*{order:1}#rel>#diag{order:5;margin:0!important}#rel>#appcd{order:9;margin:0}
 #vert,#piso{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,500px),1fr));gap:16px;align-items:start}#vert>.card,#piso>.card{overflow-x:auto;min-width:0}
+/* Armazém vertical: uma rua por linha (lista), em vez de grade de colunas */
+#vert{grid-template-columns:minmax(0,1fr)!important}
 .zpc{min-width:46px;text-align:center;font-weight:600;font-size:13px}.mapctl .mgrp .btn.sm{min-width:34px}
 select.rt,.rt{padding:0 30px 0 10px!important;height:34px}
 .cdh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}#gseg button{padding:6px 12px}
@@ -913,7 +915,7 @@ document.addEventListener('keydown',e=>{if(e.key=='Escape')$('#fp').hidden=true}
 $('#fl').onchange=async e=>{const k=e.target.dataset.k,f=e.target.files[0];if(!f)return;msg('Lendo '+SP[k].n+'… (arquivos grandes levam alguns segundos)');await new Promise(r=>setTimeout(r,40));try{const rw=await rd(f);D[k]=SP[k].f(rw);if(!D[k].length)throw new Error('nenhuma linha válida: confira se é o relatório certo e a ordem das colunas');DROP[k]=Math.max(0,rw.length-1-D[k].length);FNM[k]=f.name;put(k,D[k]);if(DROP[k]>0)toast(SP[k].n+': '+DROP[k]+' linha(s) ignorada(s) por falta de item, data ou quantidade válida')}catch(x){msg('Erro em '+SP[k].n+': '+x.message);return}chips();go()};
 /* ---- estado ---- */
 const USO={E:'Exclusivo (1 item pai)',M:'Compartilhado (vários itens pai)'},F={np:new Set(),p1:'',p2:'',cl:null,pa:'',co:'',ex:false,after:false},S={m:'i',cs:'t',ct:'0',pm:'pc',cat:null,v:'com',sort:['sobra',-1],item:null,lm:'cob',sel:{},cur:{},cn:[]},PK={q:'',open:false};
-let G,NEED,CODE,POS,CLI,PES,PRC,UMS,DESC,ANC,FA=false,ready=false,PSEL=null,SW=false,RT=new Map(),OVR={},ABV=false,MAPT={g:0,y:0,r:0,b:0,o:0},OCC=0;
+let G,NEED,CODE,POS,CLI,PES,PRC,UMS,DESC,ANC,FA=false,ready=false,PSEL=null,SW=true,RT=new Map(),OVR={},ABV=false,MAPT={g:0,y:0,r:0,b:0,o:0},OCC=0;
 const CAT={A:['Sem demanda','#e0484a'],B:['Atende justo','#7bd9a3'],C:['Com excesso','#e9b824'],D:['Insuficiente','#f59e3a'],E:['Zerado com demanda','#b77cf0'],F:['Só como alternativa','#3a8fd8']},CK=['A','B','C','D','E','F'];
 const COL={g:'#2fbf71',r:'#e5484d',y:'#f2c230',b:'#4a90d9'},tcol=c=>['#e0484a','#3a8fd8','#b77cf0','#8e979d','#64748a'].includes(c)?'#fff':'#111',SIT=['Com demanda','Sem demanda','Mista (com e sem)'];
 /* ---- modelo ---- */

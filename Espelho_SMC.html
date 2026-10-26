@@ -751,8 +751,8 @@ input[type=checkbox]{color-scheme:dark}:root[data-theme=light] input[type=checkb
 @media(max-width:760px){.gt{grid-template-columns:1fr}.gax{display:none}.gleg{font-size:11px}}
 @media(min-width:1000px){.cst{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
-:root{--ve:#6a747e;--vd:rgba(255,255,255,.5)}
-:root[data-theme=light]{--ve:#cfd1d1;--vd:rgba(0,0,0,.32)}
+:root{--ve:#6a747e;--vd:rgba(255,255,255,.5);--hN:#a06bf0;--ov:#3b4fa0}
+:root[data-theme=light]{--ve:#cfd1d1;--vd:rgba(0,0,0,.32);--hN:#8a52d8;--ov:#5b6fc0}
 .c.b,.cp.b,.pchip.b{--c:var(--ve);opacity:1;background:linear-gradient(to bottom,var(--vd) 0 2px,transparent 2px 4px) 50% 0/1.5px 4px repeat-y,var(--ve)}
 .lg.b{--c:var(--ve)}.lg.b i{background:linear-gradient(to bottom,var(--vd) 0 2px,transparent 2px 4px) 50% 0/1.5px 4px repeat-y,var(--ve)}
 .thm{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 12px;font-size:12px;color:var(--mu)}.thm .thl:first-child{font:600 11px var(--bd);letter-spacing:.1em;text-transform:uppercase}.thb{flex:0 1 280px;height:10px;border-radius:99px;min-width:140px;display:block}.thd{flex-basis:100%;font-size:11.5px}
@@ -789,6 +789,12 @@ details.ac,details.al{display:block!important}#alist .ac>summary,.al>summary{dis
 @media(max-width:600px){.dlt,.dlt tbody{display:block;width:100%;min-width:0!important}.dlt tbody tr{width:100%;box-sizing:border-box}.dlt td{font-weight:600;color:var(--ink);font-size:13px}.dlt td::before{font-weight:400!important;color:var(--mu)}.dlt .tg{white-space:nowrap}.dlt td:nth-child(8){grid-column:1/-1}}
 @media(max-width:600px){.dlt td::before{white-space:nowrap}.dlt td.n{text-align:left!important;width:auto!important}.dlt tbody tr{grid-template-columns:1fr 1fr 1fr}}
 a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:background .2s}a.brand:hover{background:var(--s2)}a.brand:focus-visible{outline:2px solid var(--ac);outline-offset:2px}a.brand .mk{transition:transform .25s}a.brand:hover .mk{transform:scale(1.08)}a.brand:hover div span{font-size:0}a.brand:hover div span::after{content:'← Central de BI';font-size:12px;color:var(--ac)}a.brand:active{transform:scale(.98)}
+
+/* vazias: tracejado diagonal */
+.c.b,.cp.b,.pchip.b,.lg.b i{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cline x1='0' y1='10' x2='10' y2='0' stroke='white' stroke-opacity='.6' stroke-width='1.2' stroke-dasharray='2 2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center/100% 100% no-repeat,var(--ve)}
+:root[data-theme=light] .c.b,:root[data-theme=light] .cp.b,:root[data-theme=light] .pchip.b,:root[data-theme=light] .lg.b i{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cline x1='0' y1='10' x2='10' y2='0' stroke='black' stroke-opacity='.45' stroke-width='1.2' stroke-dasharray='2 2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center/100% 100% no-repeat,var(--ve)}
+/* fora do filtro: índigo, sem cinza */
+.o,.lg.o{--c:var(--ov)}.c.o,.cp.o,.pchip.o{opacity:.55}.cp.o,.cp.hN{color:#fff}
 </style></head><body>
 <div class="app"><aside class="side" id="side"><a class="brand" href="Menu.html" title="Voltar ao menu (Central de BI)" aria-label="Voltar ao menu da Central de BI"><span class="mk"><svg class="" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d"/></svg></span><div><b>Espelho SMC</b><span>Componentes</span></div></a>
 <button type="button" class="sbt" id="sideTg" aria-controls="nav" aria-expanded="true" aria-label="Recolher menu" title="Recolher menu"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="nl">Recolher menu</span></button>
@@ -1032,7 +1038,7 @@ function map(){const T={g:0,y:0,r:0,b:0,o:0,h1:0,h2:0,h3:0,h4:0,h5:0,h6:0,hN:0};
  MAPT=T;$('#lgd').innerHTML=modeBar()+'<div class="leg">'+legSet().filter(([s])=>s!='o'||FA).map(([s,t])=>`<button class="lg ${s}${HID.has(s)?' ex':''}" data-s="${s}"><i></i><div><b>${T[s]}</b><span>${t}</span></div></button>`).join('')+`</div><div class="mrow"><label class="klim"><input type="checkbox" id="abv" ${ABV?'checked':''}> A/B empilhados (B sobre A)</label><label class="klim"><input type="checkbox" id="sw" ${SW?'checked':''}> inverter eixos (Coluna × Andar)</label></div>`}
 $('#mapa').onclick=e=>{const md=e.target.closest('[data-md]');if(md){MODE=md.dataset.md;HID.clear();map();return}
  const rs=e.target.closest('[data-rs]');if(rs){RSEL=rs.dataset.rs;$$('#mapa [data-rs]').forEach(x=>x.classList.toggle('on',x.dataset.rs==RSEL));applyRua();fitMap();return}
- const zb=e.target.closest('[data-z]');if(zb){const k=zb.dataset.z,f=$('#vert .card[data-z],#piso .card[data-z]'),cur=MZ==null?(f?+f.dataset.z:1):MZ;MZ=k=='fit'?null:Math.min(1.6,Math.max(.3,Math.round((cur+(k=='+'?.1:-.1))*10)/10));fitMap();return}const s=e.target.closest('[data-s]');if(s){HID.has(s.dataset.s)?HID.delete(s.dataset.s):HID.add(s.dataset.s);map();return}if(e.target.id=='sw'){SW=e.target.checked;map();return}if(e.target.id=='abv'){ABV=e.target.checked;map();return}const k=e.target.closest('[data-k]');if(k)pos(k.dataset.k)};
+ const zb=e.target.closest('button[data-z]');if(zb){const k=zb.dataset.z,f=$('#vert .card[data-z],#piso .card[data-z]'),cur=MZ==null?(f?+f.dataset.z:1):MZ;MZ=k=='fit'?null:Math.min(1.6,Math.max(.3,Math.round((cur+(k=='+'?.1:-.1))*10)/10));fitMap();return}const s=e.target.closest('[data-s]');if(s){HID.has(s.dataset.s)?HID.delete(s.dataset.s):HID.add(s.dataset.s);map();return}if(e.target.id=='sw'){SW=e.target.checked;map();return}if(e.target.id=='abv'){ABV=e.target.checked;map();return}const k=e.target.closest('[data-k]');if(k)pos(k.dataset.k)};
 $('#mapa').onchange=e=>{const th=e.target.closest('[data-th]');if(th){TH[th.dataset.th]=Math.max(1,+th.value||1);map();return}const t=e.target.closest('[data-rt]');if(!t)return;if(t.value)OVR[t.dataset.rt]=t.value;else delete OVR[t.dataset.rt];put('ovr',OVR);classify();applyFilter();draw()};
 const vlr=(q,pr)=>pr?'R$ '+fn(q*pr,2):'—',stB=(d,x)=>`<span class="bd" style="--c:var(--${d&&x?'y':d?'g':'r'})">${d&&x?'MISTA':d?'COM DEMANDA':'SEM DEMANDA'}</span>`;
 function parH(o){const m=new Map();o.en.forEach(e=>{const key=e.r+(e.a?'|a':'');const x=m.get(key)||{r:e.r,a:e.a,m:0};x.m+=e.m;m.set(key,x)});
@@ -1251,7 +1257,7 @@ document.addEventListener('click',e=>{const T=e.target;
  const op=T.closest('[data-open]');if(op){item(op.dataset.open);return}
  const tr=T.closest('tr[data-i]');if(tr){S.item=tr.dataset.i;$$('#tb tr.cur').forEach(x=>x.classList.remove('cur'));tr.classList.add('cur');chartItem();return}
  const cvr=T.closest('.cv[data-c]');if(cvr){item(cvr.dataset.c);return}
- if(!T.closest('#dr')&&!T.closest('.c')&&!T.closest('.pchip')&&!T.closest('#nav'))dr.classList.remove('on')});
+ if(!T.closest('#dr')&&!T.closest('.c')&&!T.closest('.cp')&&!T.closest('.pchip')&&!T.closest('#nav'))dr.classList.remove('on')});
 document.addEventListener('input',e=>{const t=e.target;if(t.classList&&t.classList.contains('lq')){const b=t.closest('details.ls');b.dataset.q=t.value;b.dataset.lim=200;renderList(b.id.slice(4));return}if(t.id=='pkq'){PK.q=t.value;const q=PK.q.toLowerCase();$$('#pkw .ck2').forEach(l=>l.hidden=!l.textContent.toLowerCase().includes(q))}});
 document.addEventListener('keydown',e=>{if(e.key=='Escape'){dr.classList.remove('on');md.hidden=true;qClose()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.pk=='item'&&ready)pkAct(t)});

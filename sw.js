@@ -1,5 +1,5 @@
 // Service Worker do Espelho SMA — permite instalar o app e abrir offline.
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL_CACHE = 'espelho-shell-' + VERSION;
 const RUNTIME_CACHE = 'espelho-runtime-' + VERSION;
 const SHELL = [
@@ -22,7 +22,9 @@ const CDN_PRE = [
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap'
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap',
+  // Espelho SMC usa também o peso 700 da fonte condensada:
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap'
 ];
 
 self.addEventListener('install', (event) => {

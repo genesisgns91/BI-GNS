@@ -1,7 +1,9 @@
-// Service Worker do Espelho SMA — permite instalar o app e abrir offline.
-const VERSION = 'v8';
-const SHELL_CACHE = 'espelho-shell-' + VERSION;
-const RUNTIME_CACHE = 'espelho-runtime-' + VERSION;
+// Service Worker da Central de BI — Espelho SMA, Espelho SMC e BI Embalagens.
+// Permite instalar o app e abrir offline. Para publicar uma atualização, basta subir os arquivos novos
+// e aumentar VERSION: o navegador detecta o novo sw.js, refaz o cache e remove os antigos.
+const VERSION = 'v9';
+const SHELL_CACHE = 'bi-shell-' + VERSION;
+const RUNTIME_CACHE = 'bi-runtime-' + VERSION;
 const SHELL = [
   './',
   './index.html',
@@ -16,6 +18,7 @@ const SHELL = [
   './icons/apple-touch-icon.png'
 ];
 // Bibliotecas/fontes de CDN: guardadas após o 1º uso para o app abrir offline.
+// (O BI Embalagens é 100% autocontido e não usa CDN.)
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
 
 const CDN_PRE = [
@@ -45,6 +48,20 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Permite que uma página peça a ativação imediata de uma versão nova (navigator.serviceWorker.controller / registration.waiting).
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING' || (event.data && event.data.type === 'SKIP_WAITING')) self.skipWaiting();
+});
+
+// Resposta offline de uma página: a própria página em cache; senão o menu; senão o início.
+function offlinePage(key) {
+  return caches.match(key, { ignoreSearch: true })
+    .then((r) => r || caches.match('./Menu.html'))
+    .then((r) => r || caches.match('./index.html'))
+    .then((r) => r || caches.match('./'))
+    .then((r) => r || Response.error());
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -54,7 +71,7 @@ self.addEventListener('fetch', (event) => {
   if (/(^|\.)googleapis\.com$/.test(url.hostname) && !/^fonts\./.test(url.hostname)) return;
   if (url.hostname.endsWith('firebaseio.com') || url.hostname.endsWith('firebaseapp.com')) return;
 
-  // Páginas: rede primeiro (pega a versão publicada mais nova), cache se offline.
+  // Páginas (Menu, Espelhos, BI Embalagens): rede primeiro (pega a versão publicada mais nova), cache se offline.
   if (req.mode === 'navigate') {
     const isHome = /\/(index\.html)?$/.test(url.pathname);
     const key = isHome ? './index.html' : req;
@@ -64,7 +81,7 @@ self.addEventListener('fetch', (event) => {
           if (res.ok) { const copy = res.clone(); caches.open(SHELL_CACHE).then((c) => c.put(key, copy)); }
           return res;
         })
-        .catch(() => caches.match(key).then((r) => r || caches.match('./index.html') || caches.match('./')))
+        .catch(() => offlinePage(key))
     );
     return;
   }

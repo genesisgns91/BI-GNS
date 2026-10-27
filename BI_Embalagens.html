@@ -272,6 +272,9 @@ html.sp #splash{display:flex}html.sp{overflow:hidden}#splash.out{transform:trans
 @media(max-width:900px){.bar input[type=text]{min-width:0!important;flex:1 1 180px}.perbar .f{min-width:0;max-width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#splash.out{transform:none;opacity:0}.sp-stage:after{display:none}}
 @media(hover:none){.cc:hover{transform:none}}
+/* campos de texto dentro de label.f: nunca esticar na vertical (a regra mobile flex:1 1 180px valia em coluna) */
+.bar label.f>input[type=text],.bar label.f>input[type=search]{flex:0 0 auto;height:36px;width:100%}
+@media(pointer:coarse){.bar label.f>input[type=text],.bar label.f>input[type=search]{height:44px}}
 </style>
 </head>
 <body>
@@ -1052,7 +1055,7 @@ function compute(cli){
 const atrMode=()=>S.ui.atrMode==='sum'?'sum':'sep';
 /* demanda manual (opcional): só vale com "Editar demanda" ligado; o valor digitado é o que aparece na coluna Demanda */
 function fin(r){if(r.demBase!=null){r.demanda=r.demBase;if(S.ui.demEdit&&r.dm!=null)r.demanda=atrMode()==='sep'?r.dm:Math.max(0,r.dm-r.atraso)}r.total=(r.v||0)+(r.c||0);r.nec=r.atraso+r.demanda;r.demShow=atrMode()==='sum'?r.nec:r.demanda;r.falt=Math.max(0,r.nec-r.total);r.enviar=r.falt>0&&!r.bloq}
-const natCmp=(a,b)=>String(a).localeCompare(String(b),'pt-BR',{numeric:true});
+const NATCOL=new Intl.Collator('pt-BR',{numeric:true}),natCmp=(a,b)=>NATCOL.compare(String(a),String(b)); /* Collator único: localeCompare a cada comparação deixava as ordenações lentas no celular */
 const pk=(od,dem,q)=>({a:Math.max(0,Math.ceil(od/q-1e-9)),n:Math.max(0,Math.ceil(dem/q-1e-9))});
 /* compradas de um cliente: itens dos clientes equivalentes (coluna A) com status COMPRADA */
 function compradasClient(names,pl){const per=periodo(),seen=new Set(),g=new Map();
@@ -1137,8 +1140,11 @@ const imgDims=src=>new Promise(res=>{if(!src)return res(null);const i=new Image(
 const thumb=src=>src?`<img class="thumb" src="${src}" alt="">`:`<div class="thumb empty">sem foto</div>`;
 
 /* ============ navegação ============ */
+/* a troca de tela é imediata (menu, título e seção); o desenho pesado vem logo depois, sem travar o toque no menu */
 function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));S.ui.view=v;
-  if(v==='clientes')renderClientes();if(v==='inv')renderInv();if(v==='comp')renderComp();if(v==='item')renderItem();if(v==='rec')renderRec();if(v==='dados')renderDados();const T={clientes:'Clientes',inv:'Inventário',comp:'Compradas',rec:'Recebimentos',item:'Consultas',dados:'Dados'};const vt=$('#vt');if(vt)vt.textContent=T[v]||'';document.title=(T[v]||'')+' · BI Embalagens';document.body.classList.remove('nav-open')}
+  const T={clientes:'Clientes',inv:'Inventário',comp:'Compradas',rec:'Recebimentos',item:'Consultas',dados:'Dados'};const vt=$('#vt');if(vt)vt.textContent=T[v]||'';document.title=(T[v]||'')+' · BI Embalagens';document.body.classList.remove('nav-open');
+  const go=()=>{if(S.ui.view!==v)return;if(v==='clientes')renderClientes();if(v==='inv')renderInv();if(v==='comp')renderComp();if(v==='item')renderItem();if(v==='rec')renderRec();if(v==='dados')renderDados()};
+  clearTimeout(show._t);if(v==='inv'||v==='rec'||v==='comp'||v==='item')requestAnimationFrame(()=>{show._t=setTimeout(go,0)});else go()}
 $$('nav button').forEach(b=>b.onclick=()=>{S.ui.openCli=null;show(b.dataset.v)});
 $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('on'));
 function sideFoot(){const p=S.padrao,g=S.gestao;$('#sidefoot').innerHTML=`Padrão: ${p?fmt(p.rows.length)+' itens':'<b style="color:var(--red)">não importado</b>'}<br>Gestão: ${g?brDate(g.min)+' → '+brDate(g.max):'<b style="color:var(--red)">não importado</b>'}<br>CE0302: ${S.ce?brDate(S.ce.min)+' → '+brDate(S.ce.max):'<b style="color:var(--red)">não importado</b>'}`}
@@ -1746,7 +1752,7 @@ async function consultaXlsx(m){try{toast('Gerando Excel…');
     s.rows.forEach(row=>{s.head.forEach((_,j)=>{const v=row[j],c=ws.getCell(r,j+1);c.value=v===''?null:v;c.font={size:9,bold:j===0&&s.head.length>1,...(red.has(j)&&v>0?{bold:true,color:{argb:'FFB3262B'}}:{})};c.border={top:thin,bottom:thin,left:thin,right:thin};
       if(nums[j]){c.numFmt=(s.nf&&s.nf[s.head[j]])||'#,##0';c.alignment={vertical:'middle',horizontal:'right'}}else c.alignment={vertical:'middle',horizontal:'left',wrapText:true}});r++});
     if(s.foot&&s.rows.length){const f1=hr+1,f2=r-1;s.head.forEach((_,j)=>{const v=s.foot[j],c=ws.getCell(r,j+1);c.fill=fill('FFF1F4F9');c.border={top:thin,bottom:thin,left:thin,right:thin};c.font={bold:true,size:9};
-      if(typeof v==='number'){const L=colL(j+1);c.value={formula:`SUM(${L}${f1}:${L}${f2})`,result:v};c.numFmt=(s.nf&&s.nf[s.head[j]])||'#,##0';c.alignment={horizontal:'right'}}else c.value=v||null});r++}
+      if(typeof v==='number'){const L=colL(j+1);c.value=s.footFixed?v:{formula:`SUM(${L}${f1}:${L}${f2})`,result:v};c.numFmt=(s.nf&&s.nf[s.head[j]])||'#,##0';c.alignment={horizontal:'right'}}else c.value=v||null});r++}
     r++}
   if(m.flat){const w2=wb.addWorksheet('Dados',{views:[{state:'frozen',ySplit:1}]}),f=m.flat,fs={head:f.head,rows:f.rows};
     w2.columns=widths([fs],f.head.length).map(width=>({width}));w2.getRow(1).values=f.head;
@@ -1792,9 +1798,15 @@ async function zeroInv(c){
 const ceNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
 const ceNum=v=>{if(typeof v==='number')return isFinite(v)?v:0;let s=String(v??'').trim().replace(/[^\d,.\-]/g,'');if(!s)return 0;
   if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isNaN(n)?0:n};
+/* leitura rápida de CSV/TXT (sem aspas); outros formatos (xlsx etc.) seguem pelo leitor de planilhas */
+async function ceRows(file){const ext=((file.name||'').split('.').pop()||'').toLowerCase();
+  if(['csv','txt','tsv'].includes(ext)){const buf=new Uint8Array(await file.arrayBuffer());let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){t=new TextDecoder('windows-1252').decode(buf)}
+    t=t.replace(/^﻿/,'');
+    if(!t.includes('"')){const head=t.slice(0,4000),cnt=ch=>head.split(ch).length-1,fs=[';','\t',','].map(ch=>[ch,cnt(ch)]).sort((a,b)=>b[1]-a[1])[0][0];return t.split(/\r?\n/).map(l=>l.split(fs))}}
+  return readSheet(file)}
 /* linha do CE0302 guardada: [0 cód. item, 1 descrição, 2 data (aaaa-mm-dd), 3 espécie, 4 quantidade, 5 valor NF, 6 emitente, 7 nº NF, 8 série, 9 lançado por, 10 un] */
 async function importCe(file){
-  const rows=await readSheet(file);let hi=-1;
+  const rows=await ceRows(file);let hi=-1;
   for(let i=0;i<Math.min(rows.length,8);i++){const h=(rows[i]||[]).map(ceNorm);if(h.includes('cod item')||(h.includes('tipo')&&h.includes('quantidade'))){hi=i;break}}
   const H=hi>=0?(rows[hi]||[]).map(ceNorm):[],col=(names,fb)=>{for(const n of names){const j=H.indexOf(n);if(j>=0)return j}return fb};
   const start=hi>=0?hi+1:1,C={code:col(['cod item','codigo do item','cod. item','codigo'],1),desc:col(['desc item','descricao'],2),date:col(['data trans','data transacao','data'],-1),tipo:col(['tipo'],6),esp:col(['esp','especie'],7),un:col(['un'],8),
@@ -1808,7 +1820,7 @@ async function importCe(file){
   if(!out.length){toast('Nenhuma linha de ENTRADA encontrada. Esperado: B código · D data · G tipo (Entrada/Saída) · J quantidade.');return}
   const ds=out.map(x=>x[2]).sort();
   S.ce={rows:out,at:Date.now(),file:file.name,total,ent:out.length,sai,noDate,min:ds[0],max:ds[ds.length-1]};
-  await DB.set('ce0302',S.ce);invalidate();S.ui.recFrom=S.ce.min;S.ui.recTo=S.ce.max;saveUi();
+  await DB.set('ce0302',S.ce);invalidate();S.ui.recFrom=S.ce.min;S.ui.recTo=S.ce.max;S.ui.recPack='';recReset();saveUi();
   toast(`CE0302: ${fmt(out.length)} entradas importadas (${fmt(sai)} saídas ignoradas)${noDate?` · ${fmt(noDate)} sem data válida`:''}`)}
 /* vínculo item do relatório × embalagens cadastradas (por cliente), calculado uma vez por código */
 function ceIndex(){if(cache.ce)return cache.ce;const mv=[];
@@ -1818,22 +1830,32 @@ function ceIndex(){if(cache.ce)return cache.ce;const mv=[];
   return cache.ce={mv}}
 const REC_ESP=[['rec','NFE + NFT (recebimentos)'],['nfe','Somente NFE (nota de entrada)'],['nft','Somente NFT (transferência)'],['all','Todas as entradas (inclui NFS)']];
 const recEspOk=(e,f)=>f==='all'||(f==='rec'?(e==='NFE'||e==='NFT'):e===f.toUpperCase());
-function recData(){const u=S.ui,from=u.recFrom||'',to=u.recTo||'',esp=u.recEsp||'rec',cli=u.recCli||'',q=(u.recQ||'').trim().toLowerCase();
+const recDocKey=r=>r[7]+'|'+r[8]+'|'+r[6];
+let recMemo=null;
+/* o resultado só é recalculado quando muda filtro, período, busca, relatório ou cadastro (abrir/fechar linhas e "mostrar mais" não recalculam) */
+function recData(){const u=S.ui,ix=ceIndex(),k=[u.recFrom,u.recTo,u.recEsp,u.recCli,u.recQ,u.recPack,S.ce&&S.ce.at].join('|');
+  if(recMemo&&recMemo.k===k&&recMemo.ix===ix)return recMemo.d;const d=recDataRaw();recMemo={k,ix,d};return d}
+function recDataRaw(){const u=S.ui,from=u.recFrom||'',to=u.recTo||'',esp=u.recEsp||'rec',cli=u.recCli||'',q=(u.recQ||'').trim().toLowerCase();
   const list=[];let hid=0;
   for(const m of ceIndex().mv){const r=m.r,d=r[2];if((from&&d<from)||(to&&d>to))continue;
     const L=cli?m.L.filter(x=>x.c.id===cli):m.L;if(!L.length)continue;
     if(!recEspOk(r[3],esp)){hid++;continue}
     if(q&&!(r[0]+' '+r[1]+' '+r[7]+' '+r[6]+' '+r[9]+' '+L.map(x=>x.p.code+' '+(x.p.desc||'')+' '+x.c.nome).join(' ')).toLowerCase().includes(q))continue;
-    const p=L[0].p;list.push({r,d,qty:r[4],pack:p,key:normCode(p.code),clients:[...new Set(L.map(x=>x.c.nome))]})}
-  list.sort((a,b)=>b.d.localeCompare(a.d)||natCmp(a.pack.code,b.pack.code));
-  const groups=new Map();
+    const p=L[0].p,cl=[];L.forEach(x=>{if(!cl.some(c=>c.id===x.c.id))cl.push(x.c)});
+    list.push({r,d,qty:r[4],pack:p,key:normCode(p.code),cl,clients:cl.map(c=>c.nome)})}
+  list.sort((a,b)=>(a.d<b.d?1:a.d>b.d?-1:0)||natCmp(a.pack.code,b.pack.code));
+  const groups=new Map(),byCli=new Map();
   for(const x of list){let g=groups.get(x.key);if(!g){g={key:x.key,pack:x.pack,clients:new Set(),qty:0,docs:new Set(),rows:[],last:''};groups.set(x.key,g)}
-    g.rows.push(x);g.qty+=x.qty;g.docs.add(x.r[7]+'|'+x.r[8]+'|'+x.r[6]);x.clients.forEach(n=>g.clients.add(n));if(x.d>g.last)g.last=x.d}
-  const gl=[...groups.values()].sort((a,b)=>b.qty-a.qty||natCmp(a.pack.code,b.pack.code));
-  return{list,groups:gl,hid,docs:new Set(list.map(x=>x.r[7]+'|'+x.r[8]+'|'+x.r[6])).size,qty:list.reduce((s,x)=>s+x.qty,0)}}
+    const dk=recDocKey(x.r);g.rows.push(x);g.qty+=x.qty;g.docs.add(dk);x.clients.forEach(n=>g.clients.add(n));if(x.d>g.last)g.last=x.d;
+    for(const c of x.cl){let k=byCli.get(c.id);if(!k){k={id:c.id,nome:c.nome,qty:0,docs:new Set(),packs:new Set(),n:0,last:''};byCli.set(c.id,k)}k.qty+=x.qty;k.docs.add(dk);k.packs.add(x.key);k.n++;if(x.d>k.last)k.last=x.d}}
+  if(u.recPack&&!groups.has(u.recPack))u.recPack='';
+  const gl=[...groups.values()].sort((a,b)=>b.qty-a.qty||natCmp(a.pack.code,b.pack.code)),cls=[...byCli.values()].sort((a,b)=>b.qty-a.qty||natCmp(a.nome,b.nome));
+  return{list,shown:u.recPack?list.filter(x=>x.key===u.recPack):list,groups:gl,byCli:cls,hid,docs:new Set(list.map(x=>recDocKey(x.r))).size,qty:list.reduce((s,x)=>s+x.qty,0)}}
 const recMoney=v=>v?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
 const recEspTag=e=>e==='NFS'?'<span class="tag no" title="NFS = nota fiscal de saída lançada como entrada">NFS</span>':e==='NFE'?'<span class="tag ok" title="Nota fiscal de entrada">NFE</span>':e==='NFT'?'<span class="tag blue" title="Transferência">NFT</span>':`<span class="tag no">${esc(e||'–')}</span>`;
-let recOpen=new Set();
+const rthumb=src=>src?`<img class="thumb" loading="lazy" decoding="async" src="${src}" alt="">`:thumb(src);
+let recOpen=new Set(),recLimit=50,recGLimit=60;
+function recReset(){recLimit=50;recGLimit=60}
 const REC_PRE=[['','Personalizado'],['hoje','Hoje'],['7','Últimos 7 dias'],['15','Últimos 15 dias'],['30','Últimos 30 dias'],['mes','Mês atual'],['all','Todo o relatório']];
 function recPreRange(v){const t=todayYmd();if(v==='hoje')return[t,t];if(v==='mes')return[t.slice(0,8)+'01',t];if(v==='all')return S.ce?[S.ce.min,S.ce.max]:null;if(/^\d+$/.test(v))return[plusYmd(-(+v-1)),t];return null}
 function syncRecPre(){const u=S.ui;let m='';for(const [v] of REC_PRE){if(!v)continue;const r=recPreRange(v);if(r&&r[0]===u.recFrom&&r[1]===u.recTo){m=v;break}}$('#recPre').value=m}
@@ -1846,6 +1868,7 @@ function renderRec(){const u=S.ui;
   $('#recEsp').innerHTML=REC_ESP.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');$('#recEsp').value=u.recEsp||'rec';
   if(document.activeElement!==$('#recQ'))$('#recQ').value=u.recQ||'';
   $$('#recMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(u.recMode||'lanc')));syncRecPre();drawRec()}
+const recSumHead=(first,extra)=>`<thead><tr>${first}${extra}<th class="n">Qtd total</th><th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead>`;
 function drawRec(){const body=$('#recBody'),u=S.ui;
   if(!S.clientes.length){body.innerHTML='<div class="empty-s card">Cadastre ao menos um cliente com embalagens.</div>';return}
   if(!S.ce){body.innerHTML='<div class="note">Importe o relatório <b>CE0302</b> na aba Dados para consultar os recebimentos.</div>';return}
@@ -1856,40 +1879,57 @@ function drawRec(){const body=$('#recBody'),u=S.ui;
     `<div class="kpis">${kp('Embalagens recebidas',fmt(d.groups.length),cli?esc(cli.nome):'todos os clientes')}${kp('Quantidade recebida',fmt(d.qty),per)}${kp('Notas fiscais',fmt(d.docs),'documentos distintos')}${kp('Lançamentos',fmt(d.list.length),'linhas de entrada')}</div>`+
     (d.hid?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>${fmt(d.hid)} lançamento(s) de entrada com espécie fora do filtro estão ocultos (ex.: <b>NFS</b>, nota fiscal de saída lançada como entrada).</span><button class="btn sm" id="recAll">Mostrar todas as entradas</button></div>`:'');
   if(!d.list.length){body.innerHTML=h+`<div class="empty-s card">Nenhum recebimento de embalagem cadastrada no período ${per}${u.recQ?' para essa busca':''}. O relatório cobre ${brDate(S.ce.min)} a ${brDate(S.ce.max)}.</div>`;bindRec();return}
-  const showCli=!cli&&S.clientes.length>1;
-  if(mode==='lanc'){const LIM=1500,rows=d.list.slice(0,LIM);
-    h+=`<div class="tw" style="max-height:none"><table><thead><tr><th>Data</th>${showCli?'<th>Cliente</th>':''}<th>Embalagem</th><th>Descrição</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n" title="Informativo (coluna K do relatório), não é definitivo">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${rows.map(x=>{const r=x.r,same=normCode(r[0])===x.key;
-      return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td>${showCli?`<td>${esc(x.clients.join(' · '))}</td>`:''}<td><b>${esc(x.pack.code)}</b>${same?'':`<small style="display:block;color:var(--mut)">relatório: ${esc(r[0])}</small>`}</td><td>${esc(x.pack.desc||r[1]||'')}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div>
-    <small style="color:var(--mut);display:block;margin-top:8px">${d.list.length>LIM?`Mostrando os ${fmt(LIM)} lançamentos mais recentes de ${fmt(d.list.length)} (refine o período ou exporte para ver todos). `:''}*Valor NF é informativo (coluna K do CE0302) e não deve ser tomado como definitivo. Ordem: data de recebimento, da mais recente para a mais antiga.</small>`}
-  else{const nc=showCli?8:7;
-    h+=`<div class="tw" style="max-height:none"><table><thead><tr><th style="width:30px"></th><th>Imagem</th><th>Embalagem</th><th>Descrição</th>${showCli?'<th>Clientes</th>':''}<th class="n">Qtd recebida</th><th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead><tbody>${d.groups.map(g=>{const o=recOpen.has(g.key);
-      return`<tr><td><button class="chev" data-rk="${esc(g.key)}" aria-expanded="${o}">${ic('chev')}</button></td><td>${thumb(g.pack.img)}</td><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${showCli?`<td>${esc([...g.clients].join(' · '))}</td>`:''}<td class="n"><b>${fmt(g.qty)}</b></td><td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`+
-      (o?`<tr><td></td><td colspan="${nc+1}"><div class="tw" style="max-height:none;margin:4px 0 10px"><table><thead><tr><th>Data</th><th>Código no relatório</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${g.rows.map(x=>{const r=x.r;return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td><td>${esc(r[0])}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div></td></tr>`:'')}).join('')}</tbody></table></div>
-    <small style="color:var(--mut);display:block;margin-top:8px">Clique na seta para ver cada recebimento (data, quantidade, nota fiscal e emitente). *Valor NF é informativo (coluna K do CE0302).</small>`}
+  const multi=!cli&&S.clientes.length>1,tfoot=n=>`<tfoot><tr><td colspan="${n}"><b>Total</b></td><td class="n"><b>${fmt(d.qty)}</b></td><td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot>`;
+  if(mode==='lanc'){
+    if(multi&&d.byCli.length>1){
+      h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">Total por cliente <span style="font-weight:400;color:var(--mut)">· clique para filtrar</span></h3><div class="tw" style="max-height:none"><table>${recSumHead('<th>Cliente</th>','<th class="n">Embalagens</th>')}<tbody>${d.byCli.map(k=>`<tr data-cl="${esc(k.id)}" style="cursor:pointer"><td><b>${esc(k.nome)}</b></td><td class="n">${fmt(k.packs.size)}</td><td class="n"><b>${fmt(k.qty)}</b></td><td class="n">${fmt(k.docs.size)}</td><td class="n">${fmt(k.n)}</td><td>${brDate(k.last)}</td></tr>`).join('')}</tbody>${tfoot(2)}</table></div>${d.byCli.reduce((s,k)=>s+k.qty,0)!==d.qty?'<small style="color:var(--mut);display:block;margin-top:8px">Embalagem usada por mais de um cliente conta em cada um; o total geral não repete a quantidade.</small>':''}</div>`}
+    h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">Total recebido por embalagem${cli?' · '+esc(cli.nome):''} <span style="font-weight:400;color:var(--mut)">· clique numa linha para ver só os lançamentos dela</span></h3><div class="tw" style="max-height:360px"><table>${recSumHead('<th>Embalagem</th><th>Descrição</th>',multi?'<th>Clientes</th>':'')}<tbody>${d.groups.map(g=>`<tr data-pk="${esc(g.key)}" style="cursor:pointer${u.recPack===g.key?';background:color-mix(in srgb,var(--ac) 14%,transparent)':''}"><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}<td class="n"><b>${fmt(g.qty)}</b></td><td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`).join('')}</tbody>${tfoot(multi?3:2)}</table></div></div>`;
+    const pk=u.recPack&&d.groups.find(g=>g.key===u.recPack),rows=d.shown.slice(0,recLimit),left=d.shown.length-rows.length,showCli=multi;
+    h+=`<h3 id="recList" style="margin:0 0 8px">Lançamentos por data <span style="font-weight:400;color:var(--mut)">· ${fmt(d.shown.length)}</span></h3>`+
+      (pk?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>Mostrando só a embalagem <b>${esc(pk.pack.code)}</b> (${fmt(pk.qty)} recebidas).</span><button class="btn sm" id="recPackX">Mostrar todas</button></div>`:'')+
+      `<div class="tw" style="max-height:none"><table><thead><tr><th>Data</th>${showCli?'<th>Cliente</th>':''}<th>Embalagem</th><th>Descrição</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n" title="Informativo (coluna K do relatório), não é definitivo">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${rows.map(x=>{const r=x.r,same=normCode(r[0])===x.key;
+      return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td>${showCli?`<td>${esc(x.clients.join(' · '))}</td>`:''}<td><b>${esc(x.pack.code)}</b>${same?'':`<small style="display:block;color:var(--mut)">relatório: ${esc(r[0])}</small>`}</td><td>${esc(x.pack.desc||r[1]||'')}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div>`+
+      (left>0?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><button class="btn" id="recMore">Mostrar mais ${fmt(Math.min(50,left))}</button>${left>50?`<button class="btn" id="recMore2">Mostrar mais ${fmt(Math.min(500,left))}</button>`:''}<small style="color:var(--mut)">${fmt(rows.length)} de ${fmt(d.shown.length)} exibidos (a exportação traz todos)</small></div>`:'')+
+      `<small style="color:var(--mut);display:block;margin-top:8px">*Valor NF é informativo (coluna K do CE0302) e não deve ser tomado como definitivo. Ordem: data de recebimento, da mais recente para a mais antiga.</small>`}
+  else{const gs=d.groups.slice(0,recGLimit),left=d.groups.length-gs.length,nc=multi?8:7;
+    h+=`<div class="tw" style="max-height:none"><table><thead><tr><th style="width:30px"></th><th>Imagem</th><th>Embalagem</th><th>Descrição</th>${multi?'<th>Clientes</th>':''}<th class="n">Qtd recebida</th><th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead><tbody>${gs.map(g=>{const o=recOpen.has(g.key);
+      return`<tr><td><button class="chev" data-rk="${esc(g.key)}" aria-expanded="${o}">${ic('chev')}</button></td><td>${rthumb(g.pack.img)}</td><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}<td class="n"><b>${fmt(g.qty)}</b></td><td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`+
+      (o?`<tr><td></td><td colspan="${nc+1}"><div class="tw" style="max-height:none;margin:4px 0 10px"><table><thead><tr><th>Data</th><th>Código no relatório</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${g.rows.map(x=>{const r=x.r;return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td><td>${esc(r[0])}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div></td></tr>`:'')}).join('')}</tbody><tfoot><tr><td colspan="${multi?5:4}"><b>Total</b></td><td class="n"><b>${fmt(d.qty)}</b></td><td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot></table></div>`+
+      (left>0?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><button class="btn" id="recGMore">Mostrar mais ${fmt(Math.min(60,left))}</button><small style="color:var(--mut)">${fmt(gs.length)} de ${fmt(d.groups.length)} embalagens exibidas</small></div>`:'')+
+      `<small style="color:var(--mut);display:block;margin-top:8px">Clique na seta para ver cada recebimento (data, quantidade, nota fiscal e emitente). *Valor NF é informativo (coluna K do CE0302).</small>`}
   body.innerHTML=h;bindRec()}
-function bindRec(){const b=$('#recAll');if(b)b.onclick=()=>{S.ui.recEsp='all';saveUi();$('#recEsp').value='all';drawRec()};
-  $$('#recBody [data-rk]').forEach(x=>x.onclick=()=>{const k=x.dataset.rk;recOpen.has(k)?recOpen.delete(k):recOpen.add(k);drawRec()})}
-$('#recCli').onchange=e=>{S.ui.recCli=e.target.value;saveUi();drawRec()};
-$('#recFrom').onchange=e=>{S.ui.recFrom=e.target.value;saveUi();syncRecPre();drawRec()};
-$('#recTo').onchange=e=>{S.ui.recTo=e.target.value;saveUi();syncRecPre();drawRec()};
-$('#recPre').onchange=e=>{const r=recPreRange(e.target.value);if(!r)return;S.ui.recFrom=r[0];S.ui.recTo=r[1];saveUi();$('#recFrom').value=r[0];$('#recTo').value=r[1];drawRec()};
-$('#recEsp').onchange=e=>{S.ui.recEsp=e.target.value;saveUi();drawRec()};
-$('#recQ').oninput=debounce(e=>{S.ui.recQ=e.target.value;saveUi();drawRec()},180);
-$('#recClr').onclick=()=>{S.ui.recQ='';saveUi();$('#recQ').value='';drawRec();$('#recQ').focus()};
-$('#recMode').onclick=e=>{const b=e.target.closest('button[data-m]');if(!b)return;S.ui.recMode=b.dataset.m;saveUi();$$('#recMode button').forEach(x=>x.classList.toggle('on',x===b));drawRec()};
+function bindRec(){const g=id=>document.getElementById(id);
+  if(g('recAll'))g('recAll').onclick=()=>{S.ui.recEsp='all';recReset();saveUi();$('#recEsp').value='all';drawRec()};
+  if(g('recMore'))g('recMore').onclick=()=>{recLimit+=50;drawRec()};if(g('recMore2'))g('recMore2').onclick=()=>{recLimit+=500;drawRec()};if(g('recGMore'))g('recGMore').onclick=()=>{recGLimit+=60;drawRec()};
+  if(g('recPackX'))g('recPackX').onclick=()=>{S.ui.recPack='';recReset();saveUi();drawRec()};
+  $$('#recBody [data-rk]').forEach(x=>x.onclick=()=>{const k=x.dataset.rk;recOpen.has(k)?recOpen.delete(k):recOpen.add(k);drawRec()});
+  $$('#recBody tr[data-pk]').forEach(x=>x.onclick=()=>{const k=x.dataset.pk;S.ui.recPack=S.ui.recPack===k?'':k;recReset();saveUi();drawRec();const l=g('recList');if(S.ui.recPack&&l)l.scrollIntoView({behavior:'smooth',block:'start'})});
+  $$('#recBody tr[data-cl]').forEach(x=>x.onclick=()=>{S.ui.recCli=x.dataset.cl;S.ui.recPack='';recReset();saveUi();$('#recCli').value=S.ui.recCli;drawRec()})}
+const recSave=debounce(()=>saveUi(),400);
+$('#recCli').onchange=e=>{S.ui.recCli=e.target.value;S.ui.recPack='';recReset();saveUi();drawRec()};
+$('#recFrom').onchange=e=>{S.ui.recFrom=e.target.value;recReset();saveUi();syncRecPre();drawRec()};
+$('#recTo').onchange=e=>{S.ui.recTo=e.target.value;recReset();saveUi();syncRecPre();drawRec()};
+$('#recPre').onchange=e=>{const r=recPreRange(e.target.value);if(!r)return;S.ui.recFrom=r[0];S.ui.recTo=r[1];recReset();saveUi();$('#recFrom').value=r[0];$('#recTo').value=r[1];drawRec()};
+$('#recEsp').onchange=e=>{S.ui.recEsp=e.target.value;S.ui.recPack='';recReset();saveUi();drawRec()};
+$('#recQ').oninput=debounce(e=>{S.ui.recQ=e.target.value;recReset();recSave();drawRec()},300);
+$('#recClr').onclick=()=>{S.ui.recQ='';S.ui.recPack='';recReset();saveUi();$('#recQ').value='';drawRec();$('#recQ').focus()};
+$('#recMode').onclick=e=>{const b=e.target.closest('button[data-m]');if(!b)return;S.ui.recMode=b.dataset.m;recReset();saveUi();$$('#recMode button').forEach(x=>x.classList.toggle('on',x===b));drawRec()};
 /* exportação PDF/Excel (reaproveita o gerador de Consultas) */
 function recModel(){
   if(!S.ce){toast('Importe o relatório CE0302 na aba Dados antes de exportar.');return null}
   const d=recData();if(!d.list.length){toast('Nenhum recebimento no filtro atual para exportar.');return null}
   const u=S.ui,cli=S.clientes.find(c=>c.id===u.recCli),per=`${brDate(u.recFrom)||'...'} a ${brDate(u.recTo)||'...'}`,espT=(REC_ESP.find(x=>x[0]===(u.recEsp||'rec'))||[])[1];
+  const pk=u.recPack&&d.groups.find(g=>g.key===u.recPack);
   const lh=['Data','Cliente','Embalagem','Código no relatório','Descrição','Qtd','Nota fiscal','Série','Emitente','Valor NF (informativo)','Lançado por','Espécie'];
-  const lr=d.list.map(x=>[brDate(x.d),x.clients.join(' · '),x.pack.code,x.r[0],x.pack.desc||x.r[1]||'',x.qty,x.r[7],x.r[8],x.r[6],x.r[5],x.r[9],x.r[3]]);
-  return{title:'Recebimentos de embalagens'+(cli?' · '+cli.nome:''),sub:[`Período ${per} · Espécie: ${espT}${u.recQ?' · Busca: "'+u.recQ+'"':''}`,'Fonte: CE0302 (apenas entradas) · Valor da NF é informativo, não definitivo.'],file:'Recebimentos_'+qSlug(cli?cli.nome:'Todos')+'_'+(u.recFrom||'')+'_'+(u.recTo||''),
-    sections:[qKv('Resumo',[['Embalagens recebidas',d.groups.length,''],['Quantidade recebida',d.qty,per],['Notas fiscais',d.docs,'documentos distintos'],['Lançamentos',d.list.length,'linhas de entrada']]),
-      {title:'Resumo por embalagem',head:['Embalagem','Descrição','Clientes','Qtd recebida','NFs','Lançamentos','Último recebimento'],rows:d.groups.map(g=>[g.pack.code,g.pack.desc||'',[...g.clients].join(' · '),g.qty,g.docs.size,g.rows.length,brDate(g.last)]),foot:['Total','','',d.qty,'',d.list.length,''],nf:{'Qtd recebida':'#,##0.###'}},
-      {title:'Lançamentos',head:lh,rows:lr,foot:lh.map((h,j)=>j===0?'Total':h==='Qtd'?d.qty:''),nf:{'Qtd':'#,##0.###','Valor NF (informativo)':'#,##0.00'}}]}}
+  const lr=d.shown.map(x=>[brDate(x.d),x.clients.join(' · '),x.pack.code,x.r[0],x.pack.desc||x.r[1]||'',x.qty,x.r[7],x.r[8],x.r[6],x.r[5],x.r[9],x.r[3]]);
+  const secs=[qKv('Resumo',[['Embalagens recebidas',d.groups.length,''],['Quantidade recebida',d.qty,per],['Notas fiscais',d.docs,'documentos distintos'],['Lançamentos',d.list.length,'linhas de entrada']])];
+  if(!cli&&d.byCli.length>1)secs.push({title:'Total por cliente',head:['Cliente','Embalagens','Qtd total','NFs','Lançamentos','Último recebimento'],rows:d.byCli.map(k=>[k.nome,k.packs.size,k.qty,k.docs.size,k.n,brDate(k.last)]),foot:['Total','',d.qty,d.docs,d.list.length,''],footFixed:true,nf:{'Qtd total':'#,##0.###'}});
+  secs.push({title:'Total por embalagem',head:['Embalagem','Descrição','Clientes','Qtd total','NFs','Lançamentos','Último recebimento'],rows:d.groups.map(g=>[g.pack.code,g.pack.desc||'',[...g.clients].join(' · '),g.qty,g.docs.size,g.rows.length,brDate(g.last)]),foot:['Total','','',d.qty,d.docs,d.list.length,''],nf:{'Qtd total':'#,##0.###'}});
+  secs.push({title:'Lançamentos por data'+(pk?' · '+pk.pack.code:''),head:lh,rows:lr,foot:lh.map((h,j)=>j===0?'Total':h==='Qtd'?lr.reduce((s,r)=>s+r[5],0):''),nf:{'Qtd':'#,##0.###','Valor NF (informativo)':'#,##0.00'}});
+  return{title:'Recebimentos de embalagens'+(cli?' · '+cli.nome:''),sub:[`Período ${per} · Espécie: ${espT}${u.recQ?' · Busca: "'+u.recQ+'"':''}`,'Fonte: CE0302 (apenas entradas) · Valor da NF é informativo, não definitivo.'],file:'Recebimentos_'+qSlug(cli?cli.nome:'Todos')+'_'+(u.recFrom||'')+'_'+(u.recTo||''),sections:secs}}
 $('#recPdf').onclick=()=>{const m=recModel();if(m)consultaPdf(m)};
 $('#recXlsx').onclick=()=>{const m=recModel();if(m)consultaXlsx(m)};
+
 
 /* ============ início ============ */
 (async()=>{await DB.open();

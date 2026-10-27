@@ -1179,7 +1179,7 @@ async function applyCloud(j){const d=j.raw||{};DB.quiet=true;
   invalidate();recReset();S.ui.openCli=null;sideFoot();show(S.ui.view||'clientes')}
 function cloudUI(){const t=$('#cloudt'),b=$('#cloudb');if(!t)return;const s=CS.st,pm=/permission/i.test(CS.msg||'');
   const M={off:'Ainda não iniciada.',conn:'Conectando…',
-   nocfg:'Nuvem indisponível: não consegui carregar o Firebase (sem internet, ou a rede bloqueia www.gstatic.com). Os dados seguem só neste navegador e no arquivo HTML.',
+   nocfg:'Nuvem indisponível: não consegui carregar o Firebase (sem internet, rede bloqueando www.gstatic.com, ou a página foi aberta como arquivo local — abra pelo endereço publicado https://). Os dados seguem só neste navegador e no arquivo HTML.',
    sync:'Enviando/recebendo dados…',
    ok:CS.t?'Sincronizado · versão de '+fmT(CS.t)+'. Qualquer aparelho online vê estes mesmos dados.':'Conectado · a nuvem ainda está vazia.',
    err:pm?'O Firestore recusou o acesso. No Firebase, em Firestore > Regras, libere a coleção biEmbalagens sem exigir login.':'Sem conexão com a nuvem'+(CS.msg?' ('+CS.msg+')':'')+'. Os dados ficam neste navegador e são enviados quando conectar.'};
@@ -1999,11 +1999,12 @@ $('#recXlsx').onclick=()=>{const m=recModel();if(m)consultaXlsx(m)};
   if(!S.ui.from&&!S.ui.to){const a=new Date(),b=new Date();b.setDate(b.getDate()+30);S.ui.from=S.gestao?.min||ymd(a);S.ui.to=ymd(b)}
   buildPerBars();sideFoot();S.ui.openCli=null;show(S.ui.view&&S.ui.view!=='inv'?S.ui.view:(S.clientes.length?S.ui.view||'clientes':'dados'));
   if(!S.clientes.length&&!S.padrao)show('dados');
-  cloudUI();window.__cloudGo=true;window.CLOUD&&window.CLOUD.start();setTimeout(()=>{if(!window.CLOUD){CS.st='nocfg';cloudUI()}},4000)})();
+  CS.st='conn';cloudUI();window.__cloudGo=true;window.CLOUD&&window.CLOUD.start();setTimeout(()=>{if(!window.CLOUD){CS.st='nocfg';cloudUI()}},15000)})();
 window.addEventListener('beforeunload',()=>{DB.set('inv',S.inv)});
 /* logo = link para o menu (Menu.html); avisa se há alterações ainda não gravadas no arquivo HTML */
 $('#homeLogo').addEventListener('click',e=>{if(S.dirty&&!confirm('Há alterações ainda não gravadas no arquivo HTML (os dados continuam salvos neste navegador).\n\nVoltar ao menu mesmo assim?'))e.preventDefault()});
 /* PWA: só quando servido por http(s) — manifest + service worker compartilhados com o menu e os espelhos */
 if(/^https?:$/.test(location.protocol)){const l=document.createElement('link');l.rel='manifest';l.href='./manifest.json';document.head.appendChild(l);
   if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
-</script></body></html>
+</script>
+<script type="module" src="./firebase-bi.js" onerror="try{CS.st='nocfg';CS.msg='';cloudUI()}catch(e){}"></script></body></html>

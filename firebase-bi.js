@@ -75,9 +75,11 @@ export async function saveBI(data) {
   let batch = writeBatch(db);
   let writes = 0;
   let bytes = 0;
+  const written = [];
+  try {
 
   for (const [key, value] of Object.entries(data)) {
-    if (value === undefined) continue;
+    if (value === undefined || key === "__t") continue;
     const json = JSON.stringify(value);
     const payload = z ? await gzipToB64(json) : json;
     const chunks = splitText(payload, z ? CHUNK_GZ : CHUNK_RAW);
@@ -93,7 +95,9 @@ export async function saveBI(data) {
         bytes = 0;
       }
       const chunkId = `${encodeURIComponent(key)}_${String(index).padStart(5, "0")}`;
-      batch.set(doc(chunksRef, chunkId), { key, index, payload: chunks[index] });
+      const chunkRef = doc(chunksRef, chunkId);
+      batch.set(chunkRef, { key, index, payload: chunks[index] });
+      written.push(chunkRef);
       writes++;
       bytes += size;
     }
@@ -115,6 +119,17 @@ export async function saveBI(data) {
     t: dataTime,
     savedAt: serverTimestamp()
   });
+  } catch (err) {
+    // falhou no meio: remove o que já tinha sido gravado (a versão antiga continua valendo)
+    try {
+      for (let i = 0; i < written.length; i += 400) {
+        const b = writeBatch(db);
+        written.slice(i, i + 400).forEach(r => b.delete(r));
+        await b.commit();
+      }
+    } catch (_) { /* melhor esforço */ }
+    throw err;
+  }
 
   pruneOldVersions(versionId); // limpeza em segundo plano; não bloqueia o salvamento
   return { versionId };
@@ -156,7 +171,7 @@ export async function loadBI() {
     throw new Error("A versão atual foi referenciada, mas não foi encontrada.");
   }
 
-  const { manifest, z } = versionSnap.data();
+  const { manifest, z, t } = versionSnap.data();
   const chunkSnap = await getDocs(collection(versionRef, "chunks"));
   const byKey = new Map();
 
@@ -176,7 +191,7 @@ export async function loadBI() {
     result[key] = JSON.parse(z ? await gunzipFromB64(joined) : joined);
   }
 
-  return { data: result, versionId };
+  return { data: result, versionId, t: Number(t) || Number(currentSnap.data().t) || 1 };
 }
 
 /** Lê só o ponteiro da versão atual (leve): { t, versionId } ou null. */
@@ -198,3 +213,102 @@ export function onCurrentChange(callback, onError) {
 
 // API global usada pelo BI_Embalagens.html.
 window.FirebaseBI = { saveBI, loadBI, getCurrentMeta, onCurrentChange };
+
+/* ===================================================================================
+ * Ponte window.CLOUD  ↔  BI_Embalagens.html (window.ESP)
+ * - Cadastros (clientes/embalagens/inventários) e os últimos relatórios importados
+ *   (Embalagem Padrão, Gestão, CE0302) são gravados no Firestore automaticamente.
+ * - Vale sempre a versão mais recente (comparando o carimbo de tempo `t`).
+ * - Outros aparelhos recebem a atualização em tempo real.
+ * =================================================================================== */
+const E = () => window.ESP;
+const C = () => window.ESP.cs;
+const errMsg = e => (e && ((e.code ? e.code + ": " : "") + (e.message || e))) || "erro";
+function setState(st, msg = "") { C().st = st; C().msg = msg; E().ui(); }
+
+let started = false, chain = Promise.resolve(), unsub = null, retryTimer = 0, lastVisCheck = 0;
+
+// Executa uma tarefa por vez (evita dois envios/recebimentos simultâneos).
+function run(fn) {
+  chain = chain.then(fn).catch(e => {
+    console.error("Nuvem:", e);
+    setState("err", errMsg(e));
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(() => run(reconcile), 60000); // tenta de novo em 1 min
+  });
+  return chain;
+}
+
+async function doPush() {
+  const snap = E().snap();
+  if (!(snap.__t > 0)) return;
+  setState("sync");
+  await saveBI(snap);
+  C().known = C().t = snap.__t;
+  await E().saveKnown();
+}
+
+async function doPull() {
+  setState("sync");
+  const res = await loadBI();
+  if (!res) return;
+  await E().apply({ raw: res.data, t: res.t });
+  C().known = C().t = res.t;
+  await E().saveKnown();
+  E().toast("Dados atualizados a partir da nuvem");
+}
+
+// Compara este aparelho com a nuvem e envia ou recebe, conforme quem for mais recente.
+async function reconcile() {
+  const meta = await getCurrentMeta();
+  const local = E().t();
+  if (!meta) {                       // nuvem vazia
+    C().t = 0;
+    if (local > 0 && E().hasData()) await doPush();
+  } else if (meta.t > local) {       // nuvem mais nova → recebe
+    C().t = meta.t;
+    await doPull();
+  } else if (local > meta.t) {       // este aparelho mais novo → envia
+    await doPush();
+  } else {                           // iguais
+    C().t = C().known = meta.t;
+    await E().saveKnown();
+  }
+  setState("ok");
+}
+
+function listen() {
+  if (unsub) return;
+  unsub = onCurrentChange(m => {
+    if (!m || m.t <= E().t()) return; // nada novo (inclui o eco do nosso próprio envio)
+    run(reconcile);
+  }, e => setState("err", errMsg(e)));
+}
+
+window.CLOUD = {
+  async start() {
+    if (started) return;
+    if (!window.ESP) { setTimeout(() => window.CLOUD.start(), 200); return; }
+    started = true;
+    setState("conn");
+    try { C().known = await E().loadKnown(); } catch (_) { C().known = 0; }
+    await run(reconcile);
+    listen();
+  },
+  push() { return run(reconcile); },   // chamado pelo BI 3 s após cada alteração
+  sync() { return run(reconcile); }    // botão "Sincronizar"
+};
+
+window.addEventListener("online", () => started && run(reconcile));
+document.addEventListener("visibilitychange", () => {
+  if (!started) return;
+  if (document.visibilityState === "hidden") {
+    if (E().t() > C().known) run(reconcile);              // salva antes de o app ir ao fundo
+  } else if (Date.now() - lastVisCheck > 15000) {
+    lastVisCheck = Date.now();
+    run(reconcile);                                       // ao voltar, confere se há novidades
+  }
+});
+
+// O BI marca __cloudGo quando termina de carregar; se já passou, inicia agora.
+if (window.__cloudGo) window.CLOUD.start();

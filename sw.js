@@ -1,7 +1,7 @@
 // Service Worker da Central de BI — Espelho SMA, Espelho SMC e BI Embalagens.
 // Permite instalar o app e abrir offline. Para publicar uma atualização, basta subir os arquivos novos
 // e aumentar VERSION: o navegador detecta o novo sw.js, refaz o cache e remove os antigos.
-const VERSION = 'v10';
+const VERSION = 'v11';
 const SHELL_CACHE = 'bi-shell-' + VERSION;
 const RUNTIME_CACHE = 'bi-runtime-' + VERSION;
 const SHELL = [

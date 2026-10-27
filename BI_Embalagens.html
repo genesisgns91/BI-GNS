@@ -1841,7 +1841,7 @@ async function ceRows(file){const ext=((file.name||'').split('.').pop()||'').toL
     t=t.replace(/^﻿/,'');
     if(!t.includes('"')){const head=t.slice(0,4000),cnt=ch=>head.split(ch).length-1,fs=[';','\t',','].map(ch=>[ch,cnt(ch)]).sort((a,b)=>b[1]-a[1])[0][0];return t.split(/\r?\n/).map(l=>l.split(fs))}}
   return readSheet(file)}
-/* linha do CE0302 guardada: [0 cód. item, 1 descrição, 2 data (aaaa-mm-dd), 3 espécie, 4 quantidade, 5 valor NF, 6 emitente, 7 nº NF, 8 série, 9 lançado por, 10 un] */
+/* linha do CE0302 guardada: [0 cód. item, 1 descrição, 2 data (aaaa-mm-dd), 3 espécie, 4 quantidade, 5 valor NF, 6 emitente, 7 nº NF, 8 série, 9 lançado por, 10 un, 11 'S' = saída (só NFS é guardada; vazio = entrada)] */
 async function importCe(file){
   const rows=await ceRows(file);let hi=-1;
   for(let i=0;i<Math.min(rows.length,8);i++){const h=(rows[i]||[]).map(ceNorm);if(h.includes('cod item')||(h.includes('tipo')&&h.includes('quantidade'))){hi=i;break}}
@@ -1849,45 +1849,52 @@ async function importCe(file){
   const start=hi>=0?hi+1:1,C={code:col(['cod item','codigo do item','cod. item','codigo'],1),desc:col(['desc item','descricao'],2),date:col(['data trans','data transacao','data'],-1),tipo:col(['tipo'],6),esp:col(['esp','especie'],7),un:col(['un'],8),
     qty:col(['quantidade','qtde'],9),val:col(['valor mat'],10),emit:col(['emitente'],19),serie:col(['serie'],20),doc:col(['documento','nota fiscal'],21),user:col(['usuario'],32)};
   if(C.date<0)C.date=[2,3].find(j=>rows.slice(start,start+40).some(r=>r&&parseDate(r[j])))??3;
-  const out=[];let total=0,sai=0,noDate=0;
+  const out=[];let total=0,sai=0,noDate=0,nfsS=0;
   for(let i=start;i<rows.length;i++){const r=rows[i];if(!r||r.every(v=>v===null||v===''))continue;total++;
-    if(!ceNorm(r[C.tipo]).startsWith('entrada')){sai++;continue}
+    const tp=ceNorm(r[C.tipo]),isE=tp.startsWith('entrada'),isS=tp.startsWith('saida');
+    if(!isE&&!(isS&&String(r[C.esp]??'').trim().toUpperCase()==='NFS')){sai++;continue}
     const code=String(r[C.code]??'').trim(),d=parseDate(r[C.date]);if(!code)continue;if(!d){noDate++;continue}
-    out.push([code,String(r[C.desc]??'').trim(),d,String(r[C.esp]??'').trim().toUpperCase(),ceNum(r[C.qty]),ceNum(r[C.val]),String(r[C.emit]??'').trim(),String(r[C.doc]??'').trim(),String(r[C.serie]??'').trim(),String(r[C.user]??'').trim(),String(r[C.un]??'').trim().toUpperCase()])}
+    out.push([code,String(r[C.desc]??'').trim(),d,String(r[C.esp]??'').trim().toUpperCase(),ceNum(r[C.qty]),ceNum(r[C.val]),String(r[C.emit]??'').trim(),String(r[C.doc]??'').trim(),String(r[C.serie]??'').trim(),String(r[C.user]??'').trim(),String(r[C.un]??'').trim().toUpperCase(),isS?'S':'']);if(isS)nfsS++}
   if(!out.length){toast('Nenhuma linha de ENTRADA encontrada. Esperado: B código · D data · G tipo (Entrada/Saída) · J quantidade.');return}
   const ds=out.map(x=>x[2]).sort();
-  S.ce={rows:out,at:Date.now(),file:file.name,total,ent:out.length,sai,noDate,min:ds[0],max:ds[ds.length-1]};
+  S.ce={v:2,rows:out,at:Date.now(),file:file.name,total,ent:out.length-nfsS,nfsS,sai,noDate,min:ds[0],max:ds[ds.length-1]};
   await DB.set('ce0302',S.ce);invalidate();S.ui.recFrom=S.ce.min;S.ui.recTo=S.ce.max;S.ui.recPack='';recReset();saveUi();
-  toast(`CE0302: ${fmt(out.length)} entradas importadas (${fmt(sai)} saídas ignoradas)${noDate?` · ${fmt(noDate)} sem data válida`:''}`)}
+  toast(`CE0302: ${fmt(out.length-nfsS)} entradas e ${fmt(nfsS)} saídas NFS importadas (${fmt(sai)} outras saídas ignoradas)${noDate?` · ${fmt(noDate)} sem data válida`:''}`)}
 /* vínculo item do relatório × embalagens cadastradas (por cliente), calculado uma vez por código */
 function ceIndex(){if(cache.ce)return cache.ce;const mv=[];
   if(S.ce){const ixs=S.clientes.map(c=>[c,packIndex(c)]),memo=new Map();
     const link=code=>{let r=memo.get(code);if(r)return r;r=[];for(const [c,ix] of ixs){const p=matchPack(ix,code);if(p)r.push({c,p})}memo.set(code,r);return r};
     S.ce.rows.forEach((r,i)=>{const L=link(r[0]);if(L.length)mv.push({i,r,L})})}
   return cache.ce={mv}}
-const REC_ESP=[['rec','NFE + NFT (recebimentos)'],['nfe','Somente NFE (nota de entrada)'],['nft','Somente NFT (transferência)'],['all','Todas as entradas (inclui NFS)']];
+const REC_ESP=[['rec','NFE + NFT (recebimentos)'],['nfe','Somente NFE (nota de entrada)'],['nft','Somente NFT (transferência)'],['nfs','NFS: entradas × saídas (saldo)'],['all','Todas as entradas (inclui NFS entrada)']];
 const recEspOk=(e,f)=>f==='all'||(f==='rec'?(e==='NFE'||e==='NFT'):e===f.toUpperCase());
 const recDocKey=r=>r[7]+'|'+r[8]+'|'+r[6];
 let recMemo=null;
 /* o resultado só é recalculado quando muda filtro, período, busca, relatório ou cadastro (abrir/fechar linhas e "mostrar mais" não recalculam) */
 function recData(){const u=S.ui,ix=ceIndex(),k=[u.recFrom,u.recTo,u.recEsp,u.recCli,u.recQ,u.recPack,S.ce&&S.ce.at].join('|');
   if(recMemo&&recMemo.k===k&&recMemo.ix===ix)return recMemo.d;const d=recDataRaw();recMemo={k,ix,d};return d}
-function recDataRaw(){const u=S.ui,from=u.recFrom||'',to=u.recTo||'',esp=u.recEsp||'rec',cli=u.recCli||'',q=(u.recQ||'').trim().toLowerCase();
-  const list=[];let hid=0;
+function recDataRaw(){const u=S.ui,from=u.recFrom||'',to=u.recTo||'',esp=u.recEsp||'rec',cli=u.recCli||'',q=(u.recQ||'').trim().toLowerCase(),nm=esp==='nfs';
+  const list=[],nfs={ent:0,sai:0,n:0,docs:new Set()};let hid=0;
   for(const m of ceIndex().mv){const r=m.r,d=r[2];if((from&&d<from)||(to&&d>to))continue;
     const L=cli?m.L.filter(x=>x.c.id===cli):m.L;if(!L.length)continue;
-    if(!recEspOk(r[3],esp)){hid++;continue}
-    if(q&&!(r[0]+' '+r[1]+' '+r[7]+' '+r[6]+' '+r[9]+' '+L.map(x=>x.p.code+' '+(x.p.desc||'')+' '+x.c.nome).join(' ')).toLowerCase().includes(q))continue;
+    const isN=r[3]==='NFS',sd=r[11]==='S';
+    const qok=!q||(r[0]+' '+r[1]+' '+r[7]+' '+r[6]+' '+r[9]+' '+L.map(x=>x.p.code+' '+(x.p.desc||'')+' '+x.c.nome).join(' ')).toLowerCase().includes(q);
+    if(isN&&qok){if(sd)nfs.sai+=r[4];else nfs.ent+=r[4];nfs.n++;nfs.docs.add(sd?'S':'E'+recDocKey(r))}
+    if(nm){if(!isN)continue}
+    else{if(sd)continue;if(!recEspOk(r[3],esp)){if(!isN)hid++;continue}}
+    if(!qok)continue;
     const p=L[0].p,cl=[];L.forEach(x=>{if(!cl.some(c=>c.id===x.c.id))cl.push(x.c)});
-    list.push({r,d,qty:r[4],pack:p,key:normCode(p.code),cl,clients:cl.map(c=>c.nome)})}
+    list.push({r,d,qty:r[4],s:sd,pack:p,key:normCode(p.code),cl,clients:cl.map(c=>c.nome)})}
   list.sort((a,b)=>(a.d<b.d?1:a.d>b.d?-1:0)||natCmp(a.pack.code,b.pack.code));
-  const groups=new Map(),byCli=new Map();
-  for(const x of list){let g=groups.get(x.key);if(!g){g={key:x.key,pack:x.pack,clients:new Set(),qty:0,docs:new Set(),rows:[],last:''};groups.set(x.key,g)}
-    const dk=recDocKey(x.r);g.rows.push(x);g.qty+=x.qty;g.docs.add(dk);x.clients.forEach(n=>g.clients.add(n));if(x.d>g.last)g.last=x.d;
-    for(const c of x.cl){let k=byCli.get(c.id);if(!k){k={id:c.id,nome:c.nome,qty:0,docs:new Set(),packs:new Set(),n:0,last:''};byCli.set(c.id,k)}k.qty+=x.qty;k.docs.add(dk);k.packs.add(x.key);k.n++;if(x.d>k.last)k.last=x.d}}
+  const groups=new Map(),byCli=new Map(),add=(o,x,dk)=>{if(x.s)o.sai+=x.qty;else o.ent+=x.qty;o.qty=o.ent;o.docs.add(dk);if(x.d>o.last)o.last=x.d};
+  for(const x of list){let g=groups.get(x.key);if(!g){g={key:x.key,pack:x.pack,clients:new Set(),ent:0,sai:0,qty:0,docs:new Set(),rows:[],last:''};groups.set(x.key,g)}
+    const dk=recDocKey(x.r)+(x.s?'|S':'');g.rows.push(x);add(g,x,dk);x.clients.forEach(n=>g.clients.add(n));
+    for(const c of x.cl){let k=byCli.get(c.id);if(!k){k={id:c.id,nome:c.nome,ent:0,sai:0,qty:0,docs:new Set(),packs:new Set(),n:0,last:''};byCli.set(c.id,k)}add(k,x,dk);k.packs.add(x.key);k.n++}}
   if(u.recPack&&!groups.has(u.recPack))u.recPack='';
-  const gl=[...groups.values()].sort((a,b)=>b.qty-a.qty||natCmp(a.pack.code,b.pack.code)),cls=[...byCli.values()].sort((a,b)=>b.qty-a.qty||natCmp(a.nome,b.nome));
-  return{list,shown:u.recPack?list.filter(x=>x.key===u.recPack):list,groups:gl,byCli:cls,hid,docs:new Set(list.map(x=>recDocKey(x.r))).size,qty:list.reduce((s,x)=>s+x.qty,0)}}
+  const srt=(a,b)=>nm?(b.ent+b.sai)-(a.ent+a.sai):b.qty-a.qty;
+  const gl=[...groups.values()].sort((a,b)=>srt(a,b)||natCmp(a.pack.code,b.pack.code)),cls=[...byCli.values()].sort((a,b)=>srt(a,b)||natCmp(a.nome,b.nome));
+  let ent=0,sai=0;for(const x of list){if(x.s)sai+=x.qty;else ent+=x.qty}
+  return{list,shown:u.recPack?list.filter(x=>x.key===u.recPack):list,groups:gl,byCli:cls,hid,nm,nfs:{ent:nfs.ent,sai:nfs.sai,n:nfs.n},docs:new Set(list.map(x=>recDocKey(x.r)+(x.s?'|S':''))).size,ent,sai,qty:ent}}
 const recMoney=v=>v?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
 const recEspTag=e=>e==='NFS'?'<span class="tag no" title="NFS = nota fiscal de saída lançada como entrada">NFS</span>':e==='NFE'?'<span class="tag ok" title="Nota fiscal de entrada">NFE</span>':e==='NFT'?'<span class="tag blue" title="Transferência">NFT</span>':`<span class="tag no">${esc(e||'–')}</span>`;
 const rthumb=src=>src?`<img class="thumb" loading="lazy" decoding="async" src="${src}" alt="">`:thumb(src);
@@ -1905,37 +1912,45 @@ function renderRec(){const u=S.ui;
   $('#recEsp').innerHTML=REC_ESP.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');$('#recEsp').value=u.recEsp||'rec';
   if(document.activeElement!==$('#recQ'))$('#recQ').value=u.recQ||'';
   $$('#recMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(u.recMode||'lanc')));syncRecPre();drawRec()}
-const recSumHead=(first,extra)=>`<thead><tr>${first}${extra}<th class="n">Qtd total</th><th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead>`;
+const recQH=nm=>nm?'<th class="n">NFS entrada</th><th class="n">NFS saída</th><th class="n">Saldo (E−S)</th>':'<th class="n">Qtd total</th>';
+const recSaldo=v=>`<b style="color:${v<0?'var(--red)':'inherit'}">${fmt(v)}</b>`;
+const recQC=(o,nm)=>nm?`<td class="n">${fmt(o.ent)}</td><td class="n">${fmt(o.sai)}</td><td class="n">${recSaldo(o.ent-o.sai)}</td>`:`<td class="n"><b>${fmt(o.qty)}</b></td>`;
+const recMov=x=>x.s?'<span class="tag no">Saída</span>':'<span class="tag ok">Entrada</span>';
+const recSumHead=(first,extra,nm)=>`<thead><tr>${first}${extra}${recQH(nm)}<th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead>`;
 function drawRec(){const body=$('#recBody'),u=S.ui;
   if(!S.clientes.length){body.innerHTML='<div class="empty-s card">Cadastre ao menos um cliente com embalagens.</div>';return}
   if(!S.ce){body.innerHTML='<div class="note">Importe o relatório <b>CE0302</b> na aba Dados para consultar os recebimentos.</div>';return}
-  const d=recData(),bad=!!(u.recFrom&&u.recTo&&u.recFrom>u.recTo),mode=u.recMode==='pack'?'pack':'lanc',cli=S.clientes.find(c=>c.id===u.recCli);
+  const d=recData(),nm=d.nm,bad=!!(u.recFrom&&u.recTo&&u.recFrom>u.recTo),mode=u.recMode==='pack'?'pack':'lanc',cli=S.clientes.find(c=>c.id===u.recCli);
   const per=`${brDate(u.recFrom)||'…'} a ${brDate(u.recTo)||'…'}`;
   const kp=(a,b,c)=>`<div class="card kpi"><span>${a}</span><b>${b}</b><small style="color:var(--mut)">${c}</small></div>`;
   let h=(bad?`<div class="note bad">${ic('warn','s')} A data inicial é maior que a final: nenhum recebimento será listado.</div>`:'')+
-    `<div class="kpis">${kp('Embalagens recebidas',fmt(d.groups.length),cli?esc(cli.nome):'todos os clientes')}${kp('Quantidade recebida',fmt(d.qty),per)}${kp('Notas fiscais',fmt(d.docs),'documentos distintos')}${kp('Lançamentos',fmt(d.list.length),'linhas de entrada')}</div>`+
-    (d.hid?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>${fmt(d.hid)} lançamento(s) de entrada com espécie fora do filtro estão ocultos (ex.: <b>NFS</b>, nota fiscal de saída lançada como entrada).</span><button class="btn sm" id="recAll">Mostrar todas as entradas</button></div>`:'');
-  if(!d.list.length){body.innerHTML=h+`<div class="empty-s card">Nenhum recebimento de embalagem cadastrada no período ${per}${u.recQ?' para essa busca':''}. O relatório cobre ${brDate(S.ce.min)} a ${brDate(S.ce.max)}.</div>`;bindRec();return}
-  const multi=!cli&&S.clientes.length>1,tfoot=n=>`<tfoot><tr><td colspan="${n}"><b>Total</b></td><td class="n"><b>${fmt(d.qty)}</b></td><td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot>`;
+    `<div class="kpis">${nm?kp('Embalagens com NFS',fmt(d.groups.length),cli?esc(cli.nome):'todos os clientes')+kp('NFS entrada',fmt(d.ent),per)+kp('NFS saída',fmt(d.sai),per)+kp('Saldo (entrada − saída)',recSaldo(d.ent-d.sai),d.ent-d.sai>0?'entrou mais do que saiu':d.ent-d.sai<0?'saiu mais do que entrou':'zerado'):kp('Embalagens recebidas',fmt(d.groups.length),cli?esc(cli.nome):'todos os clientes')+kp('Quantidade recebida',fmt(d.qty),per)+kp('Notas fiscais',fmt(d.docs),'documentos distintos')+kp('Lançamentos',fmt(d.list.length),'linhas de entrada')}</div>`+
+    (!nm&&d.nfs.n?`<div class="card" style="padding:12px 16px;margin-bottom:14px;display:flex;gap:10px 22px;align-items:center;flex-wrap:wrap"><b>NFS no período</b><span>Entradas <b>${fmt(d.nfs.ent)}</b></span><span>− Saídas <b>${fmt(d.nfs.sai)}</b></span><span>= Saldo ${recSaldo(d.nfs.ent-d.nfs.sai)}</span><span style="flex:1"></span><button class="btn sm" id="recNfs">Ver NFS por embalagem</button></div>`:'')+
+    (!nm&&S.ce&&!S.ce.v?`<div class="note info">Este CE0302 foi importado antes da separação NFS: reimporte o relatório na aba Dados para trazer as <b>saídas NFS</b> e calcular o saldo.</div>`:'')+
+    (nm&&S.ce&&!S.ce.v?`<div class="note bad">Este CE0302 foi importado sem as saídas: reimporte o relatório na aba Dados para o saldo NFS ficar correto.</div>`:'')+
+    (d.hid?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>${fmt(d.hid)} lançamento(s) de entrada de outras espécies (ex.: NC, DEV, ICM) estão ocultos. As <b>NFS</b> têm o resumo próprio acima.</span><button class="btn sm" id="recAll">Mostrar todas as entradas</button></div>`:'');
+  if(!d.list.length){body.innerHTML=h+`<div class="empty-s card">Nenhum ${nm?'lançamento NFS':'recebimento'} de embalagem cadastrada no período ${per}${u.recQ?' para essa busca':''}. O relatório cobre ${brDate(S.ce.min)} a ${brDate(S.ce.max)}.</div>`;bindRec();return}
+  const multi=!cli&&S.clientes.length>1,tfoot=n=>`<tfoot><tr><td colspan="${n}"><b>Total</b></td>${recQC(d,nm)}<td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot>`;
   if(mode==='lanc'){
     if(multi&&d.byCli.length>1){
-      h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">Total por cliente <span style="font-weight:400;color:var(--mut)">· clique para filtrar</span></h3><div class="tw" style="max-height:none"><table>${recSumHead('<th>Cliente</th>','<th class="n">Embalagens</th>')}<tbody>${d.byCli.map(k=>`<tr data-cl="${esc(k.id)}" style="cursor:pointer"><td><b>${esc(k.nome)}</b></td><td class="n">${fmt(k.packs.size)}</td><td class="n"><b>${fmt(k.qty)}</b></td><td class="n">${fmt(k.docs.size)}</td><td class="n">${fmt(k.n)}</td><td>${brDate(k.last)}</td></tr>`).join('')}</tbody>${tfoot(2)}</table></div>${d.byCli.reduce((s,k)=>s+k.qty,0)!==d.qty?'<small style="color:var(--mut);display:block;margin-top:8px">Embalagem usada por mais de um cliente conta em cada um; o total geral não repete a quantidade.</small>':''}</div>`}
-    h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">Total recebido por embalagem${cli?' · '+esc(cli.nome):''} <span style="font-weight:400;color:var(--mut)">· clique numa linha para ver só os lançamentos dela</span></h3><div class="tw" style="max-height:360px"><table>${recSumHead('<th>Embalagem</th><th>Descrição</th>',multi?'<th>Clientes</th>':'')}<tbody>${d.groups.map(g=>`<tr data-pk="${esc(g.key)}" style="cursor:pointer${u.recPack===g.key?';background:color-mix(in srgb,var(--ac) 14%,transparent)':''}"><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}<td class="n"><b>${fmt(g.qty)}</b></td><td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`).join('')}</tbody>${tfoot(multi?3:2)}</table></div></div>`;
+      h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">Total por cliente <span style="font-weight:400;color:var(--mut)">· clique para filtrar</span></h3><div class="tw" style="max-height:none"><table>${recSumHead('<th>Cliente</th>','<th class="n">Embalagens</th>',nm)}<tbody>${d.byCli.map(k=>`<tr data-cl="${esc(k.id)}" style="cursor:pointer"><td><b>${esc(k.nome)}</b></td><td class="n">${fmt(k.packs.size)}</td>${recQC(k,nm)}<td class="n">${fmt(k.docs.size)}</td><td class="n">${fmt(k.n)}</td><td>${brDate(k.last)}</td></tr>`).join('')}</tbody>${tfoot(2)}</table></div>${d.byCli.reduce((s,k)=>s+k.ent+k.sai,0)!==d.ent+d.sai?'<small style="color:var(--mut);display:block;margin-top:8px">Embalagem usada por mais de um cliente conta em cada um; o total geral não repete a quantidade.</small>':''}</div>`}
+    h+=`<div class="card" style="padding:14px 16px;margin-bottom:14px"><h3 style="margin:0 0 10px">${nm?'Saldo NFS por embalagem':'Total recebido por embalagem'}${cli?' · '+esc(cli.nome):''} <span style="font-weight:400;color:var(--mut)">· clique numa linha para ver só os lançamentos dela</span></h3><div class="tw" style="max-height:360px"><table>${recSumHead('<th>Embalagem</th><th>Descrição</th>',multi?'<th>Clientes</th>':'',nm)}<tbody>${d.groups.map(g=>`<tr data-pk="${esc(g.key)}" style="cursor:pointer${u.recPack===g.key?';background:color-mix(in srgb,var(--ac) 14%,transparent)':''}"><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}${recQC(g,nm)}<td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`).join('')}</tbody>${tfoot(multi?3:2)}</table></div></div>`;
     const pk=u.recPack&&d.groups.find(g=>g.key===u.recPack),rows=d.shown.slice(0,recLimit),left=d.shown.length-rows.length,showCli=multi;
     h+=`<h3 id="recList" style="margin:0 0 8px">Lançamentos por data <span style="font-weight:400;color:var(--mut)">· ${fmt(d.shown.length)}</span></h3>`+
-      (pk?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>Mostrando só a embalagem <b>${esc(pk.pack.code)}</b> (${fmt(pk.qty)} recebidas).</span><button class="btn sm" id="recPackX">Mostrar todas</button></div>`:'')+
-      `<div class="tw" style="max-height:none"><table><thead><tr><th>Data</th>${showCli?'<th>Cliente</th>':''}<th>Embalagem</th><th>Descrição</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n" title="Informativo (coluna K do relatório), não é definitivo">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${rows.map(x=>{const r=x.r,same=normCode(r[0])===x.key;
-      return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td>${showCli?`<td>${esc(x.clients.join(' · '))}</td>`:''}<td><b>${esc(x.pack.code)}</b>${same?'':`<small style="display:block;color:var(--mut)">relatório: ${esc(r[0])}</small>`}</td><td>${esc(x.pack.desc||r[1]||'')}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div>`+
+      (pk?`<div class="note info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>Mostrando só a embalagem <b>${esc(pk.pack.code)}</b> (${nm?`NFS: entrada ${fmt(pk.ent)} − saída ${fmt(pk.sai)} = saldo ${fmt(pk.ent-pk.sai)}`:`${fmt(pk.qty)} recebidas`}).</span><button class="btn sm" id="recPackX">Mostrar todas</button></div>`:'')+
+      `<div class="tw" style="max-height:none"><table><thead><tr><th>Data</th>${showCli?'<th>Cliente</th>':''}<th>Embalagem</th><th>Descrição</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n" title="Informativo (coluna K do relatório), não é definitivo">Valor NF*</th><th>Lançado por</th><th>Espécie</th>${nm?'<th>Mov.</th>':''}</tr></thead><tbody>${rows.map(x=>{const r=x.r,same=normCode(r[0])===x.key;
+      return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td>${showCli?`<td>${esc(x.clients.join(' · '))}</td>`:''}<td><b>${esc(x.pack.code)}</b>${same?'':`<small style="display:block;color:var(--mut)">relatório: ${esc(r[0])}</small>`}</td><td>${esc(x.pack.desc||r[1]||'')}</td><td class="n"${x.s?' style="color:var(--red)"':''}><b>${x.s?'−':''}${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td>${nm?`<td>${recMov(x)}</td>`:''}</tr>`}).join('')}</tbody></table></div>`+
       (left>0?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><button class="btn" id="recMore">Mostrar mais ${fmt(Math.min(50,left))}</button>${left>50?`<button class="btn" id="recMore2">Mostrar mais ${fmt(Math.min(500,left))}</button>`:''}<small style="color:var(--mut)">${fmt(rows.length)} de ${fmt(d.shown.length)} exibidos (a exportação traz todos)</small></div>`:'')+
       `<small style="color:var(--mut);display:block;margin-top:8px">*Valor NF é informativo (coluna K do CE0302) e não deve ser tomado como definitivo. Ordem: data de recebimento, da mais recente para a mais antiga.</small>`}
-  else{const gs=d.groups.slice(0,recGLimit),left=d.groups.length-gs.length,nc=multi?8:7;
-    h+=`<div class="tw" style="max-height:none"><table><thead><tr><th style="width:30px"></th><th>Imagem</th><th>Embalagem</th><th>Descrição</th>${multi?'<th>Clientes</th>':''}<th class="n">Qtd recebida</th><th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead><tbody>${gs.map(g=>{const o=recOpen.has(g.key);
-      return`<tr><td><button class="chev" data-rk="${esc(g.key)}" aria-expanded="${o}">${ic('chev')}</button></td><td>${rthumb(g.pack.img)}</td><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}<td class="n"><b>${fmt(g.qty)}</b></td><td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`+
-      (o?`<tr><td></td><td colspan="${nc+1}"><div class="tw" style="max-height:none;margin:4px 0 10px"><table><thead><tr><th>Data</th><th>Código no relatório</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n">Valor NF*</th><th>Lançado por</th><th>Espécie</th></tr></thead><tbody>${g.rows.map(x=>{const r=x.r;return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td><td>${esc(r[0])}</td><td class="n"><b>${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td></tr>`}).join('')}</tbody></table></div></td></tr>`:'')}).join('')}</tbody><tfoot><tr><td colspan="${multi?5:4}"><b>Total</b></td><td class="n"><b>${fmt(d.qty)}</b></td><td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot></table></div>`+
+  else{const gs=d.groups.slice(0,recGLimit),left=d.groups.length-gs.length,nc=(multi?8:7)+(nm?2:0);
+    h+=`<div class="tw" style="max-height:none"><table><thead><tr><th style="width:30px"></th><th>Imagem</th><th>Embalagem</th><th>Descrição</th>${multi?'<th>Clientes</th>':''}${nm?recQH(true):'<th class="n">Qtd recebida</th>'}<th class="n">NFs</th><th class="n">Lanç.</th><th>Último recebimento</th></tr></thead><tbody>${gs.map(g=>{const o=recOpen.has(g.key);
+      return`<tr><td><button class="chev" data-rk="${esc(g.key)}" aria-expanded="${o}">${ic('chev')}</button></td><td>${rthumb(g.pack.img)}</td><td><b>${esc(g.pack.code)}</b></td><td>${esc(g.pack.desc||'')}</td>${multi?`<td>${esc([...g.clients].join(' · '))}</td>`:''}${recQC(g,nm)}<td class="n">${fmt(g.docs.size)}</td><td class="n">${fmt(g.rows.length)}</td><td>${brDate(g.last)}</td></tr>`+
+      (o?`<tr><td></td><td colspan="${nc+1}"><div class="tw" style="max-height:none;margin:4px 0 10px"><table><thead><tr><th>Data</th><th>Código no relatório</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n">Valor NF*</th><th>Lançado por</th><th>Espécie</th>${nm?'<th>Mov.</th>':''}</tr></thead><tbody>${g.rows.map(x=>{const r=x.r;return`<tr><td style="white-space:nowrap">${brDate(x.d)}</td><td>${esc(r[0])}</td><td class="n"${x.s?' style="color:var(--red)"':''}><b>${x.s?'−':''}${fmt(x.qty)}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td><td>${recEspTag(r[3])}</td>${nm?`<td>${recMov(x)}</td>`:''}</tr>`}).join('')}</tbody></table></div></td></tr>`:'')}).join('')}</tbody><tfoot><tr><td colspan="${multi?5:4}"><b>Total</b></td>${recQC(d,nm)}<td class="n">${fmt(d.docs)}</td><td class="n">${fmt(d.list.length)}</td><td></td></tr></tfoot></table></div>`+
       (left>0?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><button class="btn" id="recGMore">Mostrar mais ${fmt(Math.min(60,left))}</button><small style="color:var(--mut)">${fmt(gs.length)} de ${fmt(d.groups.length)} embalagens exibidas</small></div>`:'')+
       `<small style="color:var(--mut);display:block;margin-top:8px">Clique na seta para ver cada recebimento (data, quantidade, nota fiscal e emitente). *Valor NF é informativo (coluna K do CE0302).</small>`}
   body.innerHTML=h;bindRec()}
 function bindRec(){const g=id=>document.getElementById(id);
+  if(g('recNfs'))g('recNfs').onclick=()=>{S.ui.recEsp='nfs';S.ui.recPack='';recReset();saveUi();$('#recEsp').value='nfs';drawRec()};
   if(g('recAll'))g('recAll').onclick=()=>{S.ui.recEsp='all';recReset();saveUi();$('#recEsp').value='all';drawRec()};
   if(g('recMore'))g('recMore').onclick=()=>{recLimit+=50;drawRec()};if(g('recMore2'))g('recMore2').onclick=()=>{recLimit+=500;drawRec()};if(g('recGMore'))g('recGMore').onclick=()=>{recGLimit+=60;drawRec()};
   if(g('recPackX'))g('recPackX').onclick=()=>{S.ui.recPack='';recReset();saveUi();drawRec()};
@@ -1957,13 +1972,16 @@ function recModel(){
   const d=recData();if(!d.list.length){toast('Nenhum recebimento no filtro atual para exportar.');return null}
   const u=S.ui,cli=S.clientes.find(c=>c.id===u.recCli),per=`${brDate(u.recFrom)||'...'} a ${brDate(u.recTo)||'...'}`,espT=(REC_ESP.find(x=>x[0]===(u.recEsp||'rec'))||[])[1];
   const pk=u.recPack&&d.groups.find(g=>g.key===u.recPack);
-  const lh=['Data','Cliente','Embalagem','Código no relatório','Descrição','Qtd','Nota fiscal','Série','Emitente','Valor NF (informativo)','Lançado por','Espécie'];
-  const lr=d.shown.map(x=>[brDate(x.d),x.clients.join(' · '),x.pack.code,x.r[0],x.pack.desc||x.r[1]||'',x.qty,x.r[7],x.r[8],x.r[6],x.r[5],x.r[9],x.r[3]]);
-  const secs=[qKv('Resumo',[['Embalagens recebidas',d.groups.length,''],['Quantidade recebida',d.qty,per],['Notas fiscais',d.docs,'documentos distintos'],['Lançamentos',d.list.length,'linhas de entrada']])];
-  if(!cli&&d.byCli.length>1)secs.push({title:'Total por cliente',head:['Cliente','Embalagens','Qtd total','NFs','Lançamentos','Último recebimento'],rows:d.byCli.map(k=>[k.nome,k.packs.size,k.qty,k.docs.size,k.n,brDate(k.last)]),foot:['Total','',d.qty,d.docs,d.list.length,''],footFixed:true,nf:{'Qtd total':'#,##0.###'}});
-  secs.push({title:'Total por embalagem',head:['Embalagem','Descrição','Clientes','Qtd total','NFs','Lançamentos','Último recebimento'],rows:d.groups.map(g=>[g.pack.code,g.pack.desc||'',[...g.clients].join(' · '),g.qty,g.docs.size,g.rows.length,brDate(g.last)]),foot:['Total','','',d.qty,d.docs,d.list.length,''],nf:{'Qtd total':'#,##0.###'}});
-  secs.push({title:'Lançamentos por data'+(pk?' · '+pk.pack.code:''),head:lh,rows:lr,foot:lh.map((h,j)=>j===0?'Total':h==='Qtd'?lr.reduce((s,r)=>s+r[5],0):''),nf:{'Qtd':'#,##0.###','Valor NF (informativo)':'#,##0.00'}});
-  return{title:'Recebimentos de embalagens'+(cli?' · '+cli.nome:''),sub:[`Período ${per} · Espécie: ${espT}${u.recQ?' · Busca: "'+u.recQ+'"':''}`,'Fonte: CE0302 (apenas entradas) · Valor da NF é informativo, não definitivo.'],file:'Recebimentos_'+qSlug(cli?cli.nome:'Todos')+'_'+(u.recFrom||'')+'_'+(u.recTo||''),sections:secs}}
+  const nm=d.nm,sg=x=>x.s?-x.qty:x.qty;
+  const lh=['Data','Cliente','Embalagem','Código no relatório','Descrição',nm?'Qtd (saída = negativo)':'Qtd','Nota fiscal','Série','Emitente','Valor NF (informativo)','Lançado por','Espécie'].concat(nm?['Movimento']:[]);
+  const lr=d.shown.map(x=>[brDate(x.d),x.clients.join(' · '),x.pack.code,x.r[0],x.pack.desc||x.r[1]||'',sg(x),x.r[7],x.r[8],x.r[6],x.r[5],x.r[9],x.r[3]].concat(nm?[x.s?'Saída':'Entrada']:[]));
+  const qh=nm?['NFS entrada','NFS saída','Saldo (E−S)']:['Qtd total'],qv=o=>nm?[o.ent,o.sai,o.ent-o.sai]:[o.qty],qf=nm?{'NFS entrada':'#,##0.###','NFS saída':'#,##0.###','Saldo (E−S)':'#,##0.###'}:{'Qtd total':'#,##0.###'};
+  const resumo=nm?[['Embalagens com NFS',d.groups.length,''],['NFS entrada',d.ent,per],['NFS saída',d.sai,per],['Saldo (entrada − saída)',d.ent-d.sai,'']]:[['Embalagens recebidas',d.groups.length,''],['Quantidade recebida',d.qty,per],['Notas fiscais',d.docs,'documentos distintos'],['Lançamentos',d.list.length,'linhas de entrada']].concat(d.nfs.n?[['NFS entrada (período)',d.nfs.ent,''],['NFS saída (período)',d.nfs.sai,''],['Saldo NFS (entrada − saída)',d.nfs.ent-d.nfs.sai,'']]:[]);
+  const secs=[qKv('Resumo',resumo)];
+  if(!cli&&d.byCli.length>1)secs.push({title:'Total por cliente',head:['Cliente','Embalagens'].concat(qh,['NFs','Lançamentos','Último recebimento']),rows:d.byCli.map(k=>[k.nome,k.packs.size].concat(qv(k),[k.docs.size,k.n,brDate(k.last)])),foot:['Total',''].concat(qv(d),[d.docs,d.list.length,'']),footFixed:true,nf:qf});
+  secs.push({title:nm?'Saldo NFS por embalagem':'Total por embalagem',head:['Embalagem','Descrição','Clientes'].concat(qh,['NFs','Lançamentos','Último recebimento']),rows:d.groups.map(g=>[g.pack.code,g.pack.desc||'',[...g.clients].join(' · ')].concat(qv(g),[g.docs.size,g.rows.length,brDate(g.last)])),foot:['Total','',''].concat(qv(d),[d.docs,d.list.length,'']),footFixed:true,nf:qf});
+  secs.push({title:'Lançamentos por data'+(pk?' · '+pk.pack.code:''),head:lh,rows:lr,foot:lh.map((h,j)=>j===0?'Total':j===5?lr.reduce((s,r)=>s+r[5],0):''),nf:{'Qtd':'#,##0.###','Qtd (saída = negativo)':'#,##0.###','Valor NF (informativo)':'#,##0.00'}});
+  return{title:(nm?'NFS · entradas × saídas':'Recebimentos de embalagens')+(cli?' · '+cli.nome:''),sub:[`Período ${per} · Espécie: ${espT}${u.recQ?' · Busca: "'+u.recQ+'"':''}`,nm?'Fonte: CE0302 (entradas e saídas NFS) · Saldo = entradas − saídas · Valor da NF é informativo.':'Fonte: CE0302 (apenas entradas) · Valor da NF é informativo, não definitivo.'],file:(nm?'NFS_':'Recebimentos_')+qSlug(cli?cli.nome:'Todos')+'_'+(u.recFrom||'')+'_'+(u.recTo||''),sections:secs}}
 $('#recPdf').onclick=()=>{const m=recModel();if(m)consultaPdf(m)};
 $('#recXlsx').onclick=()=>{const m=recModel();if(m)consultaXlsx(m)};
 

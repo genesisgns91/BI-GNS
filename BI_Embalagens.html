@@ -351,7 +351,7 @@ html.sp #splash{display:flex}html.sp{overflow:hidden}#splash.out{transform:trans
   </section>
   <!-- DADOS -->
   <section id="v-dados" class="hide">
-    <h1>Relatórios de origem</h1><p class="sub">Importe os dois relatórios. Ficam salvos neste navegador.</p>
+    <h1>Relatórios de origem</h1><p class="sub">Importe os relatórios. Ficam salvos neste navegador e na nuvem (Firebase), visíveis em qualquer aparelho.</p>
     <div class="two">
       <div class="card"><h3 style="margin-top:0">Embalagem Padrão</h3>
         <div class="drop" data-rep="padrao">Clique ou arraste a planilha aqui<br><small>A Cliente · B Código do item · C Código da embalagem · D Qtd por embalagem · E Status · <b>F Planta</b></small></div>
@@ -368,6 +368,9 @@ html.sp #splash{display:flex}html.sp{overflow:hidden}#splash.out{transform:trans
       <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><input type="checkbox" id="incRep" checked=""> Incluir também os relatórios importados (Embalagem Padrão, Gestão e CE0302)</label>
       <div class="bar" style="margin:0"><button class="btn pri" id="saveHtml2" title="Grava as alterações direto no arquivo aberto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"></path></svg> Salvar HTML atualizado</button><button class="btn" id="saveCopy" title="Baixa uma cópia como novo arquivo, sem substituir o original">Baixar cópia</button><button class="btn" id="savePick" title="Escolher outro arquivo de destino para o botão Salvar">Trocar arquivo de destino</button><button class="btn hide" id="loadEmb">Carregar os dados salvos neste arquivo</button></div>
       <p id="saveInfo" class="sub" style="margin:10px 0 0"></p></div>
+    <div class="card" style="margin-top:16px"><h3 style="margin-top:0">Nuvem (Firebase)</h3>
+      <p class="sub" style="margin-bottom:12px">Cadastros, inventários e relatórios importados (Embalagem Padrão, Gestão e CE0302) são enviados automaticamente para a nuvem. Abra este BI em qualquer navegador ou aparelho e os mesmos dados aparecem. Vale sempre a versão mais recente.</p>
+      <div class="bar" style="margin:0"><span id="cloudt" class="sub" style="flex:1 1 240px;margin:0">Ainda não iniciada.</span><button class="btn" id="cloudb" hidden>Sincronizar</button></div></div>
     <div class="card" style="margin-top:16px"><h3 style="margin-top:0">Backup dos cadastros</h3>
       <p class="sub" style="margin-bottom:12px">Clientes, embalagens, imagens e inventários. Use para levar o cadastro a outro computador ou navegador.</p>
       <div class="bar" style="margin:0"><button class="btn" id="bkExp">Exportar backup (.json)</button><button class="btn" id="bkImp">Importar backup</button></div>
@@ -948,9 +951,10 @@ function debounce(f,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(
 const DB={db:null,
  open(){return new Promise((res,rej)=>{const r=indexedDB.open('embalagem-bi',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
  get(k){return new Promise(res=>{try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(undefined)}catch(e){res(undefined)}})},
- set(k,v){if(!this.quiet&&['clientes','inv','padrao','gestao','ce0302'].includes(k))markDirty();return new Promise(res=>{try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>res(false)}catch(e){res(false)}})}};
+ put(k,v){return new Promise(res=>{try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>res(false)}catch(e){res(false)}})},
+ set(k,v){if(!this.quiet&&['clientes','inv','padrao','gestao','ce0302'].includes(k))markDirty();return this.put(k,v)}};
 const S={clientes:[],inv:{},padrao:null,gestao:null,ce:null,ui:{}};
-function markDirty(){S.dirty=true;updSave()}
+function markDirty(){S.dirty=true;updSave();cloudTouch()}
 function updSave(){['#saveHtml','#saveHtml2'].forEach(q=>{const b=$(q);if(b)b.classList.toggle('dirty',!!S.dirty)});const b=$('#saveHtml');if(b)b.innerHTML=(S.dirty?ic('dot'):ic('download'))+'<span>Salvar HTML</span>'}
 const saveCli=()=>DB.set('clientes',S.clientes), saveInv=debounce(()=>DB.set('inv',S.inv),400), saveUi=()=>DB.set('ui',S.ui);
 
@@ -1149,6 +1153,39 @@ $$('nav button').forEach(b=>b.onclick=()=>{S.ui.openCli=null;show(b.dataset.v)})
 $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('on'));
 function sideFoot(){const p=S.padrao,g=S.gestao;$('#sidefoot').innerHTML=`Padrão: ${p?fmt(p.rows.length)+' itens':'<b style="color:var(--red)">não importado</b>'}<br>Gestão: ${g?brDate(g.min)+' → '+brDate(g.max):'<b style="color:var(--red)">não importado</b>'}<br>CE0302: ${S.ce?brDate(S.ce.min)+' → '+brDate(S.ce.max):'<b style="color:var(--red)">não importado</b>'}`}
 
+/* ============ nuvem (Firebase) ============
+   Cadastros e relatórios importados são enviados sozinhos ao Firestore (coleção biEmbalagens) e
+   qualquer navegador/aparelho online passa a ver os mesmos dados. Lógica de envio/recebimento: módulo no fim da página. */
+const CS=window.CS={st:'off',t:0,known:0,msg:''};
+let _cp=0;const fmT=x=>new Date(x).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+function queueCloud(){clearTimeout(_cp);_cp=setTimeout(()=>window.CLOUD&&window.CLOUD.push(),3000)}
+function cloudTouch(){S.cloudT=Math.max(Date.now(),(S.cloudT||0)+1);DB.put('cloudLocalT',S.cloudT);queueCloud()}
+const hasData=()=>!!(S.clientes.length||S.padrao||S.gestao||S.ce||Object.keys(S.inv||{}).length);
+const localT=()=>S.cloudT||(hasData()?Math.max((S.padrao&&S.padrao.at)||0,(S.gestao&&S.gestao.at)||0,(S.ce&&S.ce.at)||0,1):0);
+async function applyCloud(j){const d=j.raw||{};DB.quiet=true;
+  if(Array.isArray(d.clientes)){S.clientes=d.clientes;await DB.set('clientes',S.clientes)}
+  if(d.inv&&typeof d.inv==='object'){S.inv=d.inv;await DB.set('inv',S.inv)}
+  if('padrao' in d){S.padrao=d.padrao||null;await DB.set('padrao',S.padrao)}
+  if('gestao' in d){S.gestao=d.gestao||null;await DB.set('gestao',S.gestao)}
+  if('ce0302' in d){S.ce=d.ce0302||null;await DB.set('ce0302',S.ce)}
+  DB.quiet=false;S.cloudT=j.t;await DB.put('cloudLocalT',j.t);
+  if(!S.ui.from&&!S.ui.to){const a=new Date(),b=new Date();b.setDate(b.getDate()+30);S.ui.from=S.gestao?.min||ymd(a);S.ui.to=ymd(b)}
+  invalidate();recReset();S.ui.openCli=null;sideFoot();show(S.ui.view||'clientes')}
+function cloudUI(){const t=$('#cloudt'),b=$('#cloudb');if(!t)return;const s=CS.st,pm=/permission/i.test(CS.msg||'');
+  const M={off:'Ainda não iniciada.',conn:'Conectando…',
+   nocfg:'Nuvem indisponível: o firebase-bi.js não carregou (sem internet, ou o arquivo foi aberto direto da pasta). Os dados seguem só neste navegador e no arquivo HTML.',
+   sync:'Enviando/recebendo dados…',
+   ok:CS.t?'Sincronizado · versão de '+fmT(CS.t)+'. Qualquer aparelho online vê estes mesmos dados.':'Conectado · a nuvem ainda está vazia.',
+   err:pm?'O Firestore recusou o acesso. No Firebase, em Firestore > Regras, libere a coleção biEmbalagens sem exigir login.':'Sem conexão com a nuvem'+(CS.msg?' ('+CS.msg+')':'')+'. Os dados ficam neste navegador e são enviados quando conectar.'};
+  t.textContent=M[s]||'';t.dataset.st=s;b.hidden=!(s=='ok'||s=='err')}
+window.ESP={cs:CS,ui:cloudUI,
+  snap:()=>({clientes:S.clientes,inv:S.inv,padrao:S.padrao,gestao:S.gestao,ce0302:S.ce,__t:localT()}),
+  t:localT,setT:v=>{S.cloudT=v;DB.put('cloudLocalT',v)},apply:applyCloud,hasData,
+  unsynced:()=>hasData()&&localT()>CS.known,
+  loadKnown:()=>DB.get('cloudKnown').then(v=>+v||0),saveKnown:()=>DB.put('cloudKnown',CS.known),
+  toast:m=>toast(m),fmT};
+$('#cloudb').onclick=()=>window.CLOUD&&window.CLOUD.sync();
+
 /* ============ SALVAR HTML AUTO-CONTIDO ============ */
 const urlToB64=src=>new Promise((res,rej)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>{const cv=document.createElement('canvas');cv.width=i.width;cv.height=i.height;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);x.drawImage(i,0,0);res(cv.toDataURL('image/jpeg',.86))};i.onerror=rej;i.src=src});
 /* garante que toda imagem esteja em Base64 (data URL) antes de salvar */
@@ -1176,7 +1213,7 @@ async function saveHtml(mode){try{const tg=await getTarget(mode);if(tg.kind==='c
 async function applyEmbedded(d){DB.quiet=true;
   if(Array.isArray(d.clientes)){S.clientes=d.clientes;S.inv=d.inv||{};await DB.set('clientes',S.clientes);await DB.set('inv',S.inv)}
   if(d.padrao){S.padrao=d.padrao;await DB.set('padrao',S.padrao)}if(d.gestao){S.gestao=d.gestao;await DB.set('gestao',S.gestao)}if(d.ce0302){S.ce=d.ce0302;await DB.set('ce0302',S.ce)}
-  await DB.set('loadedStamp',d.stamp);DB.quiet=false;invalidate()}
+  await DB.set('loadedStamp',d.stamp);DB.quiet=false;S.cloudT=d.stamp;DB.put('cloudLocalT',d.stamp);invalidate()}
 function embedded(){const el=$('#bi-data'),raw=el&&el.textContent.trim();if(!raw)return null;try{return JSON.parse(raw)}catch(e){return null}}
 async function loadEmbedded(){const d=embedded();if(!d)return;const last=await DB.get('loadedStamp');if(d.stamp===last)return;
   const had=S.clientes.length||S.padrao||S.gestao||S.ce;
@@ -1933,15 +1970,81 @@ $('#recXlsx').onclick=()=>{const m=recModel();if(m)consultaXlsx(m)};
 
 /* ============ início ============ */
 (async()=>{await DB.open();
-  S.clientes=(await DB.get('clientes'))||[];S.inv=(await DB.get('inv'))||{};S.padrao=(await DB.get('padrao'))||null;S.gestao=(await DB.get('gestao'))||null;S.ce=(await DB.get('ce0302'))||null;S.ui=(await DB.get('ui'))||{};
+  S.clientes=(await DB.get('clientes'))||[];S.inv=(await DB.get('inv'))||{};S.padrao=(await DB.get('padrao'))||null;S.gestao=(await DB.get('gestao'))||null;S.ce=(await DB.get('ce0302'))||null;S.ui=(await DB.get('ui'))||{};S.cloudT=+(await DB.get('cloudLocalT'))||0;
   await loadEmbedded();
   if(!S.ui.from&&!S.ui.to){const a=new Date(),b=new Date();b.setDate(b.getDate()+30);S.ui.from=S.gestao?.min||ymd(a);S.ui.to=ymd(b)}
   buildPerBars();sideFoot();S.ui.openCli=null;show(S.ui.view&&S.ui.view!=='inv'?S.ui.view:(S.clientes.length?S.ui.view||'clientes':'dados'));
-  if(!S.clientes.length&&!S.padrao)show('dados')})();
+  if(!S.clientes.length&&!S.padrao)show('dados');
+  cloudUI();window.__cloudGo=true;window.CLOUD&&window.CLOUD.start();setTimeout(()=>{if(!window.CLOUD){CS.st='nocfg';cloudUI()}},4000)})();
 window.addEventListener('beforeunload',()=>{DB.set('inv',S.inv)});
 /* logo = link para o menu (Menu.html); avisa se há alterações ainda não gravadas no arquivo HTML */
 $('#homeLogo').addEventListener('click',e=>{if(S.dirty&&!confirm('Há alterações ainda não gravadas no arquivo HTML (os dados continuam salvos neste navegador).\n\nVoltar ao menu mesmo assim?'))e.preventDefault()});
 /* PWA: só quando servido por http(s) — manifest + service worker compartilhados com o menu e os espelhos */
 if(/^https?:$/.test(location.protocol)){const l=document.createElement('link');l.rel='manifest';l.href='./manifest.json';document.head.appendChild(l);
   if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
-</script></body></html>
+</script>
+<script type="module" src="./firebase-bi.js"></script>
+<script type="module">
+/* ===== Sincronização com a nuvem (usa o firebase-bi.js) — mesma lógica do Espelho SMA: a versão mais nova vence ===== */
+const E=window.ESP,sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const API=()=>window.FirebaseBI;
+let started=false,ready=false,pushing=false,again=false,lastPush=0,lastToast=0,chain=Promise.resolve();
+const st=(s,m)=>{E.cs.st=s;E.cs.msg=m||'';E.ui()};
+const errMsg=e=>{const c=(e&&e.code)||'';
+ if(/permission/.test(c))return'permission-denied';
+ if(/unavailable|network/.test(c))return'sem conexão';
+ if(/resource-exhausted|quota/.test(c))return'limite diário do plano gratuito do Firestore atingido; tente amanhã';
+ if(/invalid-argument/.test(c))return'dados grandes demais para o Firestore ('+((e&&e.message)||c)+')';
+ return c||(e&&e.message)||'erro'};
+
+async function push(above){
+ if(!ready)return;if(pushing){again=true;return}pushing=true;
+ try{do{again=false;
+   const snap=E.snap();if(above&&snap.__t<=above){E.setT(above+1);snap.__t=above+1}above=0;
+   const t=snap.__t;st('sync');
+   await API().saveBI(snap);
+   lastPush=t;E.cs.t=t;E.cs.known=t;await E.saveKnown();
+  }while(again);st('ok');
+  if(Date.now()-lastToast>20000){lastToast=Date.now();E.toast('Enviado para a nuvem')}}
+ catch(e){console.error('BI/nuvem (enviar):',e);st('err',errMsg(e))}
+ finally{pushing=false}}
+
+async function pull(m){
+ st('sync');let r=null;
+ for(let k=0;k<3&&!r;k++){try{r=await API().loadBI()}catch(e){console.error('BI/nuvem (baixar):',e);await sleep(1500)}}
+ if(!r||!r.data){st('err','não consegui ler os dados da nuvem');return}
+ const t=Number(r.data.__t)||m.t;
+ await E.apply({t,raw:r.data});E.cs.t=t;E.cs.known=t;await E.saveKnown();st('ok');
+ E.toast('Dados atualizados pela nuvem · '+E.fmT(t))}
+
+async function reconcile(m){
+ try{const lt=E.t();
+  if(!m){E.cs.t=0;if(E.hasData())await push();else st('ok');return}
+  E.cs.t=m.t;
+  if(m.t===lt||m.t===lastPush){E.cs.known=m.t;await E.saveKnown();st('ok');return}
+  if(m.t>lt){
+   if(E.unsynced()&&!confirm('A nuvem tem uma versão mais nova ('+E.fmT(m.t)+'), mas este navegador tem alterações que ainda não foram enviadas ('+E.fmT(lt)+').\n\nOK = usar a versão da nuvem (descarta as alterações daqui)\nCancelar = manter as daqui e substituir a nuvem')){await push(m.t);return}
+   await pull(m);return}
+  await push()
+ }catch(e){console.error('BI/nuvem:',e);st('err',errMsg(e))}}
+
+async function start(){
+ if(started)return;started=true;
+ const A=API();
+ if(!A){st('nocfg');return}
+ st('conn');E.cs.known=await E.loadKnown();ready=true;
+ try{A.onCurrentChange(m=>{chain=chain.then(()=>reconcile(m)).catch(console.error)},e=>{console.error('BI/nuvem (ouvir):',e);st('err',errMsg(e))})}
+ catch(e){console.error(e);st('err',errMsg(e))}}
+
+async function sync(){
+ if(!ready)return;
+ try{st('sync');const m=await API().getCurrentMeta();
+  chain=chain.then(()=>reconcile(m)).then(()=>E.cs.st=='ok'&&E.toast('Sincronizado com a nuvem')).catch(console.error)}
+ catch(e){console.error(e);st('err',errMsg(e))}}
+
+window.CLOUD={start,sync,push:()=>{if(ready)push()}};
+addEventListener('online',()=>{if(ready)sync()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ready&&E.cs.st=='err')sync()});
+if(window.__cloudGo)start();
+</script>
+</body></html>

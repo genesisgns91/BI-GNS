@@ -1,7 +1,7 @@
 // Service Worker da Central de BI — Espelho SMA, Espelho SMC e BI Embalagens.
 // Permite instalar o app e abrir offline. Para publicar uma atualização, basta subir os arquivos novos
 // e aumentar VERSION: o navegador detecta o novo sw.js, refaz o cache e remove os antigos.
-const VERSION = 'v11';
+const VERSION = 'v12';
 const SHELL_CACHE = 'bi-shell-' + VERSION;
 const RUNTIME_CACHE = 'bi-runtime-' + VERSION;
 const SHELL = [
@@ -10,6 +10,7 @@ const SHELL = [
   './manifest.json',
   './firebase-db.js',
   './firebase-bi.js',
+  './firebase-smc.js',
   './Menu.html',
   './Espelho_SMC.html',
   './BI_Embalagens.html',
@@ -19,7 +20,7 @@ const SHELL = [
   './icons/apple-touch-icon.png'
 ];
 // Bibliotecas/fontes de CDN: guardadas após o 1º uso para o app abrir offline.
-// (O BI Embalagens usa o SDK do Firebase via www.gstatic.com para a nuvem.)
+// (Espelho SMA, Espelho SMC e BI Embalagens usam o SDK do Firebase via www.gstatic.com para a nuvem.)
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
 
 const CDN_PRE = [

@@ -792,7 +792,7 @@ select.rt,.rt{padding:0 30px 0 10px!important;height:34px}
 .tg.bad{background:#e5484d26;border-color:#e5484d99}
 @media(max-width:760px){.a2{grid-template-columns:repeat(2,minmax(0,1fr))}.atf select,.atf input{flex:1 1 100%}.acode{font-size:18px}.ab{padding:0 10px 12px}}
 details.ac,details.al{display:block!important}#alist .ac>summary,.al>summary{display:block}.ab{width:100%;box-sizing:border-box}
-@media(max-width:600px){.dlt thead{display:none}.dlt tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 6px;border-bottom:1px solid var(--ln)}.dlt td{display:block;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;min-width:0}.dlt td::before{content:attr(data-l);display:block;font-size:10.5px;color:var(--mu);margin-bottom:2px;font-weight:400}.dlt td:nth-child(8){grid-column:span 2}}
+@media(max-width:600px){.dlt thead{display:none}.dlt tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 6px;border-bottom:1px solid var(--ln)}.dlt td{display:block;padding:0!important;border:0!important;text-align:left!important;width:auto!important;min-width:0!important;height:auto!important;line-height:1.35!important;background:none!important;white-space:normal!important;min-width:0}.dlt td::before{content:attr(data-l);display:block;font-size:10.5px;color:var(--mu);margin-bottom:2px;font-weight:400}.dlt td:nth-child(8){grid-column:span 2}}
 @media(max-width:600px){.dlt,.dlt tbody{display:block;width:100%;min-width:0!important}.dlt tbody tr{width:100%;box-sizing:border-box}.dlt td{font-weight:600;color:var(--ink);font-size:13px}.dlt td::before{font-weight:400!important;color:var(--mu)}.dlt .tg{white-space:nowrap}.dlt td:nth-child(8){grid-column:1/-1}}
 @media(max-width:600px){.dlt td::before{white-space:nowrap}.dlt td.n{text-align:left!important;width:auto!important}.dlt tbody tr{grid-template-columns:1fr 1fr 1fr}}
 a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:background .2s}a.brand:hover{background:var(--s2)}a.brand:focus-visible{outline:2px solid var(--ac);outline-offset:2px}a.brand .mk{transition:transform .25s}a.brand:hover .mk{transform:scale(1.08)}a.brand:hover div span{font-size:0}a.brand:hover div span::after{content:'← Central de BI';font-size:12px;color:var(--ac)}a.brand:active{transform:scale(.98)}
@@ -1082,7 +1082,7 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
 .cq-r.open+.cq-x>td{background:var(--s2)}
 .cq-x .cq-xp{width:0;min-width:100%;box-sizing:border-box;padding:4px 16px 16px 58px;background:none;border:0;border-radius:0}
 .cq-lh{margin:6px 0 4px;font:600 11px var(--bd);letter-spacing:.06em;text-transform:uppercase;color:var(--mu2)}
-.cq-pw{overflow-x:auto;margin:0 0 6px}
+.cq-pw{margin:0 0 6px}
 .cq-ps{width:100%}
 .cq-ps thead th{padding:8px 10px;background:none;border-bottom:1px solid var(--ln2);font-size:11px;letter-spacing:.03em}
 .cq-ps tbody td{padding:9px 10px;border-bottom:1px solid var(--ln)}
@@ -1100,6 +1100,61 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
 .cq-go{margin:8px 0 0}
 .cq-lk{background:none;border:0;padding:4px 0;color:var(--ac);font:500 13px var(--bd);cursor:pointer}.cq-lk:hover{text-decoration:underline}
 @media(max-width:720px){.cq-x .cq-xp{padding:2px 12px 14px}.cq-ps td small{white-space:normal;max-width:none}.cq-ps thead{display:none}.cq-ps tbody tr>td{padding:0}}
+/* ===== responsividade: tabelas viram cartões conforme a largura do contêiner (sem rolagem horizontal) ===== */
+.cq-tw{container:cqt/inline-size;overflow:clip}.cq-pw{container:cqp/inline-size;overflow-x:visible}
+.cq-tb td,.cq-lt td{overflow-wrap:anywhere}
+.cq-tb th,.cq-lt th{white-space:nowrap;overflow-wrap:normal}
+@container cqt (max-width:1080px) and (min-width:901px){.cq-all>thead>tr>th:nth-child(5),.cq-all>tbody>tr.cq-r>td:nth-child(5){display:none}}
+@container cqt (max-width:960px){
+ .cq-tb:not(.cq-all):not(.cq-ps)>thead{display:none}
+ .cq-tb:not(.cq-all):not(.cq-ps),.cq-tb:not(.cq-all):not(.cq-ps)>tbody,.cq-tb:not(.cq-all):not(.cq-ps)>tfoot{display:block}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:12px 14px;border-bottom:1px solid var(--ln)}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r>td{display:block;padding:0!important;border:0!important;text-align:left!important;width:auto!important;min-width:0!important;height:auto!important;line-height:1.35!important;background:none!important;white-space:normal}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r>td[data-l]:not(.cq-c):before{content:attr(data-l);display:block;margin-bottom:2px;font:500 11px var(--bd);color:var(--mu2)}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r>td:first-child{grid-column:1/-1;min-width:0}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r>td.n small{text-align:left}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-r>td.cq-kit{font-size:inherit}
+ .cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-x{display:block}.cq-tb:not(.cq-all):not(.cq-ps)>tbody>tr.cq-x>td{display:block;padding:0 0 10px!important}
+ .cq-lt>thead{display:none}.cq-lt,.cq-lt>tbody,.cq-lt>tfoot{display:block}
+ .cq-lt>tbody>tr,.cq-lt>tfoot>tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;padding:10px 12px;border-bottom:1px solid var(--ln)}
+ .cq-lt>tbody>tr>td,.cq-lt>tfoot>tr>td{display:block;padding:0!important;border:0!important;text-align:left!important;width:auto!important;min-width:0!important;height:auto!important;line-height:1.35!important;background:none!important}
+ .cq-lt td[data-l]:before{content:attr(data-l);display:block;margin-bottom:2px;font:500 11px var(--bd);color:var(--mu2)}
+}
+@container cqt (max-width:900px){
+ .cq-all>thead{display:none}
+ .cq-all,.cq-all>tbody,.cq-all>tfoot{display:block}
+ .cq-all>tbody>tr.cq-r{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:12px 14px;border-bottom:1px solid var(--ln)}
+ .cq-all>tbody>tr.cq-r>td{display:block;padding:0!important;border:0!important;text-align:left!important;width:auto!important;min-width:0!important;height:auto!important;line-height:1.35!important;background:none!important;white-space:normal}
+ .cq-all>tbody>tr.cq-r>td[data-l]:not(.cq-c):before{content:attr(data-l);display:block;margin-bottom:2px;font:500 11px var(--bd);color:var(--mu2)}
+ .cq-all>tbody>tr.cq-r>td:first-child{grid-column:1/-1;min-width:0}
+ .cq-all>tbody>tr.cq-r>td.n small{text-align:left}
+ .cq-all>tbody>tr.cq-r>td.cq-kit{font-size:inherit}
+ .cq-all>tbody>tr.cq-x{display:block}.cq-all>tbody>tr.cq-x>td{display:block;padding:0!important}
+ .cq-x .cq-xp{padding:2px 14px 14px}
+ .cq-all>thead>tr>th:nth-child(5),.cq-all>tbody>tr.cq-r>td:nth-child(5){display:block}
+}
+@container cqp (max-width:900px){
+ .cq-ps>thead{display:none}
+ .cq-ps,.cq-ps>tbody,.cq-ps>tfoot{display:block}
+ .cq-ps>tbody>tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:12px 14px;border-bottom:1px solid var(--ln)}
+ .cq-ps>tbody>tr>td{display:block;padding:0!important;border:0!important;text-align:left!important;width:auto!important;min-width:0!important;height:auto!important;line-height:1.35!important;background:none!important;white-space:normal}
+ .cq-ps>tbody>tr>td[data-l]:not(.cq-c):before{content:attr(data-l);display:block;margin-bottom:2px;font:500 11px var(--bd);color:var(--mu2)}
+ .cq-ps>tbody>tr>td:first-child{grid-column:1/-1;min-width:0}
+ .cq-ps>tbody>tr>td.n small{text-align:left}
+ .cq-ps>tbody>tr>td.cq-kit{font-size:inherit}
+
+ .cq-ps>tbody>tr>td small{white-space:normal;max-width:none}
+ .cq-ps>tbody>tr:last-child{border-bottom:0}
+}
+.ca-bar .seg{flex-wrap:wrap!important;height:auto;overflow:visible!important}.ca-bar .seg button{min-width:max-content}
+@media(max-width:720px){.ca-bar .seg{display:grid!important;grid-template-columns:1fr 1fr;gap:2px}.ca-bar .seg button{min-width:0;white-space:normal;height:auto;min-height:34px;padding:6px 8px;line-height:1.25}}
+.cq-ps .cq-shr{white-space:normal;text-align:center;border-radius:12px;line-height:1.3}
+/* tabelas gerais do app: fluidas, sem largura mínima fixa */
+main{min-width:0;max-width:100%}
+table{min-width:0}.vg table,.xw table,#vlist .ac .tw table{min-width:0}
+.tw th,.tw td{white-space:normal;overflow-wrap:anywhere}.tw td.n,.tw th.n{white-space:nowrap}
+@media(max-width:1280px){.tw th,.tw td{padding-left:8px;padding-right:8px}.tw{font-size:13px}}
+@media(min-width:1241px){.cq-blk+.cq-blk .cq-f select{min-width:128px}.cq-blk+.cq-blk .cq-f input[type=date]{min-width:136px}.cq-blk+.cq-blk .cq-row{gap:12px}}
 </style></head><body>
 <a class="skip" href="#main">Pular para o conteúdo</a><div id="splash" aria-hidden="true" onclick="this.classList.add('out');setTimeout(function(){document.documentElement.classList.remove('sp')},650)"><div class="sp-stage"><svg class="sp-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:200ms;--f:1100ms"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:275ms;--f:1220ms"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:425ms;--f:1100ms"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:500ms;--f:1220ms"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:575ms;--f:1340ms"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:650ms;--f:1100ms"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:725ms;--f:1220ms"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:800ms;--f:1340ms"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d" style="--d:875ms;--f:1460ms"/></svg></div><div class="sp-name">Espelho SMC</div><div class="sp-sub">Estoque de componentes</div><div class="sp-bar"><i></i></div></div><i id="prog"></i><button id="up" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><div class="offl" id="offl" hidden role="status">Sem internet · usando dados salvos neste aparelho</div>
 <div class="app"><aside class="side" id="side"><a class="brand" href="Menu.html" title="Voltar ao menu (Central de BI)" aria-label="Voltar ao menu da Central de BI"><span class="mk"><svg class="" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d"/></svg></span><div><b>Espelho SMC</b><span>Componentes</span></div></a>

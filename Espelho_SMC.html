@@ -1030,7 +1030,7 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
 .cq-x>td{padding:0 16px 14px!important;border-bottom:1px solid var(--ln)}
 .cq-xp{padding:16px 18px;background:var(--s2);border:1px solid var(--ln);border-radius:var(--cq-r)}
 .cq-xp .cq-tw{background:var(--s1)}
-.cq-sh2{margin:0 0 12px;font-size:13px;line-height:1.5}
+.cq-sh2{margin:0 0 10px;font-size:13px;line-height:1.5}
 .cq-pill{margin-left:8px;vertical-align:1px}
 .cq-shr{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:600;line-height:1.5;background:#f59e3a22;border:1px solid #f59e3a80;color:var(--ink);white-space:nowrap}
 .cq-ps td small{max-width:340px;white-space:normal}.cq-ps td:last-child{min-width:170px}
@@ -1077,6 +1077,29 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
  .cq-ps tbody tr>td:first-child{grid-column:1/-1}
  .cq-tw .cq-tb{min-width:0}
 }
+/* painel expandido do item pai: plano e minimalista */
+.cq-x>td{padding:0!important;border-bottom:1px solid var(--ln)}
+.cq-r.open+.cq-x>td{background:var(--s2)}
+.cq-x .cq-xp{width:0;min-width:100%;box-sizing:border-box;padding:4px 16px 16px 58px;background:none;border:0;border-radius:0}
+.cq-lh{margin:6px 0 4px;font:600 11px var(--bd);letter-spacing:.06em;text-transform:uppercase;color:var(--mu2)}
+.cq-pw{overflow-x:auto;margin:0 0 6px}
+.cq-ps{width:100%}
+.cq-ps thead th{padding:8px 10px;background:none;border-bottom:1px solid var(--ln2);font-size:11px;letter-spacing:.03em}
+.cq-ps tbody td{padding:9px 10px;border-bottom:1px solid var(--ln)}
+.cq-ps tbody tr:last-child td{border-bottom:0}
+.cq-ps th:first-child,.cq-ps td:first-child{padding-left:0}.cq-ps th:last-child,.cq-ps td:last-child{padding-right:0}
+.cq-ps td small{margin-top:1px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cq-ps td:last-child{min-width:0}
+.cq-ps .cq-st{font-size:11.5px;padding:2px 9px}
+.cq-alt{margin:10px 0 0;border-top:1px solid var(--ln);padding-top:8px}
+.cq-alt>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;padding:4px 0;font-size:13px;font-weight:600;color:var(--ink)}
+.cq-alt>summary::-webkit-details-marker{display:none}
+.cq-alt>summary:before{content:"›";display:inline-block;color:var(--mu);transition:transform .15s}.cq-alt[open]>summary:before{transform:rotate(90deg)}
+.cq-alt>summary span{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--mu)}.cq-alt>summary span b{color:var(--ink)}
+.cq-alt>.cq-sh2,.cq-alt>.cq-pw{margin-top:8px}
+.cq-go{margin:8px 0 0}
+.cq-lk{background:none;border:0;padding:4px 0;color:var(--ac);font:500 13px var(--bd);cursor:pointer}.cq-lk:hover{text-decoration:underline}
+@media(max-width:720px){.cq-x .cq-xp{padding:2px 12px 14px}.cq-ps td small{white-space:normal;max-width:none}.cq-ps thead{display:none}.cq-ps tbody tr>td{padding:0}}
 </style></head><body>
 <a class="skip" href="#main">Pular para o conteúdo</a><div id="splash" aria-hidden="true" onclick="this.classList.add('out');setTimeout(function(){document.documentElement.classList.remove('sp')},650)"><div class="sp-stage"><svg class="sp-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:200ms;--f:1100ms"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:275ms;--f:1220ms"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:425ms;--f:1100ms"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:500ms;--f:1220ms"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:575ms;--f:1340ms"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:650ms;--f:1100ms"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:725ms;--f:1220ms"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:800ms;--f:1340ms"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d" style="--d:875ms;--f:1460ms"/></svg></div><div class="sp-name">Espelho SMC</div><div class="sp-sub">Estoque de componentes</div><div class="sp-bar"><i></i></div></div><i id="prog"></i><button id="up" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><div class="offl" id="offl" hidden role="status">Sem internet · usando dados salvos neste aparelho</div>
 <div class="app"><aside class="side" id="side"><a class="brand" href="Menu.html" title="Voltar ao menu (Central de BI)" aria-label="Voltar ao menu da Central de BI"><span class="mk"><svg class="" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d"/></svg></span><div><b>Espelho SMC</b><span>Componentes</span></div></a>
@@ -1774,14 +1797,14 @@ function parRow(p){const ev=pdem(p).filter(v=>cqIn(v.d)),dem=ev.reduce((t,v)=>t+
  if(!has)st=['bad','Sem estrutura'];else if(!b.rows.length)st=['nu','Lista vazia'];else if(M.none)st=['nu','Sem itens SMC'];else if(!dem)st=['nu','Sem demanda'];else if(falta>0)st=['bad','Faltam '+fn(falta,0)+' kits'];else st=['ok','Cobre a demanda'];
  const nsh=has&&b?b.rows.filter(c=>c.s&&((CODE.get(c.c)||{}).np||0)>1).length:0;
  return{p,nsh,ds:DESC.get(p)||'',cli:CLI.get(p)||[...new Set(pdem(p).map(v=>v.c))].filter(Boolean).join(', ')||'—',dem,ne:ev.length,nx,has,nl:has?KIDS.get(p).size:0,b,M,falta,st}}
-function cqShr(c,p){const o=CODE.get(c),n=o?o.np||0:0;if(n<2)return '<span class="mu">—</span>';const oth=[...new Set(o.en.filter(e=>!e.a&&e.r!=p).map(e=>e.r))];return `<span class="cq-shr" title="Componente compartilhado: o mesmo saldo serve a mais de um item pai">Compartilhado · ${fn(n,0)} itens pai</span>${oth.length?'<small>também em: '+E(oth.slice(0,3).join(', '))+(oth.length>3?' +'+(oth.length-3):'')+'</small>':''}`}
+function cqShr(c,p){const o=CODE.get(c),n=o?o.np||0:0;if(n<2)return '<span class="cq-z">—</span>';const oth=[...new Set(o.en.filter(e=>!e.a&&e.r!=p).map(e=>e.r))];return `<span class="cq-shr" title="${E('Usado também em: '+oth.slice(0,12).join(', ')+(oth.length>12?' +'+(oth.length-12):''))}">Compartilhado · ${fn(n,0)} itens pai</span>`}
 function cqParX(p){const r=parRow(p);if(!r.has)return '<p class="mu cq-none">Item pai sem estrutura no relatório de ESTRUTURA: não dá para calcular componentes nem kits.</p>';
  const dem=r.dem,ls=[...Array(r.nl).keys()].map(li=>{const b=bomC(p,li);return{li,b,...kitOf(b)}});
  const tbl=x=>{if(!x.b.rows.length)return '<p class="mu cq-none">Lista sem componentes.</p>';const R=x.b.rows.filter(c=>!CA.hs||c.s).sort((a,b)=>(b.s-a.s)||(a.n-b.n)||(a.c<b.c?-1:1));
-  return `<div class="cq-tw"><table class="cq-tb cq-ps"><thead><tr><th>Componente<th>Depósito<th class="n">Qtd por item pai<th class="n">Necessário<th class="n">Saldo em estoque<th class="n">Kits possíveis<th>Situação<th>Observação</tr></thead><tbody>${R.map(c=>{const sh=cqShr(c.c,p),nd=c.m*dem,stt=!c.s?cqSt('nu','Fora do SMC'):!dem?cqSt('nu','Sem demanda'):c.q+1e-9<nd?cqSt('warn','Falta '+fn(Math.ceil(nd-c.q-1e-9),0)):cqSt('ok','OK');
+  return `<div class="cq-pw"><table class="cq-tb cq-ps"><thead><tr><th>Componente<th>Depósito<th class="n" title="Quantidade por item pai">Qtd por pai<th class="n" title="Demanda × quantidade por item pai">Necessário<th class="n" title="Saldo total em estoque">Estoque<th class="n" title="Kits que este componente permite montar">Kits<th>Situação<th>Observação</tr></thead><tbody>${R.map(c=>{const sh=cqShr(c.c,p),nd=c.m*dem,stt=!c.s?cqSt('nu','Fora do SMC'):!dem?cqSt('nu','Sem demanda'):c.q+1e-9<nd?cqSt('warn','Falta '+fn(Math.ceil(nd-c.q-1e-9),0)):cqSt('ok','OK');
    return `<tr class="${c.s?'':'cq-mut'}"><td data-l="Componente"><b>${E(c.c)}</b>${x.lim.includes(c.c)&&dem&&x.k<dem?' <span class="cq-pill">limita o kit</span>':''}<small>${E(cDesc(c.c))||'—'}</small><td data-l="Depósito">${depTag(c.c)}<td class="n" data-l="Qtd por item pai">× ${fn(c.m,4)}<td class="n" data-l="Necessário">${dem?fn(nd,2):'—'}<td class="n" data-l="Saldo em estoque">${c.s?'<b>'+fn(c.q,2)+'</b>':fn(c.q,2)}<td class="n" data-l="Kits possíveis">${c.s?fn(c.n,0):'—'}<td data-l="Situação">${stt}<td data-l="Observação">${sh}</tr>`}).join('')}</tbody></table></div>`};
- const sum=x=>{const ns=x.b.rows.filter(c=>c.s).length,nf=x.b.rows.length-ns;return `<p class="cq-sh2">${x.li==0?'Lista principal':'Lista alternativa '+x.li}: <b>${fn(x.k,0)} kit(s)</b> possíveis${dem?' para uma demanda de <b>'+fn(dem,0)+' un</b>':''} · ${fn(ns,0)} componente(s) SMC contam${nf?(CA.hs?` · ${fn(nf,0)} de outro depósito ocultos`:` · ${fn(nf,0)} de outro depósito não contam`):''}${x.none?' · <b>nenhum componente SMC nesta lista</b>':''}${x.lim.length&&dem&&x.k<dem?' · limita: <b>'+E(x.lim.slice(0,3).join(', '))+'</b>':''}.</p>`};
- return ls.map(x=>x.li==0||ls.length==1?sum(x)+tbl(x):`<details class="cq-sec"><summary><span class="cq-sn">Lista alternativa ${x.li}</span><span class="cq-sm">kits possíveis: <b>${fn(x.k,0)}</b></span></summary><div class="cq-body">${sum(x)}${tbl(x)}</div></details>`).join('')+`<p style="margin:10px 0 0"><button type="button" class="btn sm" data-cgo="${E(p)}">Abrir na Consulta de item pai</button></p>`}
+ const sum=x=>{const nf=x.b.rows.filter(c=>!c.s).length;return `<p class="cq-sh2"><b>${fn(x.k,0)} kit(s)</b> possíveis${dem?' · demanda <b>'+fn(dem,0)+' un</b>':''}${nf&&!CA.hs?` · ${fn(nf,0)} componente(s) de outro depósito não contam`:''}${x.none?' · <b>nenhum componente SMC nesta lista</b>':''}${x.lim.length&&dem&&x.k<dem?' · limita: <b>'+E(x.lim.slice(0,3).join(', '))+'</b>':''}</p>`};
+ return ls.map(x=>x.li==0||ls.length==1?(ls.length>1?'<p class="cq-lh">Lista principal</p>':'')+sum(x)+tbl(x):`<details class="cq-alt"><summary>Lista alternativa ${x.li}<span>kits possíveis: <b>${fn(x.k,0)}</b></span></summary>${sum(x)}${tbl(x)}</details>`).join('')+`<p class="cq-go"><button type="button" class="cq-lk" data-cgo="${E(p)}">Abrir na Consulta de item pai ›</button></p>`}
 function conAll(box){const q=U($('#cq').value),all=parentsAll().map(parRow).filter(r=>!q||U(r.p+' '+r.ds+' '+r.cli).includes(q)),wd=all.filter(r=>r.dem>0),mt=r=>r.has&&r.b.rows.length&&r.M&&!r.M.none&&r.M.k>0,hid=r=>CA.hs&&(!r.has||!r.b.rows.length||!r.M||r.M.none);
  let L=all.filter(r=>!hid(r)&&(CA.lf=='mont'?mt(r):CA.lf=='all'?(r.has||r.dem>0):CA.lf=='falta'?(r.dem>0&&r.falta>0):r.dem>0));
  const kv=r=>r.M&&!r.M.none&&r.b.rows.length?r.M.k:-1,sr={bad:0,warn:1,ok:2,nu:3},sk={dem:r=>r.dem,falta:r=>r.falta??-1,kits:kv,nsh:r=>r.nsh,st:r=>sr[r.st[0]]??9,prox:r=>r.nx||'9',cod:r=>r.p},dr=CA.dir=='asc'?1:-1;

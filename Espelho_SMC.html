@@ -956,38 +956,127 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
 .cq-mut{opacity:.6}.cq-ps small,.cq-tb td small{display:block;color:var(--mu);font-size:11.5px}
 .ca-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px}.ca-bar select{height:34px}
 
-/* ---- Consulta · todos os itens pai: acabamento ---- */
-.ca-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:0 0 14px;padding:0 0 16px;border-bottom:1px solid var(--ln)}
-.ca-bar .seg{margin:0;flex:0 1 auto}.ca-bar .seg button{padding:0 14px;font-size:13px}.ca-bar .seg button b{margin-left:6px;padding:1px 7px;border-radius:999px;background:#ffffff14;font-weight:600;font-size:11.5px;font-variant-numeric:tabular-nums}.ca-bar .seg button.on b{background:#0000001f}
-.ca-sort{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--mu)}.ca-sort select{height:34px;min-width:210px}
-.ca-bar .klim{display:inline-flex;align-items:center;gap:9px;margin:0 0 0 auto;padding:6px 12px;border:1px solid var(--ln2);border-radius:10px;background:var(--s2);font-size:13px;color:var(--ink);white-space:nowrap;cursor:pointer;transition:border-color .15s}
-.ca-bar .klim:hover{border-color:var(--ac)}.ca-bar .klim input{width:16px;height:16px;margin:0;accent-color:var(--ac);cursor:pointer}
+/* ================= CONSULTA v2: acabamento ================= */
+#con{--cq-r:12px}
+/* topo: busca + período */
+.cq-top{display:block;padding:18px 20px 0;overflow:visible}
+.cq-cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(480px,1fr);gap:0 28px;align-items:start}
+.cq-blk{min-width:0}.cq-blk+.cq-blk{padding-left:28px;border-left:1px solid var(--ln)}
+.cq-lb{margin:0 0 10px;font:600 11px var(--bd);letter-spacing:.08em;text-transform:uppercase;color:var(--mu2)}
+.cq-row{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-end}
+.cq-f{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:500;color:var(--mu);min-width:0}
+.cq-f .seg{margin:0}.cq-f select{min-width:150px}.cq-f input[type=date]{min-width:146px}
+.cq-grow{flex:1 1 100%}.cq-grow .cin{min-width:0;width:100%}.cq-hint{display:flex;align-items:center;gap:9px;margin:16px -20px 0;padding:11px 20px;border-top:1px solid var(--ln);background:var(--s2);border-radius:0 0 14px 14px;font-size:12.5px;color:var(--mu);flex:none}
+.cq-hint b{color:var(--ink);font-weight:600}
+.cq-hi{flex:none;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--mu2);font:italic 700 10px/1 Georgia,serif;color:var(--mu)}
+/* cabeçalho do resultado */
+.cq-head{margin-top:16px;padding:18px 20px}
+.cq-ht{align-items:flex-end;margin-bottom:16px;gap:12px 16px}
+.cq-code{font:600 24px/1.15 var(--hd);letter-spacing:-.01em}.cq-desc{margin-top:5px;font-size:13.5px}
+.cq-back{display:inline-flex;align-items:center;margin:0 0 8px -4px;padding:3px 8px;border:0;border-radius:8px;background:none;color:var(--mu);font:500 12.5px var(--bd);cursor:pointer;transition:background .15s,color .15s}.cq-back:hover{background:var(--s2);color:var(--ink)}
+.cq-head .xp{margin-left:auto;align-self:flex-start}
+/* indicadores */
+.cq-head .kp{display:flex;flex-wrap:wrap;gap:10px;margin:0!important}
+.cq-head .kp>div{flex:1 1 168px;min-width:0;padding:13px 16px 14px;background:var(--s2);border:1px solid var(--ln);border-radius:var(--cq-r)}
+.cq-head .kp>div>b{font-size:24px!important;line-height:1.1;letter-spacing:-.01em}
+.cq-head .kp>div>span{font-size:12px;line-height:1.35;color:var(--mu)}
+.cq-banner{align-items:center;padding:12px 16px;border-radius:var(--cq-r);margin:0 0 14px}
+/* barra de filtros */
+.ca-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:0 0 16px;padding:0 0 16px;border-bottom:1px solid var(--ln)}
+.ca-bar .seg{margin:0;flex:0 1 auto}.ca-bar .seg button{padding:0 14px;font-size:13px}
+.ca-bar .seg button b{margin-left:7px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,currentColor 14%,transparent);font-weight:600;font-size:11.5px;font-variant-numeric:tabular-nums}
+.ca-sort{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--mu)}.ca-sort select{min-width:210px}
+.ca-bar .klim,.cq-tools .klim{display:inline-flex;align-items:center;gap:9px;margin:0;padding:0 12px;height:36px;border:1px solid var(--ln2);border-radius:10px;background:var(--s2);font-size:13px;color:var(--ink);white-space:nowrap;cursor:pointer;transition:border-color .15s}
+.ca-bar .klim{margin-left:auto}
+.ca-bar .klim:hover,.cq-tools .klim:hover{border-color:var(--ac)}
+.ca-bar .klim input,.cq-tools .klim input{width:16px;height:16px;margin:0;padding:0;border-radius:4px;accent-color:var(--ac);cursor:pointer}
 .ca-note{margin:0 0 14px;padding:11px 16px;border:1px solid var(--ln);border-left:3px solid var(--ac);border-radius:10px;background:var(--s2);font-size:13px;line-height:1.55;color:var(--mu)}.ca-note b{color:var(--ink)}
 .ca-cnt{margin:0 0 10px;font-size:12.5px;color:var(--mu)}
-.cq-tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;background:var(--s1,transparent)}
-.cq-tb{border-collapse:separate;border-spacing:0}
-.cq-tb thead th{padding:11px 14px;background:var(--s2);border-bottom:1px solid var(--ln2);font:600 11.5px var(--bd);letter-spacing:.04em;text-transform:uppercase;color:var(--mu);vertical-align:middle}
-.cq-tb th.cq-so{cursor:pointer;user-select:none;transition:color .12s,background .12s;position:static}
+/* seções e ferramentas */
+.cq-sec{margin-top:14px;border-radius:14px}
+.cq-sec>summary{padding:15px 20px;transition:background .15s;border-radius:14px}.cq-sec>summary:hover{background:var(--s2)}.cq-sec[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.cq-body{padding:4px 20px 18px}
+.cq-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin:0 0 14px}
+.cq-how{flex:1 1 320px;font-size:12.5px;line-height:1.5;color:var(--mu)}
+/* tabelas */
+.cq-tw{overflow-x:auto;border:1px solid var(--ln);border-radius:var(--cq-r);background:var(--s1)}
+.cq-tb,.cq-lt{border-collapse:separate;border-spacing:0}
+.cq-tb thead th,.cq-lt thead th{padding:11px 14px;background:var(--s2);border-bottom:1px solid var(--ln2);font:600 11.5px/1.3 var(--bd);letter-spacing:.04em;text-transform:uppercase;color:var(--mu);vertical-align:bottom;position:static}
+.cq-tb th small{display:block;margin-top:2px;font-weight:400;font-size:11px;letter-spacing:0;text-transform:none;color:var(--mu2)}
+.cq-tb th.n,.cq-lt th.n{text-align:right}
+.cq-tb th.cq-so{cursor:pointer;user-select:none;transition:color .12s,background .12s;vertical-align:middle}
 .cq-tb th.cq-so:hover,.cq-tb th.cq-so:focus-visible{color:var(--ink);outline:0;background:var(--s3,var(--s2));box-shadow:inset 0 -2px 0 var(--ln2)}
 .cq-tb th.cq-so[aria-sort=ascending],.cq-tb th.cq-so[aria-sort=descending]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ac)}
 .cq-ar{display:inline-block;width:12px;margin-left:6px;font-style:normal;font-size:9px;line-height:1;text-align:center;color:var(--mu2);opacity:.7;vertical-align:1px}
 .cq-so[aria-sort=ascending] .cq-ar,.cq-so[aria-sort=descending] .cq-ar{color:var(--ac);opacity:1;font-size:10px}
-.cq-tb th.n{text-align:right}
-.cq-tb td{padding:12px 14px;line-height:1.35;vertical-align:middle;border-bottom:1px solid var(--ln)}
-.cq-tb td.n{text-align:right;white-space:nowrap}.cq-tb td.n small,.cq-tb td small{margin-top:3px}
-.cq-tb td.n small{text-align:right}
-.cq-tb tr.cq-r:last-of-type td{}
+.cq-tb td,.cq-lt td{padding:12px 14px;line-height:1.35;vertical-align:middle;border-bottom:1px solid var(--ln)}
+.cq-lt td{padding:9px 14px}
+.cq-tb td.n,.cq-lt td.n{text-align:right;white-space:nowrap}
+.cq-tb td small,.cq-lt td small{display:block;margin-top:3px;font-size:12px;font-weight:400;color:var(--mu)}
+.cq-tb td.n>b{color:var(--ink);font-weight:700}
 .cq-tb td.cq-kit{font-size:17px;font-weight:700;letter-spacing:-.01em}.cq-tb td.cq-kit b{font-size:inherit}
+.cq-tb td.late,.cq-lt td.late{color:var(--r);font-weight:600}.cq-tb td.good{color:var(--g)}
 .cq-z{color:var(--mu2)}
-.cq-tb td.n>b{color:var(--ink);font-weight:700}.cq-tb td small{font-weight:400;color:var(--mu)}
-.cq-tb td.late{color:var(--r);font-weight:600}
+.cq-tw .cq-tb>tbody>tr:last-child>td,.cq-tw .cq-lt>tbody>tr:last-child>td{border-bottom:0}
+.cq-lt tfoot td{border-top:1px solid var(--ln2);border-bottom:0;padding:10px 14px}
+.cq-all>thead>tr>th,.cq-all>tbody>tr>td{padding-left:10px;padding-right:10px}
+.cq-all>thead>tr>th{letter-spacing:.02em;font-size:11px}
+.cq-all .cq-c{min-width:220px}
+.cq-tb th:first-child,.cq-tb td:first-child{padding-left:16px}.cq-tb th:last-child,.cq-tb td:last-child{padding-right:16px}
+.cq-r{transition:background .12s}.cq-r:hover,.cq-r.open{background:var(--s2)}
+.cq-r.open>td{border-bottom-color:transparent}
+.cq-c{gap:12px}
+.cq-t{width:28px;height:28px;border-radius:9px;transition:border-color .15s,color .15s,background .15s}.cq-t:hover{border-color:var(--ac);color:var(--ink)}.cq-t:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cq-x>td{padding:0 16px 14px!important;border-bottom:1px solid var(--ln)}
+.cq-xp{padding:16px 18px;background:var(--s2);border:1px solid var(--ln);border-radius:var(--cq-r)}
+.cq-xp .cq-tw{background:var(--s1)}
+.cq-sh2{margin:0 0 12px;font-size:13px;line-height:1.5}
+.cq-pill{margin-left:8px;vertical-align:1px}
 .cq-shr{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:600;line-height:1.5;background:#f59e3a22;border:1px solid #f59e3a80;color:var(--ink);white-space:nowrap}
-.cq-ps td small{max-width:340px;white-space:normal}
-.cq-ps td:last-child{min-width:170px}
-.cq-tw .cq-tb>tbody>tr:last-child>td{border-bottom:0}
-.cq-tb:not(.cq-ps) th:nth-child(1){width:38%}
-.cq-tb:not(.cq-ps) th:nth-child(2),.cq-tb:not(.cq-ps) th:nth-child(4),.cq-tb:not(.cq-ps) th:nth-child(5),.cq-tb:not(.cq-ps) th:nth-child(6){width:1%;white-space:nowrap}
-@media(max-width:720px){.ca-bar .klim{margin-left:0;width:100%}.ca-sort{width:100%}.ca-sort select{flex:1}.cq-tw{border:0;background:none}.cq-tb td.cq-kit{font-size:inherit}.cq-tb td.n small{text-align:left}}
+.cq-ps td small{max-width:340px;white-space:normal}.cq-ps td:last-child{min-width:170px}
+.cq-all>thead>tr>th:nth-child(1){width:38%}
+.cq-all>thead>tr>th:nth-child(2),.cq-all>thead>tr>th:nth-child(4),.cq-all>thead>tr>th:nth-child(5),.cq-all>thead>tr>th:nth-child(6){width:1%;white-space:nowrap}
+.tg-b{cursor:pointer;font:inherit;font-size:12px;transition:border-color .15s,color .15s}.tg-b:hover{border-color:var(--ac);color:var(--ink)}.tg-b:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cq-tagl{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:13px}
+/* estado vazio */
+.cq-empty{margin-top:16px;padding:28px 24px;display:grid;gap:22px;justify-items:center;text-align:center}
+.cq-eh{display:flex;gap:16px;align-items:center;text-align:left;max-width:640px}.cq-eh h3{margin:0 0 4px;font:600 18px var(--hd)}.cq-eh p{margin:0;line-height:1.55;font-size:13.5px}
+.cq-eic{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--s2);border:1px solid var(--ln2);font-size:20px;color:var(--ac)}
+.cq-sg{display:grid;gap:10px;justify-items:center;max-width:880px}.cq-sg .cq-lb{margin:0}
+.cq-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cq-chip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 14px;border:1px solid var(--ln2);border-radius:10px;background:var(--s2);color:var(--ink);cursor:pointer;text-align:left;font:inherit;transition:border-color .15s,transform .12s}
+.cq-chip:hover{border-color:var(--ac);transform:translateY(-1px)}.cq-chip:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cq-chip b{font:600 13.5px var(--hd)}.cq-chip small{font-size:11.5px;color:var(--mu)}
+.cq-tip{margin:0;font-size:12.5px}
+/* controles com a mesma altura */
+.cq-top .seg,.ca-bar .seg{box-sizing:border-box;height:40px;align-items:center}
+.cq-top .seg button,.ca-bar .seg button{height:32px;min-height:32px}
+.cq-f select,.cq-f input[type=date],.cq-grow .cin input,.ca-sort select,.ca-bar .klim,.cq-tools .klim{box-sizing:border-box;height:40px;min-height:40px}
+.cq-grow .cin input{padding-left:36px}
+.ca-bar .seg{flex:1 1 100%;width:100%}.ca-bar .seg button{flex:1 1 auto;justify-content:center}
+.ca-bar .ca-sort{order:2}.ca-bar .klim{order:3}
+/* sugestões da busca */
+.csg{top:42px;border-radius:12px;padding:4px}.csg button{border-radius:8px;padding:9px 12px}
+@media(max-width:1240px){.cq-cols{grid-template-columns:1fr;gap:18px}.cq-blk+.cq-blk{padding-left:0;border-left:0;padding-top:18px;border-top:1px solid var(--ln)}}
+@media(max-width:720px){
+ .cq-top{padding:14px 14px 0}.cq-hint{margin:14px -14px 0;padding:10px 14px}.cq-head{padding:16px 14px}
+ .cq-f,.cq-f .seg{width:100%}.cq-f .seg button{flex:1}.cq-f select,.cq-f input[type=date]{width:100%}.cq-row .cq-f:not(.cq-grow){flex:1 1 140px}
+ .ca-bar .klim{margin-left:0;width:100%}.ca-sort{width:100%}.ca-sort select{flex:1}
+ .cq-tw{border:0;background:none;border-radius:0}.cq-tb td.cq-kit{font-size:inherit}.cq-tb td.n small{text-align:left}
+ .cq-tb tr.cq-r{border:1px solid var(--ln);border-radius:12px;margin:0 0 8px;padding:12px;background:var(--s1)}
+ .cq-tb tr.cq-r>td{padding:0;border:0}.cq-tb td:first-child{padding-left:0}.cq-tb td:last-child{padding-right:0}
+ .cq-body{padding:2px 12px 14px}.cq-sec>summary{padding:13px 14px}
+ .cq-empty{padding:22px 16px}.cq-eh{flex-direction:column;text-align:center}
+ .cq-all>thead>tr>th:nth-child(n){width:auto}
+ .cq-all .cq-c{min-width:0}
+ .ca-bar .seg{height:40px;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden}.ca-bar .seg button{flex:none!important}
+ .cq-xp{padding:12px}
+ .cq-ps tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;padding:10px 0;border-bottom:1px solid var(--ln)}
+ .cq-ps tbody tr:last-child{border-bottom:0}
+ .cq-ps tbody tr>td{display:block;padding:0;border:0;text-align:left!important;white-space:normal}
+ .cq-ps tbody tr>td:first-child{grid-column:1/-1}
+ .cq-tw .cq-tb{min-width:0}
+}
 </style></head><body>
 <a class="skip" href="#main">Pular para o conteúdo</a><div id="splash" aria-hidden="true" onclick="this.classList.add('out');setTimeout(function(){document.documentElement.classList.remove('sp')},650)"><div class="sp-stage"><svg class="sp-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:200ms;--f:1100ms"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:275ms;--f:1220ms"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:425ms;--f:1100ms"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:500ms;--f:1220ms"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:575ms;--f:1340ms"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:650ms;--f:1100ms"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:725ms;--f:1220ms"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:800ms;--f:1340ms"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d" style="--d:875ms;--f:1460ms"/></svg></div><div class="sp-name">Espelho SMC</div><div class="sp-sub">Estoque de componentes</div><div class="sp-bar"><i></i></div></div><i id="prog"></i><button id="up" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><div class="offl" id="offl" hidden role="status">Sem internet · usando dados salvos neste aparelho</div>
 <div class="app"><aside class="side" id="side"><a class="brand" href="Menu.html" title="Voltar ao menu (Central de BI)" aria-label="Voltar ao menu da Central de BI"><span class="mk"><svg class="" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d"/></svg></span><div><b>Espelho SMC</b><span>Componentes</span></div></a>
@@ -1045,19 +1134,24 @@ a.brand{color:inherit;text-decoration:none;border-radius:12px;transition:backgro
  <div id="alist"></div></div>
 <div class="pane" id="con" hidden>
   <div class="card cq-top">
-   <div class="cq-sh"><i>1</i>Período da demanda</div>
-   <div class="cq-row">
-    <div class="cq-f"><span>Atalho</span><select id="cps" aria-label="Atalho de período"><option value="custom" hidden disabled>Personalizado</option><option value="late">Atrasos</option><option value="2">D+2</option><option value="5">D+5</option><option value="7">D+7</option><option value="10">D+10</option><option value="15">D+15</option><option value="60">D+60</option><option value="" selected>Todo o período</option></select></div>
-    <div class="cq-f"><span>Entrega de</span><input type="date" id="cd1"></div>
-    <div class="cq-f"><span>até</span><input type="date" id="cd2"></div>
-    <p class="cq-hint" id="cphint"></p>
+   <div class="cq-cols">
+    <section class="cq-blk" aria-labelledby="cqlb1">
+     <p class="cq-lb" id="cqlb1">O que consultar</p>
+     <div class="cq-row">
+      <div class="cq-f"><span>Consultar por</span><div class="seg" id="cmseg"><button type="button" data-cm="a" class="on">Todos os itens pai</button><button type="button" data-cm="p">Item pai</button><button type="button" data-cm="c">Componente</button></div></div>
+      <div class="cq-f cq-grow"><span>Código ou descrição</span><div class="cin"><input type="search" id="cq" placeholder="Filtrar por código, descrição ou cliente (opcional)" autocomplete="off" aria-label="Buscar"><div class="csg" id="csg" hidden></div></div></div>
+     </div>
+    </section>
+    <section class="cq-blk" aria-labelledby="cqlb2">
+     <p class="cq-lb" id="cqlb2">Período da demanda</p>
+     <div class="cq-row">
+      <div class="cq-f"><span>Atalho</span><select id="cps" aria-label="Atalho de período"><option value="custom" hidden disabled>Personalizado</option><option value="late">Atrasos</option><option value="2">D+2</option><option value="5">D+5</option><option value="7">D+7</option><option value="10">D+10</option><option value="15">D+15</option><option value="60">D+60</option><option value="" selected>Todo o período</option></select></div>
+      <div class="cq-f"><span>Entrega de</span><input type="date" id="cd1"></div>
+      <div class="cq-f"><span>até</span><input type="date" id="cd2"></div>
+     </div>
+    </section>
    </div>
-   <hr class="cq-sep">
-   <div class="cq-sh"><i>2</i>O que você quer consultar</div>
-   <div class="cq-row">
-    <div class="cq-f"><span>Buscar por</span><div class="seg" id="cmseg"><button type="button" data-cm="a" class="on">Todos os itens pai</button><button type="button" data-cm="p">Item pai</button><button type="button" data-cm="c">Componente</button></div></div>
-    <div class="cq-f cq-grow"><span>Código ou descrição</span><div class="cin"><input type="search" id="cq" placeholder="Filtrar por código, descrição ou cliente (opcional)" autocomplete="off" aria-label="Buscar"><div class="csg" id="csg" hidden></div></div></div>
-   </div>
+   <p class="cq-hint" id="cphint"></p>
   </div>
   <div id="cres"></div></div>
 <div class="pane" id="val" hidden><p class="note">Valor = preço do CE0404 × quantidade do ESWM017. Confira se a unidade do preço (pc, LT, Un, MT) é a mesma do saldo. Excesso é a sobra do estoque acima da necessidade total do componente no período.</p>
@@ -1598,7 +1692,7 @@ const CQ={p1:'',p2:'',ps:''};
 const cqIn=d=>(!CQ.p1||d>=CQ.p1)&&(!CQ.p2||d<=CQ.p2);
 const cqTxt=()=>CQ.ps==='late'?'entregas atrasadas (até '+fd(CQ.p2)+')':!CQ.p1&&!CQ.p2?'todo o período do GESTAO':(CQ.p1?fd(CQ.p1):'início')+' a '+(CQ.p2?fd(CQ.p2):'fim');
 const cqWhen=d=>{const n=Math.round((Date.parse(d)-Date.parse(TD))/864e5);return n<0?'atrasada '+fn(-n,0)+(n==-1?' dia':' dias'):n==0?'hoje':'em '+fn(n,0)+(n==1?' dia':' dias')};
-function cqSync(){$('#cd1').value=CQ.p1;$('#cd2').value=CQ.p2;$('#cps').value=CQ.ps!==null?CQ.ps:'custom';$('#cphint').innerHTML='Demanda considerada: <b>'+E(cqTxt())+'</b> · Estoque: saldo total atual de cada componente'}
+function cqSync(){$('#cd1').value=CQ.p1;$('#cd2').value=CQ.p2;$('#cps').value=CQ.ps!==null?CQ.ps:'custom';$('#cphint').innerHTML='<span class="cq-hi" aria-hidden="true">i</span><span>Demanda considerada: <b>'+E(cqTxt())+'</b> · Estoque: saldo total atual de cada componente</span>'}
 $('#cps').onchange=e=>{const v=e.target.value;if(v==='custom')return;CQ.ps=v;if(v==='late'){CQ.p1='';CQ.p2=addD(TD,-1)}else if(v){CQ.p1=TD;CQ.p2=addD(TD,+v)}else{CQ.p1=CQ.p2=''}conRender()};
 $('#cd1').onchange=$('#cd2').onchange=()=>{let a=$('#cd1').value,b=$('#cd2').value;if(a&&b&&a>b)[a,b]=[b,a];CQ.p1=a;CQ.p2=b;CQ.ps=null;conRender()};
 const CHV='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -1621,20 +1715,25 @@ function cqDel(r,m,alt){const ev=pdem(r).filter(v=>cqIn(v.d));if(!ev.length)retu
 function cqPanel(d){if(d.pk=='par')return `<div class="cq-xp">${cqParX(d.r)}</div>`;if(d.pk=='loc')return `<div class="cq-xp">${cqShared(d.c)}<h4>Onde está no estoque</h4>${cqLoc(CODE.get(d.c))}</div>`;return `<div class="cq-xp"><h4>Entregas do item pai no período</h4>${cqDel(d.r,+d.m,d.a=='1')}</div>`}
 function cqOpen(tr,on){const xr=tr.nextElementSibling;if(!xr||!xr.classList.contains('cq-x'))return;tr.classList.toggle('open',on);const b=tr.querySelector('.cq-t');if(b)b.setAttribute('aria-expanded',on);xr.hidden=!on;if(on&&!xr.dataset.f){xr.firstElementChild.innerHTML=cqPanel(tr.dataset);xr.dataset.f='1'}on?CS.open.add(tr.dataset.tg):CS.open.delete(tr.dataset.tg)}
 const cqAll=on=>$$('#cres tr[data-tg]').forEach(tr=>cqOpen(tr,on));
-$('#cres').onclick=e=>{const fb=e.target.closest('[data-caf]');if(fb){CA.lf=fb.dataset.caf;CA.lim=60;if(CA.lf=='mont'){CA.ls='kits';CA.dir='desc'}conRender();return}const hc=e.target.closest('[data-cs]');if(hc){const k=hc.dataset.cs;if(CA.ls==k)CA.dir=CA.dir=='asc'?'desc':'asc';else{CA.ls=k;CA.dir=CADIR[k]}conRender();return}if(e.target.closest('[data-camore]')){CA.lim+=60;conRender();return}const go=e.target.closest('[data-cgo]');if(go){CS.mode='p';CS.sel=go.dataset.cgo;$('#cq').value=CS.sel;$('#cq').placeholder='Código ou descrição do item pai';$$('#cmseg button').forEach(x=>x.classList.toggle('on',x.dataset.cm=='p'));conRender();return}const x=e.target.closest('[data-cx]');if(x){if(CS.rows.length)dl(CS.rows,CS.name,x.dataset.cx);return}
+$('#cres').onclick=e=>{if(e.target.closest('[data-cback]')){cqMode('a');return}const pk=e.target.closest('[data-cpick]');if(pk){csPick(pk.dataset.cpick);return}const fb=e.target.closest('[data-caf]');if(fb){CA.lf=fb.dataset.caf;CA.lim=60;if(CA.lf=='mont'){CA.ls='kits';CA.dir='desc'}conRender();return}const hc=e.target.closest('[data-cs]');if(hc){const k=hc.dataset.cs;if(CA.ls==k)CA.dir=CA.dir=='asc'?'desc':'asc';else{CA.ls=k;CA.dir=CADIR[k]}conRender();return}if(e.target.closest('[data-camore]')){CA.lim+=60;conRender();return}const go=e.target.closest('[data-cgo]');if(go){CS.mode='p';CS.sel=go.dataset.cgo;$('#cq').value=CS.sel;$('#cq').placeholder='Código ou descrição do item pai';$$('#cmseg button').forEach(x=>x.classList.toggle('on',x.dataset.cm=='p'));conRender();return}const x=e.target.closest('[data-cx]');if(x){if(CS.rows.length)dl(CS.rows,CS.name,x.dataset.cx);return}
  const a=e.target.closest('[data-xall]');if(a){cqAll(a.dataset.xall=='1');return}
  const t=e.target.closest('tr[data-tg]');if(t&&!e.target.closest('a,input,select,label'))cqOpen(t,!t.classList.contains('open'))};
 $('#cres').onchange=e=>{if(e.target.matches('[data-conly]')){CS.only=e.target.checked;conRender()}else if(e.target.matches('[data-cas]')){CA.ls=e.target.value;CA.dir=CADIR[CA.ls];conRender()}else if(e.target.matches('[data-chs]')){CA.hs=e.target.checked;CA.lim=60;conRender()}};
 $('#cres').onkeydown=e=>{if((e.key=='Enter'||e.key==' ')&&e.target.matches('th[data-cs]')){e.preventDefault();e.target.click()}};
 const cqRow=(key,attrs,cells,n,op,panel)=>`<tr class="cq-r${op?' open':''}" data-tg="${E(key)}" ${attrs}>${cells}</tr><tr class="cq-x"${op?' data-f="1"':' hidden'}><td colspan="${n}">${op?panel:''}</tr>`;
 const cqBtn=(op,t)=>`<button type="button" class="cq-t" aria-expanded="${op}" aria-label="${t}">${CHV}</button>`;
+function cqSug(){const T=parentsAll().map(p=>({p,d:cqDem(p)})).filter(x=>x.d>0).sort((a,b)=>b.d-a.d).slice(0,12);
+ if(CS.mode=='p')return{t:'Itens pai com maior demanda no período',L:T.slice(0,8).map(x=>[x.p,fn(x.d,0)+' un'])};
+ const seen=new Set(),L=[];for(const x of T){if(!KIDS.has(x.p))continue;const M=kitOf(bomC(x.p,0));if(M.none||M.k>=x.d)continue;const c=M.lim[0];if(c&&!seen.has(c)){seen.add(c);L.push([c,'limita '+x.p])}if(L.length>=8)break}
+ return{t:'Componentes que limitam kits com demanda no período',L}}
+function cqMode(m){CS.mode=m;CS.sel='';$('#cq').value='';$('#cq').placeholder=m=='c'?'Código ou descrição do componente':m=='a'?'Filtrar por código, descrição ou cliente (opcional)':'Código ou descrição do item pai';$$('#cmseg button').forEach(x=>x.classList.toggle('on',x.dataset.cm==m));$('#csg').hidden=true;conRender()}
 function conRender(){const box=$('#cres');cqSync();if(!ready){box.innerHTML='';return}
  if(CS.mode=='a'){conAll(box);return}
- const c=CS.sel;if(!c){CS.rows=[];box.innerHTML=`<div class="card cq-empty"><h3>Escolha o período e busque um item</h3><ol><li>Defina o <b>período da demanda</b> (ou deixe “Todo o período”).</li><li>Escolha <b>Item pai</b> ou <b>Componente</b>.</li><li>Digite o código ou parte da descrição e selecione na lista.</li></ol><p class="mu">Depois, clique em qualquer linha da tabela para ver os detalhes dela.</p></div>`;return}
+ const c=CS.sel;if(!c){CS.rows=[];const sg=cqSug();box.innerHTML=`<div class="card cq-empty"><div class="cq-eh"><span class="cq-eic" aria-hidden="true">${CS.mode=='c'?'⚙':'▦'}</span><div><h3>${CS.mode=='c'?'Consultar um componente':'Consultar um item pai'}</h3><p class="mu">Digite o código ou parte da descrição no campo acima e escolha na lista. O período da demanda vale para toda a consulta.</p></div></div>${sg.L.length?`<div class="cq-sg"><span class="cq-lb">${sg.t}</span><div class="cq-chips">${sg.L.map(([c,i])=>`<button type="button" class="cq-chip" data-cpick="${E(c)}"><b>${E(c)}</b><small>${E(i)}</small></button>`).join('')}</div></div>`:''}<p class="mu cq-tip">Depois, clique em qualquer linha da tabela para ver os detalhes dela.</p></div>`;return}
  if(CS.mode=='c')conComp(c,box);else conPar(c,box);if(!DEPOK)box.insertAdjacentHTML('afterbegin',DEPNOTE)}
 function conPar(p,box){const ls=KIDS.get(p),evAll=pdem(p),ev=evAll.filter(v=>cqIn(v.d)),dem=ev.reduce((t,v)=>t+v.q,0),ds=DESC.get(p)||'',cli=CLI.get(p)||[...new Set(evAll.map(v=>v.c))].filter(Boolean).join(', ')||'—';
  if(!ls&&!evAll.length){CS.rows=[];box.innerHTML=cqMsg(`Item pai <b>${E(p)}</b> não encontrado na ESTRUTURA nem no GESTAO. Confira o código ou troque a busca para <b>Componente</b>.`);return}
- const head=(inner,ex)=>`<div class="card cq-head"><div class="cq-ht"><div><div class="cq-code">${E(p)}</div><div class="cq-desc">${E(ds)||'—'} · ${E(cli)}</div></div>${ex?xb():''}</div>${inner}</div>`;
+ const head=(inner,ex)=>`<div class="card cq-head"><div class="cq-ht"><div><button type="button" class="cq-back" data-cback="1">‹ Todos os itens pai</button><div class="cq-code">${E(p)}</div><div class="cq-desc">${E(ds)||'—'} · ${E(cli)}</div></div>${ex?xb():''}</div>${inner}</div>`;
  const delSec=`<details class="cq-sec"><summary><span class="cq-sn">Entregas do item pai no período</span><span class="cq-sm">${fn(ev.length,0)} entrega(s) · <b>${fn(dem,0)} un</b></span></summary><div class="cq-body">${cqDel(p,1,false).replace(/Qtd do componente \(× 1\)/,'Quantidade')}</div></details>`;
  if(!ls){CS.rows=[];box.innerHTML=head(`<div class="cq-banner bad"><span>!</span><div>Este item tem entregas no GESTAO (<b>${fn(dem,0)} un</b> no período), mas <b>não tem estrutura</b> no relatório de ESTRUTURA. Não dá para calcular componentes nem kits.</div></div>`,false)+delSec;return}
  const nl=ls.size,B=[...Array(nl).keys()].map(li=>{const b=bomOf(p,li);return{li,b,...kitOf(b)}}),M=B[0];
@@ -1655,12 +1754,12 @@ function conComp(c,box){const o=CODE.get(c),pars=PAR.get(c)||new Set(),en=o?o.en
  const rows=[...by.values()].map(x=>{const ev=pdem(x.r).filter(v=>cqIn(v.d)),dem=ev.reduce((t,v)=>t+v.q,0);return{...x,cli:CLI.get(x.r)||[...new Set(pdem(x.r).map(v=>v.c))].filter(Boolean).join(', ')||'—',ds:DESC.get(x.r)||'',dem,ne:ev.length,need:x.a?0:x.m*dem,serve:x.m>0?Math.floor(q/x.m+1e-9):0}}).sort((a,b)=>(a.a-b.a)||(b.need-a.need)||(a.r<b.r?-1:1));
  const tn=rows.reduce((t,r)=>t+r.need,0),sd=q-tn,np=rows.filter(r=>!r.a).length;
  CS.name='componente_'+c;CS.rows=rows.map(r=>({'Componente':c,'Período da demanda':cqTxt(),'Item pai':r.r,'Descrição do item pai':r.ds,'Cliente':r.cli,'Tipo':r.a?'Alternativo':'Padrão','Múltiplo por item pai':+r.m.toFixed(4),'Demanda do item pai no período (un)':r.dem,'Necessário (un)':+r.need.toFixed(3),'Estoque do componente (un)':q,'Itens pai que o estoque atende':r.serve}));
- const direct=[...pars].map(pp=>{let qq='';(KIDS.get(pp)||new Map()).forEach(a=>a.forEach(([cc,x])=>{if(cc==c&&qq==='')qq=x}));return`<span class="tg">${E(pp)}${qq!==''?' · ×'+fn(qq,4):''}</span>`}).join(' ');
+ const direct=[...pars].map(pp=>{let qq='';(KIDS.get(pp)||new Map()).forEach(a=>a.forEach(([cc,x])=>{if(cc==c&&qq==='')qq=x}));return`<button type="button" class="tg tg-b" data-cgo="${E(pp)}" title="Abrir na Consulta de item pai">${E(pp)}${qq!==''?' · ×'+fn(qq,4):''}</button>`}).join(' ');
  const bn=!tn?['nu','ℹ','Nenhum item pai tem demanda deste componente em <b>'+E(cqTxt())+'</b>. O estoque total atual é de '+fn(q,0)+' un.']:sd>=0?['ok','✓','O estoque <b>cobre a necessidade</b> do período: precisa de '+fn(tn,2)+' un e há '+fn(q,0)+' un (sobram '+fn(sd,2)+').']:['bad','!','<b>Faltam '+fn(-sd,2)+' un</b>: a necessidade do período é de '+fn(tn,2)+' un e o estoque total é de '+fn(q,0)+' un.'];
  const tbl=rows.length?`<div class="cq-tw"><table class="cq-tb"><thead><tr><th>Item pai<th>Tipo<th class="n">Múltiplo<small>por item pai</small><th class="n">Demanda do pai<small>no período</small><th class="n">Necessário<small>demanda × múltiplo</small><th class="n">Itens pai que o estoque atende</tr></thead><tbody>${rows.map(r=>{const key='c|'+c+'|'+r.r+'|'+(r.a?1:0),op=CS.open.has(key);
   return cqRow(key,`data-pk="dl" data-r="${E(r.r)}" data-m="${r.m}" data-a="${r.a?1:0}"`,`<td class="cq-c" data-l="Item pai">${cqBtn(op,'Ver entregas do item pai')}<div><b>${E(r.r)}</b><small>${E(r.ds)||'—'} · ${E(r.cli)}</small></div><td data-l="Tipo">${r.a?cqSt('nu','Alternativo'):cqSt('ok','Padrão')}<td class="n" data-l="Múltiplo">× ${fn(r.m,4)}<td class="n" data-l="Demanda do pai">${r.dem?fn(r.dem,0)+' un · '+r.ne+' entrega(s)':'—'}<td class="n" data-l="Necessário">${r.a?'<span class="mu">não soma</span>':r.dem?'<b>'+fn(r.need,2)+'</b>':'—'}<td class="n" data-l="Itens pai atendidos">${fn(r.serve,0)}`,6,op,cqPanel({pk:'dl',r:r.r,m:r.m,a:r.a?'1':'0'}))}).join('')}</tbody></table></div>`:'<p class="mu cq-none">Este componente não consta em nenhuma estrutura de item pai com entrega no GESTAO.</p>';
  const ab=o?` <span class="tg">ABC valor ${o.abcV||'—'}</span> <span class="tg">ABC demanda ${o.abcD||'—'}</span>`:'';
- box.innerHTML=`<div class="card cq-head"><div class="cq-ht"><div><div class="cq-code">${E(c)}</div><div class="cq-desc">${E(cDesc(c))||'—'} · ${o?cl3(o):'—'}</div></div>${xb()}</div>
+ box.innerHTML=`<div class="card cq-head"><div class="cq-ht"><div><button type="button" class="cq-back" data-cback="1">‹ Todos os itens pai</button><div class="cq-code">${E(c)}</div><div class="cq-desc">${E(cDesc(c))||'—'} · ${o?cl3(o):'—'}</div></div>${xb()}</div>
   <div class="cq-banner ${bn[0]}"><span>${bn[1]}</span><div>${bn[2]}</div></div>
   <div class="kp" style="margin:0">${kC('em estoque (un)',fn(q,0),q>0?'g':'r')}${kC('necessário no período (un)',tn?fn(tn,2):'—','y')}${kC('saldo no período (un)',tn?fn(sd,2):'—',!tn?'b':sd>=0?'g':'r')}${kC('posições / etiquetas WMS',o?fn(o.pos.size,0)+' / '+fn(o.lab.length,0):'0 / 0','b')}${kC('itens pai (padrão)',fn(np,0),np?'y':'r')}</div>
   <p class="mu cq-tagl">${o&&o.uso?`<span class="tg ${o.uso=='M'?'mult':'excl'}">${o.uso=='M'?'Usado em '+o.np+' itens pai':'Usado em 1 item pai'}</span>`:'<span class="tg">Sem item pai</span>'}${ab}${direct?` · Usado diretamente em (ESTRUTURA): ${direct}`:''}</p></div>
@@ -1694,7 +1793,7 @@ function conAll(box){const q=U($('#cq').value),all=parentsAll().map(parRow).filt
  const nmt=all.filter(r=>!hid(r)&&mt(r)).length,fb=[['mont','Montáveis com estoque SMC',nmt],['dem','Com demanda no período',wd.length],['falta','Com falta de kits',nbad],['all','Todos os itens pai',all.filter(r=>r.has||r.dem>0).length]];
  box.innerHTML=`<div class="card cq-head"><div class="cq-ht"><div><div class="cq-code">Todos os itens pai</div><div class="cq-desc">Demanda em <b>${E(cqTxt())}</b> · kits calculados só com componentes de depósito padrão SMC (Todos_Itens, coluna K)</div></div>${L.length?xb():''}</div><div class="kp" style="margin:0">${kC('itens pai com demanda',fn(wd.length,0),'y')}${kC('demanda total (un)',fn(tdem,0),'y')}${kC('cobertos pelo estoque SMC',fn(nok,0),'g')}${kC('com falta de kits',fn(nbad,0),nbad?'r':'g')}${kC('kits que faltam (soma)',fn(tf,0),tf?'r':'g')}${kC('sem estrutura',fn(nse,0),nse?'r':'g')}</div></div>
  <div class="card"><div class="ca-bar"><div class="seg">${fb.map(([k,t,n])=>`<button type="button" data-caf="${k}" class="${CA.lf==k?'on':''}">${t} <b>${fn(n,0)}</b></button>`).join('')}</div><label class="ca-sort">Ordenar<select data-cas aria-label="Ordenar">${[['dem','Maior demanda primeiro'],['falta','Maior falta de kits primeiro'],['kits','Mais kits SMC primeiro'],['prox','Próxima entrega primeiro'],['cod','Código (A–Z)']].map(([k,t])=>`<option value="${k}"${CA.ls==k&&CA.dir==CADIR[k]?' selected':''}>${t}</option>`).join('')}</select></label><label class="klim"><input type="checkbox" data-chs${CA.hs?' checked':''}> Ocultar itens que não são do SMC</label></div>${CA.lf=='mont'?'<p class="mu ca-note"><b>Montáveis com estoque SMC:</b> kits completos de cada item pai, calculados só com componentes de depósito padrão SMC, do maior para o menor. Componentes marcados como <span class="cq-shr">compartilhados</span> servem a mais de um item pai: o mesmo saldo não monta todos ao mesmo tempo.</p>':''}<p class="mu ca-cnt">${fn(L.length,0)} item(ns) pai · clique no cabeçalho para ordenar · clique numa linha para ver os componentes e o saldo</p>
- ${L.length?`<div class="cq-tw"><table class="cq-tb"><thead><tr><th class="cq-so" data-cs="cod" tabindex="0" role="columnheader" aria-sort="${CA.ls=='cod'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Item pai<i class="cq-ar">${CA.ls=='cod'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="dem" tabindex="0" role="columnheader" aria-sort="${CA.ls=='dem'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Demanda no período<i class="cq-ar">${CA.ls=='dem'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so" data-cs="prox" tabindex="0" role="columnheader" aria-sort="${CA.ls=='prox'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Próxima entrega<i class="cq-ar">${CA.ls=='prox'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="kits" tabindex="0" role="columnheader" aria-sort="${CA.ls=='kits'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Kits SMC possíveis<i class="cq-ar">${CA.ls=='kits'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="nsh" tabindex="0" role="columnheader" aria-sort="${CA.ls=='nsh'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Compartilhados<i class="cq-ar">${CA.ls=='nsh'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="falta" tabindex="0" role="columnheader" aria-sort="${CA.ls=='falta'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Faltam kits<i class="cq-ar">${CA.ls=='falta'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so" data-cs="st" tabindex="0" role="columnheader" aria-sort="${CA.ls=='st'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Situação<i class="cq-ar">${CA.ls=='st'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i></tr></thead><tbody>${L.slice(0,CA.lim).map(rowH).join('')}</tbody></table></div>${L.length>CA.lim?`<p style="text-align:center;margin:12px"><button type="button" class="btn" data-camore="1">Mostrar mais (${fn(L.length-CA.lim,0)} itens pai)</button></p>`:''}`:'<p class="mu cq-none">Nenhum item pai neste filtro e período.</p>'}</div>`;
+ ${L.length?`<div class="cq-tw"><table class="cq-tb cq-all"><thead><tr><th class="cq-so" data-cs="cod" tabindex="0" role="columnheader" aria-sort="${CA.ls=='cod'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Item pai<i class="cq-ar">${CA.ls=='cod'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="dem" title="Demanda no período (un)" tabindex="0" role="columnheader" aria-sort="${CA.ls=='dem'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Demanda<i class="cq-ar">${CA.ls=='dem'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so" data-cs="prox" tabindex="0" role="columnheader" aria-sort="${CA.ls=='prox'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Próxima entrega<i class="cq-ar">${CA.ls=='prox'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="kits" title="Kits completos possíveis com o estoque SMC" tabindex="0" role="columnheader" aria-sort="${CA.ls=='kits'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Kits SMC<i class="cq-ar">${CA.ls=='kits'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="nsh" title="Componentes usados em mais de um item pai" tabindex="0" role="columnheader" aria-sort="${CA.ls=='nsh'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Compartilhados<i class="cq-ar">${CA.ls=='nsh'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so n" data-cs="falta" title="Kits que faltam para atender a demanda" tabindex="0" role="columnheader" aria-sort="${CA.ls=='falta'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Faltam kits<i class="cq-ar">${CA.ls=='falta'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i><th class="cq-so" data-cs="st" tabindex="0" role="columnheader" aria-sort="${CA.ls=='st'?(CA.dir=='asc'?'ascending':'descending'):'none'}">Situação<i class="cq-ar">${CA.ls=='st'?(CA.dir=='asc'?'▲':'▼'):'↕'}</i></tr></thead><tbody>${L.slice(0,CA.lim).map(rowH).join('')}</tbody></table></div>${L.length>CA.lim?`<p style="text-align:center;margin:12px"><button type="button" class="btn" data-camore="1">Mostrar mais (${fn(L.length-CA.lim,0)} itens pai)</button></p>`:''}`:'<p class="mu cq-none">Nenhum item pai neste filtro e período.</p>'}</div>`;
  if(!DEPOK)box.insertAdjacentHTML('afterbegin',DEPNOTE)}
 
 /* ---- espelho: filtro de rua, zoom e ajuste à tela ---- */

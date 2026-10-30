@@ -416,6 +416,7 @@ html.sp #splash{display:flex}html.sp{overflow:hidden}#splash.out{transform:trans
   <div class="acts"><button class="btn" data-close="">Cancelar</button><button class="btn pri" id="cliSave">Salvar</button></div>
 </div></div>
 <!-- modal embalagem -->
+<div class="modal" id="mRec"><div class="mb" role="dialog" aria-modal="true" aria-labelledby="mRecT" style="width:min(980px,100%)"><div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px"><div style="flex:1;min-width:0"><h2 id="mRecT" style="margin:0">Recebimentos</h2><div class="sub" id="mRecS" style="margin:4px 0 0"></div></div><button class="btn sm" id="mRecX" aria-label="Fechar" title="Fechar (Esc)" style="font-size:18px;line-height:1;padding:4px 10px">×</button></div><div id="mRecB"></div></div></div>
 <div class="modal" id="mPack"><div class="mb" role="dialog" aria-modal="true" aria-labelledby="mPackT">
   <h2 id="mPackT">Embalagem</h2>
   <div class="imgpick" style="margin-bottom:14px"><div class="pv" id="pkPv">Imagem</div>
@@ -1497,7 +1498,7 @@ function detHtml(r,nc){const q=invQ.trim().toLowerCase(),hit=i=>q.length>=2&&(i.
   const body=its.map(i=>{const h=hit(i)?' hl':'';
     if(!(i.ent&&i.ent.length))return`<tr class="g1${h}"><td class="dt mu">—</td><td class="mu">Sem demanda na Gestão${to?' até '+brDate(to):''}</td>${itm(i)}<td class="c">${pl(i)}</td><td class="c mu">${fmt(i.qty)}</td><td class="c">0</td>${need(i)}</tr>`;
     return i.ent.map((x,k)=>`<tr class="${k===0?'g1':''}${h}"><td class="dt">${brDate(x.d)}${x.late?' <span class="late">ATRASO</span>':''}</td><td>${esc(x.c)||'<span class="mu">—</span>'}</td>${itm(i)}<td class="c">${pl(i)}</td><td class="c mu">${fmt(i.qty)}</td><td class="c${x.late?' lt':''}"><b>${fmt(x.q)}</b></td>${k===0?need(i):''}</tr>`).join('')}).join('');
-  return`<tr class="det"><td colspan="${nc}">${its.length?`<div class="dl2wrap"><table class="dl2"><thead><tr><th>Data da demanda</th><th>Cliente</th><th>Item</th><th class="c">Planta</th><th class="c" title="Quantidade de peças por embalagem">Un/emb.</th><th class="c">Demanda (un)</th><th class="c need" title="Embalagens necessárias: atrasos juntos + ⌈un do dia ÷ qtd por embalagem⌉ para cada data de entrega">Necessidade (emb.)</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="5">Total · ${fmt(its.length)} itens · ${fmt(ne)} entregas${r.pack&&!r.pack.orphan?`<a href="#" class="rcvgo" data-rcv="${encodeURIComponent(r.pack.code)}" title="Ver o histórico de recebimentos desta embalagem (${esc(r.pack.code)}) neste cliente">${SVGREC}</a>`:''}</td><td class="c"><b>${fmt(sum('od')+sum('dem'))}</b></td><td class="need"><b>${fmt(r.atraso+r.demanda)}</b><small>emb.</small></td></tr>${plResumo(its)}</tfoot></table></div>`:`<div style="padding:10px 16px;color:var(--mut)">Sem demanda (${r.items.length} itens vinculados).</div>`}</td></tr>`}
+  return`<tr class="det"><td colspan="${nc}">${its.length?`<div class="dl2wrap"><table class="dl2"><thead><tr><th>Data da demanda</th><th>Cliente</th><th>Item</th><th class="c">Planta</th><th class="c" title="Quantidade de peças por embalagem">Un/emb.</th><th class="c">Demanda (un)</th><th class="c need" title="Embalagens necessárias: atrasos juntos + ⌈un do dia ÷ qtd por embalagem⌉ para cada data de entrega">Necessidade (emb.)</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="5">Total · ${fmt(its.length)} itens · ${fmt(ne)} entregas${r.pack&&!r.pack.orphan?`<a href="#" class="rcvgo" data-rcv="${encodeURIComponent(r.pack.code)}" title="Ver as entradas (NFE) desta embalagem neste cliente, sem sair do Inventário">${SVGREC}</a>`:''}</td><td class="c"><b>${fmt(sum('od')+sum('dem'))}</b></td><td class="need"><b>${fmt(r.atraso+r.demanda)}</b><small>emb.</small></td></tr>${plResumo(its)}</tfoot></table></div>`:`<div style="padding:10px 16px;color:var(--mut)">Sem demanda (${r.items.length} itens vinculados).</div>`}</td></tr>`}
 function drawFoot(rows){const C=cols(),s=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
   $('#invT').tFoot.innerHTML=`<tr><td></td><td colspan="3"><b>Total (${rows.length} embalagens)</b></td>${C.slice(3).map(c=>c.sum?`<td class="n"><b${c.foot?' class="falt"':''}>${fmt(s(c.k))}</b></td>`:'<td></td>').join('')}</tr>`}
 function refreshRow(tr,r){tr.querySelector('[data-o=total]').innerHTML=`<b>${fmt(r.total)}</b>`;tr.querySelector('[data-o=falt]').innerHTML=faltHtml(r);tr.querySelector('[data-o=status]').innerHTML=statusHtml(r);
@@ -1505,7 +1506,7 @@ function refreshRow(tr,r){tr.querySelector('[data-o=total]').innerHTML=`<b>${fmt
 function bindRows(rows){
   $$('#invT [data-t]').forEach(b=>b.onclick=()=>{const k=decodeURIComponent(b.dataset.t);openRows.has(k)?openRows.delete(k):openRows.add(k);drawTable()});
   /* a linha só expande pela seta (>); o ícone do detalhe abre o histórico de recebimentos da embalagem */
-  $$('#invT [data-rcv]').forEach(a=>a.onclick=e=>{e.preventDefault();const c=curCli(),k=decodeURIComponent(a.dataset.rcv);if(!c)return;const u=S.ui;u.recCli=c.id;u.recPack=normCode(k);u.recQ='';u.recEsp='nfe';u.recMode='lanc';if(S.ce){u.recFrom=S.ce.min;u.recTo=S.ce.max}recReset();saveUi();show('rec')});
+  $$('#invT [data-rcv]').forEach(a=>a.onclick=e=>{e.preventDefault();const c=curCli();if(c)openRecPopup(c,decodeURIComponent(a.dataset.rcv))});
   $$('#invT [data-reg]').forEach(b=>b.onclick=async()=>{const c=curCli(),code=decodeURIComponent(b.dataset.reg).slice(4);c.packs.push({code,desc:''});const inv=S.inv[c.id];if(inv&&inv['ORF:'+code]){inv[code]=inv['ORF:'+code];delete inv['ORF:'+code];await DB.set('inv',S.inv)}await saveCli();invalidate();renderInv();toast('Embalagem cadastrada')});
   const rowOf=tr=>invData.list.find(x=>x.key===decodeURIComponent(tr.dataset.k));
   const store=(r)=>{const c=curCli();const inv=S.inv[c.id]||(S.inv[c.id]={});inv[r.key]={v:r.v,c:r.c,b:r.bloq,...(r.urg?{u:1}:{}),...(r.dm!=null?{dm:r.dm}:{})};saveInv();demCount()};
@@ -1987,6 +1988,22 @@ function recModel(){
 $('#recPdf').onclick=()=>{const m=recModel();if(m)consultaPdf(m)};
 $('#recXlsx').onclick=()=>{const m=recModel();if(m)consultaXlsx(m)};
 
+
+/* janela sobre a tela com as entradas (NFE) de uma embalagem para um cliente — não sai do Inventário */
+function openRecPopup(c,code){const m=$('#mRec'),key=normCode(code);
+  $('#mRecT').textContent='Recebimentos · '+code;$('#mRecS').textContent=c.nome+' · somente NFE (nota de entrada)';
+  const b=$('#mRecB');
+  if(!S.ce){b.innerHTML='<div class="note">Importe o relatório <b>CE0302</b> na aba Dados para consultar os recebimentos.</div>'}
+  else{
+    const rows=ceIndex().mv.filter(x=>x.r[3]==='NFE'&&x.r[11]!=='S'&&x.L.some(l=>l.c.id===c.id&&normCode(l.p.code)===key)).map(x=>x.r).sort((a,b)=>a[2]<b[2]?1:a[2]>b[2]?-1:0);
+    const qty=rows.reduce((t,r)=>t+r[4],0),docs=new Set(rows.map(recDocKey)).size;
+    b.innerHTML=rows.length?`<div class="kpis" style="margin-bottom:12px"><div class="card kpi"><span>Quantidade recebida</span><b>${fmt(qty)}</b><small style="color:var(--mut)">${brDate(S.ce.min)} a ${brDate(S.ce.max)}</small></div><div class="card kpi"><span>Notas fiscais</span><b>${fmt(docs)}</b><small style="color:var(--mut)">documentos distintos</small></div><div class="card kpi"><span>Lançamentos</span><b>${fmt(rows.length)}</b><small style="color:var(--mut)">linhas de entrada</small></div></div>
+<div class="tw" style="max-height:55vh"><table><thead><tr><th>Data</th><th>Código no relatório</th><th class="n">Qtd</th><th>Nota fiscal</th><th>Emitente</th><th class="n" title="Informativo (coluna K do relatório)">Valor NF*</th><th>Lançado por</th></tr></thead><tbody>${rows.map(r=>`<tr><td style="white-space:nowrap">${brDate(r[2])}</td><td>${esc(r[0])}</td><td class="n"><b>${fmt(r[4])}</b></td><td>${esc(r[7])}${r[8]?`<small style="color:var(--mut)"> · série ${esc(r[8])}</small>`:''}</td><td>${esc(r[6])}</td><td class="n" style="color:var(--mut)">${recMoney(r[5])}</td><td>${esc(r[9])}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2"><b>Total</b></td><td class="n"><b>${fmt(qty)}</b></td><td colspan="4"></td></tr></tfoot></table></div><small style="color:var(--mut);display:block;margin-top:8px">*Valor NF é informativo e não deve ser tomado como definitivo. Mais recentes primeiro.</small>`
+      :`<div class="empty-s card">Nenhuma entrada NFE desta embalagem para este cliente no CE0302 (${brDate(S.ce.min)} a ${brDate(S.ce.max)}).</div>`}
+  m.classList.add('on')}
+$('#mRecX').onclick=()=>$('#mRec').classList.remove('on');
+$('#mRec').addEventListener('click',e=>{if(e.target===$('#mRec'))$('#mRec').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#mRec').classList.contains('on'))$('#mRec').classList.remove('on')});
 
 /* ============ início ============ */
 (async()=>{await DB.open();

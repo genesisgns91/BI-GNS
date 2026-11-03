@@ -1050,10 +1050,21 @@ function mapRecs(){const out=[];M.pos.forEach((a0,k)=>{const ps=pstat(k),a=ps.a,
  return out.sort((a,b)=>a.Rua<b.Rua?-1:a.Rua>b.Rua?1:((+a.Coluna||0)-(+b.Coluna||0))||((+a['Nível']||0)-(+b['Nível']||0))||(a.Item<b.Item?-1:1))}
 function mapExport(f){const r=mapRecs();dl(r,'espelho_estoque'+(S.fs.size||S.vm||PK.map.sel||S.fi.length?'_selecao':'_geral'),f)}
 async function dl(rows,name,fmt){if(!rows.length){alert('Não há linhas para exportar com os dados atuais.');return}
- const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=Object.keys(rows[0]).map(k=>({wch:Math.min(42,Math.max(k.length+2,14))}));let data,ext=fmt=='csv'?'csv':'xlsx';
- if(ext=='csv')data='\ufeff'+XLSX.utils.sheet_to_csv(ws,{FS:';'});else{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));data=XLSX.write(wb,{type:'array',bookType:'xlsx'})}
- const fn=`${name}_${today}.${ext}`;let d=null;try{d=window.claude&&await claude.use('downloads')}catch(e){}
- try{if(d){await d.save({filename:fn,data});toast('Arquivo salvo: '+fn)}else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download=fn;a.click()}}
+ const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=Object.keys(rows[0]).map(k=>({wch:Math.min(42,Math.max(k.length+2,14))}));
+ const ext=fmt=='csv'?'csv':'xlsx',mime=ext=='csv'?'text/csv;charset=utf-8':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';let data;
+ if(ext=='csv')data='﻿'+XLSX.utils.sheet_to_csv(ws,{FS:';'});else{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));data=XLSX.write(wb,{type:'array',bookType:'xlsx'})}
+ const fn=`${name}_${today}.${ext}`,blob=new Blob([data],{type:mime}),
+  sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,touch=matchMedia('(pointer:coarse)').matches;
+ let d=null;try{d=window.claude&&await claude.use('downloads')}catch(e){}
+ try{
+  if(d){await d.save({filename:fn,data});toast('Arquivo salvo: '+fn);return}
+  /* app instalado no computador: janela "Salvar como", com confirmação visível */
+  if(sa&&!touch&&window.showSaveFilePicker){try{const h=await showSaveFilePicker({suggestedName:fn,types:[{description:ext=='csv'?'CSV':'Planilha Excel',accept:{[mime.split(';')[0]]:['.'+ext]}}]});const w=await h.createWritable();await w.write(blob);await w.close();toast('Arquivo salvo: '+fn);return}catch(e){if(e&&e.name=='AbortError')return}}
+  /* app instalado no celular: folha de compartilhamento (Salvar em Arquivos, WhatsApp, e-mail...) */
+  if(sa&&touch&&navigator.canShare&&navigator.share){try{const f=new File([blob],fn,{type:mime.split(';')[0]});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:fn});return}}catch(e){if(e&&e.name=='AbortError')return}}
+  /* navegador comum (e último recurso): link de download dentro do documento */
+  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fn;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},60000);toast('Arquivo gerado: '+fn+' · veja a pasta Downloads')}
  catch(e){if(!e||e.code!='declined')alert('Não foi possível salvar o arquivo: '+((e&&e.message)||'erro desconhecido'))}}
 const exportar=(k,f)=>dl(BUILD[k](),FN[k],f);
 const PB='<div class="pf"><label>Atalho<select class="pps" aria-label="Atalho de período"></select></label><label>Entrega de<input type="date" class="pfi"></label><label>até<input type="date" class="pti"></label></div><div class="pa"><button class="chip" data-pa="1" title="Mostra só itens sem nenhuma entrega até a data inicial e com entrega depois dela. Até lá, o estoque não tem demanda.">Só demanda depois da data</button><span class="mut pamsg" style="margin-left:8px;font-size:12px"></span></div><label class="lkw" title="Ligado: clicar numa barra ou fatia dos gráficos de Indicadores também filtra o espelho vertical. Desligado: os gráficos não mexem no espelho."><input type="checkbox" class="lk"> Gráficos filtram o espelho</label><select class="vws" aria-label="Visões salvas"></select><button class="btn sm vsv" title="Salva os filtros atuais (período, cliente, item, visão do mapa) com um nome">+ Visão</button><button class="btn sm ghost vdl" title="Exclui a visão selecionada">Excluir</button>';$$('.pbx').forEach(e=>e.innerHTML=PB);$$('.pps').forEach(x=>x.onchange=()=>preset(x.value));$$('.lk').forEach(x=>{x.checked=LK();x.onchange=()=>{localStorage.setItem('sma_lk',x.checked?'1':'0');$$('.lk').forEach(y=>y.checked=x.checked);if(!x.checked)setXF(null)}});if(localStorage.getItem('sma_th')=='l')document.documentElement.classList.add('lt');$('#thb').onclick=()=>{const l=document.documentElement.classList.toggle('lt');localStorage.setItem('sma_th',l?'l':'d')};$('#prb').onclick=()=>print();$('#gsb')&&($('#gsb').onclick=gsOpen);$('#gsi').oninput=gsRes;

@@ -550,6 +550,36 @@ tbody tr:nth-child(even):hover td{background:#ffffff05}
 .en-chip.ins,.en-chip.sem,.qh2-e.r .st{background:#c62f39;color:#fff}.nb{background:#c62f39}
 #toast{z-index:400}.qf-age small{color:#c5cfda}.tg{color:color-mix(in srgb,var(--c) 55%,#fff)}.etq.cp{color:var(--mu)}.etq.cp:hover{color:var(--ink)}.qf-bal.qv-n .qfbc{color:#fff}#qhist{z-index:150}
 @media print{#prog,#up,.skip,#toast,#qhist{display:none!important}}
+
+/* ===== blocos de controle com tamanho fixo ===== */
+.mapctl .mrow2{display:flex;align-items:center;gap:12px;min-width:0}.mapctl .mrow2 .klim{margin-left:0}.mapctl .mrow2 .klim[hidden]{display:none}
+.mhint{font-size:12.5px;color:var(--mu);line-height:1.35}.mapctl .mrow2:has(.klim:not([hidden])) .mhint{display:none}
+.mapctl .legft .thermo{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mu);white-space:nowrap}.mapctl .legft .thermo i{display:block;width:150px;height:8px;border-radius:8px;background:linear-gradient(90deg,#59667a,#2e7dfa 8%,#26bed4 25%,#58cc78 45%,#f4d642 65%,#f78634 85%,#de223c)}
+.mapctl .legt{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:8px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}.mapctl .legt .lg{height:70px;min-width:0}
+.mapctl .legt .lg span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25}
+.pamsg{display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+#mapkw{position:relative}#xfw{position:absolute!important;top:0;right:0;max-width:62%;flex-direction:row!important;align-items:center;gap:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#xfw>span{display:none}
+@media(min-width:761px){
+ #rseg{display:none!important}
+ .mapctl{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"m m" "k f" "t t";gap:12px 20px;align-content:start}
+ .mapctl>.mrow{grid-area:m;flex-wrap:nowrap;height:44px}.mapctl>.mrow .mgrp{flex-wrap:nowrap}.mapctl>.mrow .mm{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+ .mapctl>.mrow2{grid-area:k;height:44px}.mapctl>#leg{display:contents}.mapctl>#leg>.legt{grid-area:t;height:72px}.mapctl>#leg>.legft{grid-area:f;display:flex!important;align-items:center;justify-content:flex-end;gap:12px;height:44px}
+ .plbar .zm{margin-left:auto}
+ .ctx{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:14px}
+ .ctx .fgrp+.fgrp{border-left:0;padding-left:0;border-top:1px dashed var(--ln2);padding-top:12px}
+ .pbx{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px}.pbx .pf{width:auto;flex:none;flex-wrap:nowrap}.pbx .pf label{flex:none;width:150px}.pbx .pf label:first-child{width:180px}.pbx .pps{min-width:0}.pbx select,.pbx input{box-sizing:border-box;max-width:100%}.pbx select{width:100%;text-overflow:ellipsis}.pbx .pf label{min-width:0}.pbx>select,.pbx .vsel{width:170px}
+ #mapkw .fr{display:grid;grid-template-columns:210px minmax(280px,420px);gap:14px;align-items:end}#mapkw .fr>.fld{width:auto}#mappk{width:210px}#mappk>*{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media(min-width:1700px){
+ .ctx{display:grid;grid-template-columns:minmax(0,1fr) 600px;column-gap:32px;align-items:start}
+ .ctx .fgrp+.fgrp{border-top:0;padding-top:0;border-left:1px dashed var(--ln2);padding-left:32px}
+}
+@media(max-width:760px){
+ .mapctl{grid-template-columns:minmax(0,1fr);grid-template-areas:"m" "k" "f" "t";gap:10px}.mapctl>.mrow{grid-area:m}.mapctl>.mrow2{grid-area:k;min-height:84px;align-items:flex-start}.mapctl>#leg{display:contents}.mapctl>#leg>.legt{grid-area:t;height:78px}.mapctl>#leg>.legft{grid-area:f;display:flex!important;align-items:center;gap:10px;height:40px;flex-wrap:nowrap;overflow:hidden}.mapctl .legft .thermo{flex:1;min-width:0}.mapctl .legft .thermo i{flex:1;width:auto;min-width:40px}.mapctl .legft .thermo span{font-size:11px;overflow:hidden;text-overflow:ellipsis}#fclr{flex:none}
+ .mapctl .klim{flex-wrap:wrap;margin-left:0}
+}
+/* painel fechado fora do foco */
+#dr:not(.open){visibility:hidden;transition:transform .3s,visibility 0s linear .3s}#dr.open{visibility:visible}
 </style></head><body>
 <div id="splash" aria-hidden="true" onclick="this.classList.add('out');setTimeout(function(){document.documentElement.classList.remove('sp')},650)"><div class="sp-stage"><svg class="sp-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:200ms;--f:1100ms"/><rect x="2" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:275ms;--f:1220ms"/><rect x="12.3" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:425ms;--f:1100ms"/><rect x="12.3" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:500ms;--f:1220ms"/><rect x="12.3" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:575ms;--f:1340ms"/><rect x="22.6" y="24.6" width="7.4" height="5.4" rx="1.8" fill="#4a90d9" style="--d:650ms;--f:1100ms"/><rect x="22.6" y="17.4" width="7.4" height="5.4" rx="1.8" fill="#2fbf71" style="--d:725ms;--f:1220ms"/><rect x="22.6" y="10.2" width="7.4" height="5.4" rx="1.8" fill="#f2c230" style="--d:800ms;--f:1340ms"/><rect x="22.6" y="3.0" width="7.4" height="5.4" rx="1.8" fill="#e5484d" style="--d:875ms;--f:1460ms"/></svg></div><div class="sp-name">Espelho SMA</div><div class="sp-sub">Porta-pallet · R01–R04</div><div class="sp-bar"><i></i></div></div>
 <div class="app">
@@ -819,7 +849,7 @@ async function autoSave(){if(_asRun||!dirty||!window.showOpenFilePicker)return;c
    json=JSON.stringify({t,raw:snap}).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029'),out=txt.replace(SNRX,(m,a,c,d)=>a+json+d);
   const w=await h.createWritable();await w.write(out);await w.close();SNAP={t,raw:snap};raw.__t=t;dirty=false;await save(true);queueCloud();toast('Versão gravada automaticamente no arquivo · '+fmT(t))
  }catch(e){console.error(e)}finally{_asRun=false;pubUI()}}
-async function pullRemote(force){if(!/^https?:$/.test(location.protocol)||(!force&&Date.now()-_pr<20000))return;_pr=Date.now();
+async function pullRemote(force){if(window.__exp&&Date.now()<window.__exp)return;if(!/^https?:$/.test(location.protocol)||(!force&&Date.now()-_pr<20000))return;_pr=Date.now();
  try{const u=new URL(location.href);u.hash='';u.searchParams.set('_',Date.now());const r=await fetch(u,{cache:'no-store'});if(!r.ok)return;
   const m=(await r.text()).match(SNRX);if(!m)return;const j=JSON.parse(m[2]);if(!j||!j.raw||!j.t||j.t<=(SNAP?SNAP.t:0))return;
   if(j.t<=(raw.__t||0))return;if(dirty){toast('Há uma versão mais nova no arquivo ('+fmT(j.t)+'), mas este aparelho tem dados não salvos.');return}
@@ -1049,22 +1079,15 @@ function mapRecs(){const out=[];M.pos.forEach((a0,k)=>{const ps=pstat(k),a=ps.a,
   out.push({'Rua':l.rua,'Coluna':l.col,'Nível':l.niv,'ID endereço':l.id||'','Status da posição':NAMES[s],'Etiqueta WMS':l.etq,'Lote':l.lote,'Item':l.item,'Tipo do código':tipo(l.item),'Descrição':p?p[0]:'','Cliente':l.cli||'','Situação do item':l.hp?'Com demanda':'Sem demanda','Qtd (pç)':l.q,'Peso unit. (kg)':p?p[1]:'','Peso total (kg)':+l.peso.toFixed(3),'Preço unit. (R$)':l.pr==null?'':l.pr,'Valor (R$)':l.val==null?'':+l.val.toFixed(2),'Embalagem padrão':l.em?l.em[0]:'','Peças por embalagem':l.em?l.em[1]:'','Embalagens (qtd)':l.ne==null?'':l.ne,'Demanda no período (pç)':dr.reduce((t,r)=>t+r.q,0),'Demanda total GESTAO (pç)':d?d.tot:0,'1ª entrega no período':dr.length?fd(dr[0].d):'','Entregas (data: qtd)':dr.map(r=>fd(r.d)+': '+nf(r.q)).join(' | '),'Curva ABC · valor em estoque':l.cv=='N'?'Sem valorização':l.cv,'Valor do item em estoque (R$)':ABC.v.get(l.item)?+ABC.v.get(l.item).x.toFixed(2):'','Curva ABC · demanda do período':l.cq=='N'?'Sem demanda no período':l.cq,'Demanda do item no período (pç)':ABC.d.get(l.item)?ABC.d.get(l.item).x:0,'Versão a avaliar':l.vr?'Sim · demanda em '+l.vr.join(', '):'Não','Clientes da versão com demanda':vc})})});
  return out.sort((a,b)=>a.Rua<b.Rua?-1:a.Rua>b.Rua?1:((+a.Coluna||0)-(+b.Coluna||0))||((+a['Nível']||0)-(+b['Nível']||0))||(a.Item<b.Item?-1:1))}
 function mapExport(f){const r=mapRecs();dl(r,'espelho_estoque'+(S.fs.size||S.vm||PK.map.sel||S.fi.length?'_selecao':'_geral'),f)}
-async function dl(rows,name,fmt){if(!rows.length){alert('Não há linhas para exportar com os dados atuais.');return}
- const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=Object.keys(rows[0]).map(k=>({wch:Math.min(42,Math.max(k.length+2,14))}));
- const ext=fmt=='csv'?'csv':'xlsx',mime=ext=='csv'?'text/csv;charset=utf-8':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';let data;
- if(ext=='csv')data='﻿'+XLSX.utils.sheet_to_csv(ws,{FS:';'});else{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));data=XLSX.write(wb,{type:'array',bookType:'xlsx'})}
- const fn=`${name}_${today}.${ext}`,blob=new Blob([data],{type:mime}),
-  sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,touch=matchMedia('(pointer:coarse)').matches;
- let d=null;try{d=window.claude&&await claude.use('downloads')}catch(e){}
- try{
-  if(d){await d.save({filename:fn,data});toast('Arquivo salvo: '+fn);return}
-  /* app instalado no computador: janela "Salvar como", com confirmação visível */
-  if(sa&&!touch&&window.showSaveFilePicker){try{const h=await showSaveFilePicker({suggestedName:fn,types:[{description:ext=='csv'?'CSV':'Planilha Excel',accept:{[mime.split(';')[0]]:['.'+ext]}}]});const w=await h.createWritable();await w.write(blob);await w.close();toast('Arquivo salvo: '+fn);return}catch(e){if(e&&e.name=='AbortError')return}}
-  /* app instalado no celular: folha de compartilhamento (Salvar em Arquivos, WhatsApp, e-mail...) */
-  if(sa&&touch&&navigator.canShare&&navigator.share){try{const f=new File([blob],fn,{type:mime.split(';')[0]});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:fn});return}}catch(e){if(e&&e.name=='AbortError')return}}
-  /* navegador comum (e último recurso): link de download dentro do documento */
-  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fn;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
-  setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},60000);toast('Arquivo gerado: '+fn+' · veja a pasta Downloads')}
+async function dl(rows,name,fmt){window.__exp=Date.now()+20000;if(!rows||!rows.length){alert('Não há linhas para exportar com os dados atuais.');return}
+ const ext=fmt=='csv'?'csv':'xlsx',fn=`${name}_${today}.${ext}`;let data,mime;
+ try{if(ext=='csv'){mime='text/csv;charset=utf-8';if(typeof XLSX!='undefined'){data='\ufeff'+XLSX.utils.sheet_to_csv(XLSX.utils.json_to_sheet(rows),{FS:';'})}else{const ks=[...new Set(rows.flatMap(r=>Object.keys(r)))],q=v=>{v=v==null?'':String(v);return /[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};data='\ufeff'+[ks.map(q).join(';'),...rows.map(r=>ks.map(k=>q(r[k])).join(';'))].join('\r\n')}}
+  else{if(typeof XLSX=='undefined')throw new Error('a biblioteca de planilhas não carregou (precisa de internet na primeira vez). Use o CSV ou recarregue com internet.');mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=Object.keys(rows[0]).map(k=>({wch:Math.min(42,Math.max(k.length+2,14))}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));data=XLSX.write(wb,{type:'array',bookType:'xlsx'})}}
+ catch(e){alert('Não foi possível gerar o arquivo: '+((e&&e.message)||e));return}
+ const blob=new Blob([data],{type:mime});let d=null;try{d=window.claude&&await claude.use('downloads')}catch(e){}
+ try{if(d){await d.save({filename:fn,data});toast('Arquivo salvo: '+fn);return}
+  if((matchMedia('(display-mode: standalone)').matches||navigator.standalone)&&window.showSaveFilePicker){try{const hd=await showSaveFilePicker({suggestedName:fn,types:[{description:ext=='csv'?'CSV':'Planilha Excel',accept:{[mime.split(';')[0]]:['.'+ext]}}]});const w=await hd.createWritable();await w.write(blob);await w.close();toast('Arquivo salvo: '+hd.name);return}catch(e){if(e&&e.name=='AbortError'){toast('Exportação cancelada');return}}}
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=fn;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},4000);toast('Exportado: '+fn+' · veja a pasta Downloads')}
  catch(e){if(!e||e.code!='declined')alert('Não foi possível salvar o arquivo: '+((e&&e.message)||'erro desconhecido'))}}
 const exportar=(k,f)=>dl(BUILD[k](),FN[k],f);
 const PB='<div class="pf"><label>Atalho<select class="pps" aria-label="Atalho de período"></select></label><label>Entrega de<input type="date" class="pfi"></label><label>até<input type="date" class="pti"></label></div><div class="pa"><button class="chip" data-pa="1" title="Mostra só itens sem nenhuma entrega até a data inicial e com entrega depois dela. Até lá, o estoque não tem demanda.">Só demanda depois da data</button><span class="mut pamsg" style="margin-left:8px;font-size:12px"></span></div><label class="lkw" title="Ligado: clicar numa barra ou fatia dos gráficos de Indicadores também filtra o espelho vertical. Desligado: os gráficos não mexem no espelho."><input type="checkbox" class="lk"> Gráficos filtram o espelho</label><select class="vws" aria-label="Visões salvas"></select><button class="btn sm vsv" title="Salva os filtros atuais (período, cliente, item, visão do mapa) com um nome">+ Visão</button><button class="btn sm ghost vdl" title="Exclui a visão selecionada">Excluir</button>';$$('.pbx').forEach(e=>e.innerHTML=PB);$$('.pps').forEach(x=>x.onchange=()=>preset(x.value));$$('.lk').forEach(x=>{x.checked=LK();x.onchange=()=>{localStorage.setItem('sma_lk',x.checked?'1':'0');$$('.lk').forEach(y=>y.checked=x.checked);if(!x.checked)setXF(null)}});if(localStorage.getItem('sma_th')=='l')document.documentElement.classList.add('lt');$('#thb').onclick=()=>{const l=document.documentElement.classList.toggle('lt');localStorage.setItem('sma_th',l?'l':'d')};$('#prb').onclick=()=>print();$('#gsb')&&($('#gsb').onclick=gsOpen);$('#gsi').oninput=gsRes;
@@ -1122,11 +1145,11 @@ const REG={
   sel:(d,i)=>{const c=S.vis[i][0];PK.c2.sel=new Set([c]);renderC2();return{t:c+' · '+SIT[d],rows:S.L.filter(r=>r.q>0&&clientOf(r)==c&&(d?r.cat=='A':r.cat!='A')).flatMap(recCP)}}},
  c1:{n:'part_numbers_por_situacao',all:()=>S.L.flatMap(recCP),sel:(d,i)=>{const k='ABCDE'[i];return{t:CAT[k][0],rows:S.L.filter(r=>r.cat==k).flatMap(recCP)}}},
  c2:{n:'destino_do_estoque',all:()=>S.L.filter(r=>r.q>0).flatMap(destRecP),sel:(d,i)=>({t:['Com demanda (necessário)','Saldo excedente','Sem demanda'][i],rows:S.L.filter(r=>i==0?r.q>0&&r.dem>0:i==1?r.cat=='C':r.cat=='A').flatMap(destRecP)})},
- b1:{n:'maiores_sobras',all:()=>S.b1top.flatMap(recCP),sel:(d,i)=>({t:S.b1top[i].item,rows:recCP(S.b1top[i])})},
+ b1:{n:'maiores_sobras',all:()=>(S.b1top||[]).flatMap(recCP),sel:(d,i)=>({t:S.b1top[i].item,rows:recCP(S.b1top[i])})},
  l1:{n:'consumo_do_estoque_item',all:()=>{let c=0;const q=(M.stock.get(S.item)||{q:0}).q,ps=(M.byItem.get(S.item)||[]).map(l=>`${l.rua}-C${l.col}-N${l.niv}`).join('; ');return demRows(S.item).map(r=>({'Item':S.item,'Posições (Rua-Coluna-Nível)':ps,'Cliente (GESTAO)':r.cli,'Entrega':fd(r.d),'Quantidade':r.q,'Demanda acumulada':c+=r.q,'Estoque atual':q,'Saldo após a entrega':q-c}))}},
  eb:{n:'embalagens_necessidade',all:()=>embRows(),sel:(d,i)=>({t:S.ebtop[i].cod,rows:embLabelRows(S.ebtop[i].key)})},
  v1:{n:'valor_do_estoque',all:()=>valRecsL(()=>1),sel:(d,i)=>({t:['Necessário','Com excesso','Sem demanda'][i],rows:valRecsL(r=>i==0?r.com&&r.val!=null:i==1?r.st=='e':r.st=='s')})},
- v2:{n:'capital_parado',all:()=>valRecsL(r=>S.v2top.includes(r)),sel:(d,i)=>({t:S.v2top[i].item,rows:valRecsL(r=>r.item==S.v2top[i].item)})}};
+ v2:{n:'capital_parado',all:()=>valRecsL(r=>(S.v2top||[]).includes(r)),sel:(d,i)=>{const it=((S.v2top||[])[i]||{}).item;return{t:it,rows:valRecsL(r=>r.item==it)}}}};
 const nf2=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2});
 /* ---- visão ABC: modo, gráficos e listas ---- */
 function setMode(m){S.mode=m;S.fs.clear();S.xf=null;xfc();Object.assign(NAMES,m=='ig'?ageN():m=='kg'?kgN():{hA:'Predomina curva A (quente)',hB:'Predomina curva B',hC:'Predomina curva C (frio)'});NAMES.hN=m=='ig'?'Sem data na etiqueta':m=='kg'?'Sem peso':m=='ad'?'Sem demanda no período':'Sem valorização';$('#klw').hidden=m!='kg';$('#alw').hidden=m!='ig';document.body.dataset.md=m;if(m=='kg'){$('#klim').value=KH();$('#kllo').value=KL()}if(m=='ig'){$('#alhi').value=AH();$('#allo').value=AL()}if(typeof M!='undefined'&&M){calcABC();$$('[data-md]').forEach(b=>b.classList.toggle('on',b.dataset.md==m));$('#abcblk').hidden=m=='d'||m=='kg'||m=='ig';renderMap();renderExt();if($('#ind').classList.contains('on'))renderInd()}else $$('[data-md]').forEach(b=>b.classList.toggle('on',b.dataset.md==m))}
@@ -1642,8 +1665,19 @@ const fix=()=>{$$('.tw,.clscroll').forEach(t=>{if(t.tabIndex<0)t.tabIndex=0;t.se
 const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fix)};
 new MutationObserver(go).observe(document.body,{childList:true,subtree:true});fix()})();</script>
 <script>(()=>{const iso=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
-const chk=()=>{if(iso()===today)return;const q=document.getElementById('qs');if(q&&!q.hidden)return;toast('Virou o dia. Atualizando as datas...');setTimeout(()=>location.reload(),1600)};
+const chk=()=>{if(iso()===today||(window.__exp&&Date.now()<window.__exp))return;const q=document.getElementById('qs');if(q&&!q.hidden)return;if(document.hidden){location.reload();return}if(document.getElementById('dayb'))return;const d=document.createElement('div');d.id='dayb';d.setAttribute('role','status');d.style.cssText='position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:420;display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:12px;background:#161e27;border:1px solid #8fc4ff;color:#e7ecf1;font:13.5px system-ui,sans-serif;box-shadow:0 10px 30px #000a';d.innerHTML='Virou o dia: atualize para recalcular atrasos e idades. <button style="height:32px;padding:0 14px;border:0;border-radius:8px;background:#8fc4ff;color:#08111b;font-weight:600;cursor:pointer">Atualizar</button>';d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()});addEventListener('focus',chk);setInterval(chk,60000);
 const hs=document.getElementById('qhist'),qs=document.getElementById('qs');if(hs&&qs)new MutationObserver(()=>{qs.inert=!hs.hidden}).observe(hs,{attributes:true,attributeFilter:['hidden']})})();</script>
+<script>(()=>{const $=s=>document.querySelector(s),mc=$('.mapctl'),leg=$('#leg'),mrow=mc&&mc.querySelector('.mrow');if(!mc||!leg||!mrow)return;
+/* linha reservada: limites de peso/idade OU dica do modo (a altura nunca muda) */
+const r2=document.createElement('div');r2.className='mrow2';const hint=document.createElement('span');hint.className='mhint';hint.id='mhint';r2.appendChild(hint);['#klw','#alw'].forEach(s=>{const e=$(s);if(e)r2.insertBefore(e,hint)});mrow.after(r2);
+const HT={d:'Clique numa cor da legenda para filtrar o espelho; marque várias para comparar.',av:'Cor pela curva ABC de valor. Clique numa cor da legenda para filtrar.',ad:'Cor pela curva ABC de demanda. Clique numa cor da legenda para filtrar.',kg:'',ig:''};
+const setHint=()=>{const b=mc.querySelector('.mm button.on');hint.textContent=HT[b?b.dataset.md:'d']||''};setHint();new MutationObserver(setHint).observe(mc.querySelector('.mm'),{subtree:true,attributes:true,attributeFilter:['class']});
+/* as cores da legenda ficam sempre numa única linha (rolagem lateral se faltar espaço) */
+let busy=0;const wrap=()=>{if(busy)return;busy=1;const t=[...leg.children].filter(c=>c.classList.contains('lg'));if(t.length){let w=leg.querySelector(':scope>.legt');if(!w){w=document.createElement('div');w.className='legt';leg.insertBefore(w,leg.firstChild)}t.forEach(x=>w.appendChild(x))}busy=0};
+new MutationObserver(wrap).observe(leg,{childList:true});wrap();
+/* rua: só existe filtro no celular; ao voltar ao desktop, mostra todas as ruas */
+const mq=matchMedia('(max-width:760px)'),sync=()=>{const b=$(mq.matches?'#rseg [data-ru="R01"]':'#rseg [data-ru=""]');const cur=$('#rseg .on');if(b&&(!mq.matches||!cur||cur.dataset.ru==='')&&mq.matches&&cur&&cur.dataset.ru!=='')return;if(!mq.matches&&cur&&cur.dataset.ru!=='')b.click()};mq.addEventListener('change',()=>{if(!mq.matches)sync();else{const b=$('#rseg [data-ru="R01"]');b&&b.click()}});
+})();</script>
 </body>
 </html>

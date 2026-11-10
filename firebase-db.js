@@ -11,7 +11,10 @@ import {
   getDocs,
   writeBatch,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -195,5 +198,43 @@ export function onCurrentChange(callback, onError) {
   }, err => onError && onError(err));
 }
 
+
+// ---- Histórico de leituras do scanner (compartilhado entre os aparelhos) ----
+const scanCol = () => collection(db, ROOT, "scan", "items");
+const scanDoc = (id) => doc(db, ROOT, "scan", "items", String(id));
+const scanClean = (e) => { const o = JSON.parse(JSON.stringify(e)); delete o.pend; delete o._p; return o; };
+
+/** Grava uma leitura. O id (tempo + sufixo) evita colisão entre aparelhos. */
+export async function scanAdd(entry) {
+  await setDoc(scanDoc(entry.id), scanClean(entry));
+}
+
+/** Grava várias leituras de uma vez (reenvio de pendentes / desfazer). */
+export async function scanAddMany(list) {
+  for (let i = 0; i < list.length; i += 400) {
+    const b = writeBatch(db);
+    list.slice(i, i + 400).forEach(e => b.set(scanDoc(e.id), scanClean(e)));
+    await b.commit();
+  }
+}
+
+/** Apaga todo o histórico, em todos os aparelhos. */
+export async function scanDeleteAll() {
+  const snap = await getDocs(scanCol());
+  for (let i = 0; i < snap.docs.length; i += 400) {
+    const b = writeBatch(db);
+    snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref));
+    await b.commit();
+  }
+}
+
+/** Avisa em tempo real a cada leitura nova/apagada (das últimas 1000). Retorna a função para cancelar. */
+export function onScanChange(callback, onError) {
+  const q = query(scanCol(), orderBy("t", "desc"), limit(1000));
+  return onSnapshot(q, snap => {
+    callback(snap.docs.map(d => ({ ...d.data(), id: d.id, _p: d.metadata.hasPendingWrites })));
+  }, err => onError && onError(err));
+}
+
 // API global usada pelo HTML do Espelho.
-window.FirebaseDB = { saveEspelho, loadEspelho, getCurrentMeta, onCurrentChange };
+window.FirebaseDB = { saveEspelho, loadEspelho, getCurrentMeta, onCurrentChange, scanAdd, scanAddMany, scanDeleteAll, onScanChange };

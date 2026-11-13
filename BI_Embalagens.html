@@ -154,6 +154,9 @@ tbody tr:nth-child(even) td{background:var(--zebra)}
 #invT>thead>tr>th,#invT>tbody>tr>td,#invT>tfoot>tr>td{padding:8px 7px}#invT td:nth-child(3){min-width:110px;max-width:220px}
 #invT tbody .rcvgo{display:inline-flex;vertical-align:middle;margin-left:10px;padding:3px;border-radius:6px;color:var(--mut);opacity:.6;text-decoration:none;cursor:pointer}.rcvgo:hover{opacity:1;color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent)}.rcvgo .ic{width:15px;height:15px}#invT tr.tf>td:first-child{box-shadow:inset 3px 0 0 var(--r)}
 #invT tr.urg>td:nth-child(2){box-shadow:inset 3px 0 0 var(--ac)}
+#invT>thead>tr>th:not(:first-child),#invT>tbody>tr:not(.det)>td:not(:first-child),#invT>tfoot>tr>td:not(:first-child){border-left:1px solid color-mix(in srgb,var(--ln) 55%,transparent)}
+#invT>thead>tr>th[data-k=falt],#invT>tbody>tr>td[data-o=falt],#invT>tfoot>tr>td.fcol{background-image:linear-gradient(color-mix(in srgb,var(--r) 6%,transparent),color-mix(in srgb,var(--r) 6%,transparent))}
+#invT tr.oc>td{opacity:.5}#invT tr.oc>td:last-child{opacity:1}
 #invT tr.op>td{background:var(--s2)}
 #invT tfoot td{border-top:1px solid var(--ln2);background:var(--s2);font-size:13px}
 th[data-k=""]{white-space:normal;line-height:1.15;text-align:center}
@@ -177,6 +180,7 @@ td input[type=checkbox]{vertical-align:middle}
 #invT td .thumb{margin:0 auto}
 select.act{height:30px;width:140px;padding:0 26px 0 10px;font-size:12.5px;border-radius:8px;cursor:pointer}
 select.act.b{border-color:color-mix(in srgb,var(--r) 55%,var(--ln2));color:var(--r);font-weight:600}
+select.act.o{border-style:dashed;color:var(--mu);font-weight:600}
 select.act.u{border-color:var(--ac);color:var(--ac);font-weight:600;background-color:color-mix(in srgb,var(--ac) 12%,var(--s2))}
 .det .dl2wrap{margin:10px 16px 14px;border:1px solid var(--ln2);border-radius:12px;overflow:hidden;background:var(--s1)}
 .det table.dl2{width:100%;margin:0;border-collapse:collapse}
@@ -1052,14 +1056,14 @@ function itemEntries(item,per){const e=demandIndex().get(item);if(!e)return[];co
 /* por item: atrasos (antes da data inicial) saem juntos = ⌈atraso ÷ qtd por emb.⌉; no período vale a DATA DE ENTREGA: ⌈qtd do dia ÷ qtd por emb.⌉ para cada data, somado (não se junta demanda de datas diferentes na mesma embalagem) */
 function compute(cli){
   const per=periodo(),mp=clientMap(cli),inv=S.inv[cli.id]||{};const rows=new Map();
-  for(const p of cli.packs){const i=inv[p.code]||{};rows.set(p,{pack:p,key:p.code,v:i.v??null,c:i.c??null,bloq:!!i.b,urg:!!i.u&&!i.b,dm:i.dm??null,items:[],atraso:0,demanda:0})}
+  for(const p of cli.packs){const i=inv[p.code]||{};rows.set(p,{pack:p,key:p.code,v:i.v??null,c:i.c??null,bloq:!!i.b&&!i.o,urg:!!i.u&&!i.b&&!i.o,oculta:!!i.o,dm:i.dm??null,items:[],atraso:0,demanda:0})}
   const add=(r,item,qty,pc,pl)=>{const {od,dem,desc,byD}=itemDemand(item,per),{a,n}=pk(od,dem,qty,byD);r.items.push({item,desc,qty,od,dem,a,need:n,all:itemDemandAll(item),ent:itemEntries(item,per),pc,pl});r.atraso+=a;r.demanda+=n};
   for(const l of mp.links)add(rows.get(l.pack),l.item,l.qty,l.pc,l.pl);
-  if(S.ui.showOrph)for(const o of mp.orphans.values()){const key='ORF:'+o.code,i=inv[key]||{};const r={pack:{code:o.code,desc:'',img:null,orphan:true},key,v:i.v??null,c:i.c??null,bloq:!!i.b,urg:!!i.u&&!i.b,dm:i.dm??null,items:[],atraso:0,demanda:0};o.items.forEach(it=>add(r,it.item,it.qty));rows.set(r.pack,r)}
+  if(S.ui.showOrph)for(const o of mp.orphans.values()){const key='ORF:'+o.code,i=inv[key]||{};const r={pack:{code:o.code,desc:'',img:null,orphan:true},key,v:i.v??null,c:i.c??null,bloq:!!i.b&&!i.o,urg:!!i.u&&!i.b&&!i.o,oculta:!!i.o,dm:i.dm??null,items:[],atraso:0,demanda:0};o.items.forEach(it=>add(r,it.item,it.qty));rows.set(r.pack,r)}
   const list=[...rows.values()];list.forEach(r=>{r.demBase=r.demanda;r.semDem=!r.items.some(i=>i.all>0);fin(r)});return{list,mp}}
 const atrMode=()=>S.ui.atrMode==='sum'?'sum':'sep';
 /* demanda manual (opcional): só vale com "Editar demanda" ligado; o valor digitado é o que aparece na coluna Demanda */
-function fin(r){if(r.demBase!=null){r.demanda=r.demBase;if(S.ui.demEdit&&r.dm!=null)r.demanda=atrMode()==='sep'?r.dm:Math.max(0,r.dm-r.atraso)}r.total=(r.v||0)+(r.c||0);r.nec=r.atraso+r.demanda;r.demShow=atrMode()==='sum'?r.nec:r.demanda;r.falt=Math.max(0,r.nec-r.total);r.enviar=r.falt>0&&!r.bloq}
+function fin(r){if(r.demBase!=null){r.demanda=r.demBase;if(S.ui.demEdit&&r.dm!=null)r.demanda=atrMode()==='sep'?r.dm:Math.max(0,r.dm-r.atraso)}r.total=(r.v||0)+(r.c||0);r.nec=r.atraso+r.demanda;r.demShow=atrMode()==='sum'?r.nec:r.demanda;r.falt=Math.max(0,r.nec-r.total);r.enviar=r.falt>0&&!r.bloq&&!r.oculta}
 const NATCOL=new Intl.Collator('pt-BR',{numeric:true}),natCmp=(a,b)=>NATCOL.compare(String(a),String(b)); /* Collator único: localeCompare a cada comparação deixava as ordenações lentas no celular */
 const pk=(od,dem,q,byD)=>({a:Math.max(0,Math.ceil(od/q-1e-9)),n:byD?Object.values(byD).reduce((t,v)=>t+Math.max(0,Math.ceil(v/q-1e-9)),0):Math.max(0,Math.ceil(dem/q-1e-9))});
 /* compradas de um cliente: itens dos clientes equivalentes (coluna A) com status COMPRADA */
@@ -1390,8 +1394,9 @@ function diagHtml(c){const mp=clientMap(c),per=periodo();let top='',line='';if(!
     top+=`<div class="note bad"><b>Nenhum item COMODATO do relatório Embalagem Padrão usa as embalagens cadastradas para este cliente.</b> A ligação é feita pelo código da embalagem (coluna C), comparando o final do código${mp.names?' e só considera os clientes equivalentes selecionados no cadastro':''}. Exemplos de códigos no relatório: ${esc(ex)}.</div>`}
   line=`<div style="color:var(--mut);font-size:12px;margin:-4px 0 14px">Itens ligados às embalagens deste cliente: <b>${fmt(mp.links.length)}</b> · <b>${fmt(inG)}</b> aparecem na Gestão · <b>${fmt(withD)}</b> têm entrega até ${brDate(per.to)||'…'}.${mp.links.length&&!withD?` <b style="color:var(--red)">Nenhuma entrega no período — a Gestão cobre ${brDate(S.gestao.min)} a ${brDate(S.gestao.max)}.</b>`:''}</div>`;
   return{top,line}}
-const FLT=[['all','Todas',r=>true],['falt','Com falta',r=>r.falt>0],['sem','Sem demanda (todo o relatório)',r=>r.semDem&&!r.enviar],['semp','Sem demanda no período',r=>r.nec===0],['bloq','Bloqueadas',r=>!!r.bloq]];
-function drawFlt(){const el=$('#iFlt');if(!el||!invData)return;const l=invData.list;el.innerHTML=FLT.map(([k,t,f])=>`<option value="${k}">${t} (${fmt(l.filter(f).length)})</option>`).join('');el.value=invFlt;
+const FLT=[['all','Todas',r=>!r.oculta],['falt','Com falta',r=>!r.oculta&&r.falt>0],['sem','Sem demanda (todo o relatório)',r=>!r.oculta&&r.semDem&&!r.enviar],['semp','Sem demanda no período',r=>!r.oculta&&r.nec===0],['bloq','Bloqueadas',r=>!r.oculta&&!!r.bloq],['oc','Com ocultas',r=>true]];
+const liveRows=l=>l.filter(r=>!r.oculta);
+function drawFlt(){const el=$('#iFlt');if(!el||!invData)return;const l=invData.list;el.innerHTML=FLT.map(([k,t,f])=>`<option value="${k}">${t} (${k==='oc'?fmt(l.filter(r=>r.oculta).length)+' oculta'+(l.filter(r=>r.oculta).length===1?'':'s'):fmt(l.filter(f).length)})</option>`).join('');el.value=invFlt;
   el.onchange=()=>{invFlt=el.value;drawFlt();drawTable()}}
 /* busca por embalagem OU por item; se o item for achado, abre a embalagem e destaca o item */
 function onSearch(){const q=invQ.trim().toLowerCase();if(q.length>=3){const rs=visibleRows();if(rs.length<=12)rs.forEach(r=>{if(r.items.some(i=>(i.item+' '+i.desc).toLowerCase().includes(q)))openRows.add(r.key)})}drawTable()}
@@ -1456,7 +1461,7 @@ async function exportEmailWeb(c){try{const {n,txt}=envioTxt(c);if(!n)return toas
   const fl=files.map(f=>f[0]).join(' e ');
   toast((to.length?'':'SEM destinatários (cadastre em Editar cliente). ')+(ccCopied?'Outlook Web aberto. CC: clique no campo Cc e cole com Ctrl+V (e-mails já copiados).':inUrl?'Outlook Web aberto com o texto.':(copied?'Outlook Web aberto: cole o corpo com Ctrl+V.':'Outlook Web aberto (corpo não copiado).'))+(fl?` Arraste ${fl} (Downloads) para a mensagem.`:''))}catch(e){console.error(e);toast('Erro ao abrir o Outlook Web.')}}
 function exportConf(c){const rows=[['Embalagem','Descrição da embalagem','Item','Descrição do item','Qtd por embalagem','Data da demanda (coluna J)','Cliente (Gestão)','Planta','Tipo','Quantidade (un)']];
-  invData.list.forEach(r=>[...r.items].sort((a,b)=>natCmp(a.item,b.item)).forEach(i=>(i.ent||[]).forEach(x=>rows.push([r.pack.code,r.pack.desc||'',i.item,i.desc,i.qty,brDate(x.d),x.c,i.pl||'',x.late?'ATRASO':'PERÍODO',x.q]))));
+  liveRows(invData.list).forEach(r=>[...r.items].sort((a,b)=>natCmp(a.item,b.item)).forEach(i=>(i.ent||[]).forEach(x=>rows.push([r.pack.code,r.pack.desc||'',i.item,i.desc,i.qty,brDate(x.d),x.c,i.pl||'',x.late?'ATRASO':'PERÍODO',x.q]))));
   const cell=v=>{const s=typeof v==='number'?String(v).replace('.',','):String(v??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
   dl(new Blob(['\ufeff'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`Conferencia_Demanda_${c.nome.replace(/[^\w]+/g,'_')}_${ymd(new Date())}.csv`);toast(`CSV gerado: ${fmt(rows.length-1)} entregas (${periodTxt()})`)}
 function visibleRows(){let l=invData.list.map((r,i)=>(r.ord=i,r));const q=invQ.trim().toLowerCase();
@@ -1473,7 +1478,7 @@ function cols(){const inp=(f,r)=>`<td class="n"><input type="number" min="0" ste
    {k:'demShow',l:'Demanda',n:1,s:1,sum:1,td:r=>{if(!S.ui.demEdit)return`<td class="n" data-o="demanda">${fmt(r.demShow)}</td>`;const auto=atrMode()==='sep'?r.demBase:r.demBase+r.atraso;return`<td class="n" data-o="demanda"><input type="number" min="0" step="1" data-f="dm" class="${r.dm!=null?'ed':''}" value="${r.dm??''}" placeholder="${auto}" title="Calculada: ${fmt(auto)} · apague o valor para voltar ao cálculo automático"></td>`}},
    {k:'falt',l:'Faltante',n:1,s:1,sum:1,foot:'falt',td:r=>`<td class="n" data-o="falt">${faltHtml(r)}</td>`},
    {k:'enviar',l:'Status',s:1,td:r=>`<td data-o="status">${statusHtml(r)}</td>`},
-   {l:'Bloqueio / Prioridade',td:r=>{const v=r.bloq?'b':(r.urg?'u':'');return`<td style="text-align:center"><select class="act ${v}" data-a title="Bloquear envio: a embalagem não entra na lista de envio. Prioridade: marca como urgente (destaque no PDF e no Excel)."><option value=""${v===''?' selected':''}>—</option><option value="b"${v==='b'?' selected':''}>Bloquear envio</option><option value="u"${v==='u'?' selected':''}>Prioridade</option></select></td>`}}]}
+   {l:'Bloqueio / Prioridade',td:r=>{const v=r.oculta?'o':r.bloq?'b':(r.urg?'u':'');return`<td style="text-align:center"><select class="act ${v}" data-a title="Bloquear envio: a embalagem não entra na lista de envio. Prioridade: marca como urgente (destaque no PDF e no Excel). Ocultar: some do inventário, dos filtros, dos PDFs, Excel e e-mails (use o filtro Mostrar ocultas para vê-la)."><option value=""${v===''?' selected':''}>—</option><option value="b"${v==='b'?' selected':''}>Bloquear envio</option><option value="u"${v==='u'?' selected':''}>Prioridade</option><option value="o"${v==='o'?' selected':''}>Ocultar</option></select></td>`}}]}
 function drawTable(){const t=$('#invT'),C=cols();
   t.tHead.innerHTML='<tr><th style="width:30px"></th>'+C.map(c=>`<th class="${c.s?'s ':''}${c.n?'n':''}" data-k="${c.k||''}">${c.l}${sort.k===c.k?(sort.d>0?ic('sup','sa'):ic('sdn','sa')):''}</th>`).join('')+'</tr>';
   $$('#invT th.s').forEach(h=>h.onclick=()=>{const k=h.dataset.k;sort=sort.k===k?{k,d:-sort.d}:{k,d:(k==='code'||k==='desc')?1:-1};drawTable()});
@@ -1483,7 +1488,7 @@ function drawTable(){const t=$('#invT'),C=cols();
 const atrHtml=r=>r.atraso?`<span style="color:var(--red);font-weight:700">${fmt(r.atraso)}</span>`:'<span style="color:#b3bccb">0</span>';
 const statusHtml=r=>r.enviar?'<span class="send">NECESSÁRIO ENVIAR</span>':r.semDem?'<span class="tag no" title="Nenhuma demanda em todo o período do relatório da Gestão">SEM DEMANDA</span>':'<span class="tag ok">BLOQUEAR ENVIO</span>';
 function rowHtml(r,C){C=C||cols();const k=encodeURIComponent(r.key),open=openRows.has(r.key);
-  return`<tr data-k="${k}" class="${r.falt>0?'tf ':''}${r.urg?'urg ':''}${open?'op':''}"><td><button class="chev" data-t="${k}" title="Mostrar itens, datas e quantidades" aria-expanded="${open}">${ic('chev')}</button></td>${C.map(c=>c.td(r)).join('')}</tr>${open?detHtml(r,C.length+1):''}`}
+  return`<tr data-k="${k}" class="${r.falt>0?'tf ':''}${r.urg?'urg ':''}${r.oculta?'oc ':''}${open?'op':''}"><td><button class="chev" data-t="${k}" title="Mostrar itens, datas e quantidades" aria-expanded="${open}">${ic('chev')}</button></td>${C.map(c=>c.td(r)).join('')}</tr>${open?detHtml(r,C.length+1):''}`}
 const faltHtml=r=>r.falt>0?`<span class="falt">${fmt(r.falt)}</span>`:'<span style="color:#9aa6b6">0</span>';
 function plResumo(its){const m=new Map();its.forEach(i=>{if(i.pl)m.set(i.pl,(m.get(i.pl)||0)+i.a+i.need)});if(!m.size)return'';
   return`<tr class="pls"><td colspan="7">Embalagens por planta: ${plSort([...m.keys()]).map(k=>`<span class="pl">${esc(plLabel(k))}</span> <b>${fmt(m.get(k))}</b>`).join(' &nbsp;·&nbsp; ')}</td></tr>`}
@@ -1500,7 +1505,7 @@ function detHtml(r,nc){const q=invQ.trim().toLowerCase(),hit=i=>q.length>=2&&(i.
     return i.ent.map((x,k)=>`<tr class="${k===0?'g1':''}${h}"><td class="dt">${brDate(x.d)}${x.late?' <span class="late">ATRASO</span>':''}</td><td>${esc(x.c)||'<span class="mu">—</span>'}</td>${itm(i)}<td class="c">${pl(i)}</td><td class="c mu">${fmt(i.qty)}</td><td class="c${x.late?' lt':''}"><b>${fmt(x.q)}</b></td>${k===0?need(i):''}</tr>`).join('')}).join('');
   return`<tr class="det"><td colspan="${nc}">${its.length?`<div class="dl2wrap"><table class="dl2"><thead><tr><th>Data da demanda</th><th>Cliente</th><th>Item</th><th class="c">Planta</th><th class="c" title="Quantidade de peças por embalagem">Un/emb.</th><th class="c">Demanda (un)</th><th class="c need" title="Embalagens necessárias: atrasos juntos + ⌈un do dia ÷ qtd por embalagem⌉ para cada data de entrega">Necessidade (emb.)</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td colspan="5">Total · ${fmt(its.length)} itens · ${fmt(ne)} entregas${r.pack&&!r.pack.orphan?`<a href="#" class="rcvgo" data-rcv="${encodeURIComponent(r.pack.code)}" title="Ver as entradas (NFE) desta embalagem neste cliente, sem sair do Inventário">${SVGREC}</a>`:''}</td><td class="c"><b>${fmt(sum('od')+sum('dem'))}</b></td><td class="need"><b>${fmt(r.atraso+r.demanda)}</b><small>emb.</small></td></tr>${plResumo(its)}</tfoot></table></div>`:`<div style="padding:10px 16px;color:var(--mut)">Sem demanda (${r.items.length} itens vinculados).</div>`}</td></tr>`}
 function drawFoot(rows){const C=cols(),s=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
-  $('#invT').tFoot.innerHTML=`<tr><td></td><td colspan="3"><b>Total (${rows.length} embalagens)</b></td>${C.slice(3).map(c=>c.sum?`<td class="n"><b${c.foot?' class="falt"':''}>${fmt(s(c.k))}</b></td>`:'<td></td>').join('')}</tr>`}
+  $('#invT').tFoot.innerHTML=`<tr><td></td><td colspan="3"><b>Total (${rows.length} embalagens)</b></td>${C.slice(3).map(c=>c.sum?`<td class="n${c.foot?' fcol':''}"><b${c.foot?' class="falt"':''}>${fmt(s(c.k))}</b></td>`:'<td></td>').join('')}</tr>`}
 function refreshRow(tr,r){tr.querySelector('[data-o=total]').innerHTML=`<b>${fmt(r.total)}</b>`;tr.querySelector('[data-o=falt]').innerHTML=faltHtml(r);tr.querySelector('[data-o=status]').innerHTML=statusHtml(r);
   tr.classList.toggle('tf',r.falt>0);drawFoot(visibleRows());drawKpis();drawFlt();drawChartsSoft()}
 function bindRows(rows){
@@ -1509,16 +1514,16 @@ function bindRows(rows){
   $$('#invT [data-rcv]').forEach(a=>a.onclick=e=>{e.preventDefault();const c=curCli();if(c)openRecPopup(c,decodeURIComponent(a.dataset.rcv))});
   $$('#invT [data-reg]').forEach(b=>b.onclick=async()=>{const c=curCli(),code=decodeURIComponent(b.dataset.reg).slice(4);c.packs.push({code,desc:''});const inv=S.inv[c.id];if(inv&&inv['ORF:'+code]){inv[code]=inv['ORF:'+code];delete inv['ORF:'+code];await DB.set('inv',S.inv)}await saveCli();invalidate();renderInv();toast('Embalagem cadastrada')});
   const rowOf=tr=>invData.list.find(x=>x.key===decodeURIComponent(tr.dataset.k));
-  const store=(r)=>{const c=curCli();const inv=S.inv[c.id]||(S.inv[c.id]={});inv[r.key]={v:r.v,c:r.c,b:r.bloq,...(r.urg?{u:1}:{}),...(r.dm!=null?{dm:r.dm}:{})};saveInv();demCount()};
+  const store=(r)=>{const c=curCli();const inv=S.inv[c.id]||(S.inv[c.id]={});inv[r.key]={v:r.v,c:r.c,b:r.bloq,...(r.urg?{u:1}:{}),...(r.oculta?{o:1}:{}),...(r.dm!=null?{dm:r.dm}:{})};saveInv();demCount()};
   $$('#invT input[data-f]').forEach(inp=>inp.oninput=()=>{const tr=inp.closest('tr'),r=rowOf(tr);
     r[inp.dataset.f]=inp.value===''?null:Math.max(0,Math.floor(+inp.value));if(inp.dataset.f==='dm')inp.classList.toggle('ed',r.dm!=null);fin(r);store(r);refreshRow(tr,r)});
-  $$('#invT select[data-a]').forEach(s=>s.onchange=()=>{const tr=s.closest('tr'),r=rowOf(tr);r.bloq=s.value==='b';r.urg=s.value==='u';s.className='act '+s.value;fin(r);store(r);refreshRow(tr,r);tr.classList.toggle('urg',r.urg)})}
+  $$('#invT select[data-a]').forEach(s=>s.onchange=()=>{const tr=s.closest('tr'),r=rowOf(tr);r.bloq=s.value==='b';r.urg=s.value==='u';r.oculta=s.value==='o';s.className='act '+s.value;fin(r);store(r);tr.classList.toggle('urg',r.urg);tr.classList.toggle('oc',r.oculta);if(r.oculta&&invFlt!=='oc'){const nx=tr.nextElementSibling;if(nx&&nx.classList.contains('det'))nx.remove();tr.remove();drawFoot(visibleRows());drawKpis();drawFlt();drawChartsSoft();return}refreshRow(tr,r)})}
 function demCount(){const el=$('#demEdCnt');if(!el||!invData)return;const n=invData.list.filter(r=>r.dm!=null).length;el.textContent=n?`(${n} ajustada${n>1?'s':''})`:''}
-function drawKpis(anim){const l=invData.list,s=k=>l.reduce((a,r)=>a+(r[k]||0),0);const ne=l.filter(r=>r.enviar).length;const per=periodo();
+function drawKpis(anim){const l=liveRows(invData.list),s=k=>l.reduce((a,r)=>a+(r[k]||0),0);const ne=l.filter(r=>r.enviar).length;const per=periodo();
   $('#kpis').innerHTML=[['Embalagens',fmt(l.filter(r=>!r.pack.orphan).length),l.some(r=>r.pack.orphan)?`+ ${l.filter(r=>r.pack.orphan).length} não cadastradas`:'cadastradas'],['Estoque total',fmt(s('total')),`${fmt(s('v'))} vazias · ${fmt(s('c'))} cheias`],['Demanda do período',fmt(s('demShow')),`${brDate(per.from)||'…'} a ${brDate(per.to)||'…'}${sepOn()?' · atrasos: '+fmt(s('atraso')):' · inclui atrasos'}`],['Faltante',`<span class="${s('falt')?'falt':''}">${fmt(s('falt'))}</span>`,`${ne} embalagem(ns) necessário enviar · clique para filtrar`,1]].map(([a,b,c,k])=>`<div class="card kpi${anim?' in':''}${k?' click':''}"${k?' data-kf="1" title="Mostrar só as embalagens com falta"':''}><span>${a}</span><b>${b}</b><small style="color:var(--mut)">${c}</small></div>`).join('');
   $$('#kpis [data-kf]').forEach(e=>e.onclick=()=>{invFlt='falt';drawFlt();drawTable();$('#invT').scrollIntoView({behavior:'smooth',block:'start'})})}
 const drawChartsSoft=debounce(()=>drawCharts(),250);
-function drawCharts(){if(!$('#ch1'))return;Chart.defaults.color=cv('--mu');Chart.defaults.font.family="'IBM Plex Sans',system-ui,sans-serif";Chart.defaults.font.size=12;Object.values(charts).forEach(c=>c.destroy());charts={};const l=invData.list;
+function drawCharts(){if(!$('#ch1'))return;Chart.defaults.color=cv('--mu');Chart.defaults.font.family="'IBM Plex Sans',system-ui,sans-serif";Chart.defaults.font.size=12;Object.values(charts).forEach(c=>c.destroy());charts={};const l=liveRows(invData.list);
   const top=[...l].filter(r=>r.nec>0||r.total>0).sort((a,b)=>b.nec-a.nec).slice(0,12);
   charts.a=new Chart($('#ch1'),{type:'bar',data:{labels:top.map(r=>r.pack.code),datasets:[{label:'Estoque total',data:top.map(r=>r.total),backgroundColor:'#4a90d9',borderRadius:5,maxBarThickness:28},{label:'Demanda + atrasos',data:top.map(r=>r.nec),backgroundColor:'#f2c230',borderRadius:5,maxBarThickness:28}]},options:{maintainAspectRatio:false,animation:false,onClick:(e,els)=>{if(els.length)focusPack(top[els[0].index].key)},onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default'},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'rectRounded',boxWidth:10,boxHeight:10,padding:16,color:cv('--mu')}}},scales:{y:{beginAtZero:true,border:{display:false},grid:{color:cv('--ln')},ticks:{color:cv('--mu')}},x:{border:{display:false},grid:{display:false},ticks:{color:cv('--mu')}}}}});
   const ok=l.filter(r=>r.nec>0&&r.falt===0).length,bad=l.filter(r=>r.falt>0).length,no=l.filter(r=>r.nec===0).length;
@@ -1593,7 +1598,7 @@ function renderDemAll(body){
   if(!S.padrao||!S.gestao){body.innerHTML='<div class="note">Importe os relatórios <b>Embalagem Padrão</b> e <b>Gestão</b> na aba Dados para calcular a demanda.</div>';return}
   if(!S.clientes.length){body.innerHTML='<div class="empty-s card">Cadastre ao menos um cliente.</div>';return}
   const so=S.ui.showOrph,groups=[];S.ui.showOrph=true;
-  try{for(const c of S.clientes){const l=compute(c).list.filter(r=>r.nec>0).sort((a,b)=>b.nec-a.nec||natCmp(a.pack.code,b.pack.code));
+  try{for(const c of S.clientes){const l=compute(c).list.filter(r=>r.nec>0&&!r.oculta).sort((a,b)=>b.nec-a.nec||natCmp(a.pack.code,b.pack.code));
     if(l.length)groups.push({c,l,nec:l.reduce((t,r)=>t+r.nec,0),falt:l.reduce((t,r)=>t+r.falt,0)})}}finally{S.ui.showOrph=so}
   groups.sort((a,b)=>b.nec-a.nec||natCmp(a.c.nome,b.c.nome));
   const sep=sepOn(),nPk=groups.reduce((t,g)=>t+g.l.length,0),tNec=groups.reduce((t,g)=>t+g.nec,0),tFalt=groups.reduce((t,g)=>t+g.falt,0);
@@ -1644,7 +1649,7 @@ document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closes
   const close=()=>{lb.remove();document.removeEventListener('keydown',kd)},kd=ev=>{if(ev.key==='Escape')close()};lb.onclick=close;document.addEventListener('keydown',kd);document.body.appendChild(lb)},true);
 
 /* ============ EXPORTAÇÃO ============ */
-function exportRows(c){return invData.list.filter(r=>!r.pack.orphan)}
+function exportRows(c){return invData.list.filter(r=>!r.pack.orphan&&!r.oculta)}
 function periodTxt(){const p=periodo();return(brDate(p.from)||'…')+' a '+(brDate(p.to)||'…')}
 const fname=(c,ext)=>`Solicitacao_Embalagem_${c.nome.replace(/[^\w]+/g,'_')}_${ymd(new Date())}.${ext}`;
 /* colunas de exportação (PDF/Excel) conforme o modo de atrasos */
@@ -1761,7 +1766,7 @@ function qModelDem(){
   if(!S.padrao||!S.gestao){toast('Importe os relatórios Embalagem Padrão e Gestão na aba Dados antes de exportar.');return null}
   if(!S.clientes.length){toast('Cadastre ao menos um cliente.');return null}
   const so=S.ui.showOrph,groups=[];S.ui.showOrph=true;
-  try{for(const c of S.clientes){const l=compute(c).list.filter(r=>r.nec>0).sort((a,b)=>b.nec-a.nec||natCmp(a.pack.code,b.pack.code));
+  try{for(const c of S.clientes){const l=compute(c).list.filter(r=>r.nec>0&&!r.oculta).sort((a,b)=>b.nec-a.nec||natCmp(a.pack.code,b.pack.code));
     if(l.length)groups.push({c,l,nec:l.reduce((t,r)=>t+r.nec,0),falt:l.reduce((t,r)=>t+r.falt,0)})}}finally{S.ui.showOrph=so}
   groups.sort((a,b)=>b.nec-a.nec||natCmp(a.c.nome,b.c.nome));
   if(!groups.length){toast(`Nenhuma embalagem com demanda no período ${periodTxt()}.`);return null}

@@ -1,5 +1,5 @@
 // Service Worker do Espelho SMA — permite instalar o app e abrir offline.
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL_CACHE = 'espelho-shell-' + VERSION;
 const RUNTIME_CACHE = 'espelho-runtime-' + VERSION;
 const SHELL = [
@@ -8,6 +8,7 @@ const SHELL = [
   './manifest.json',
   './firebase-db.js',
   './Menu.html',
+  './zxing.min.js',
   './Espelho_SMC.html',
   './BI_Embalagens.html',
   './icons/icon-192.png',
@@ -16,7 +17,7 @@ const SHELL = [
   './icons/apple-touch-icon.png'
 ];
 // Bibliotecas/fontes de CDN: guardadas após o 1º uso para o app abrir offline.
-const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
+const CDN_HOSTS = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
 
 const CDN_PRE = [
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',

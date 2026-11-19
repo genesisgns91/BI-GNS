@@ -1318,6 +1318,7 @@ table{min-width:0}.vg table,.xw table,#vlist .ac .tw table{min-width:0}
 <div class="pane" id="mapa" hidden>
  <div class="mapctl" id="lgd"></div>
  <div class="svh"><h2 class="sec" id="sv">Armazém vertical</h2><div class="mgrp zmg"><span class="mxl2">Zoom</span><button type="button" class="btn sm" data-z="-" aria-label="Diminuir zoom">−</button><label class="zi"><input type="number" id="zin" min="30" max="160" step="5" value="100" inputmode="numeric" aria-label="Zoom em porcentagem"><span class="zpc">%</span></label><button type="button" class="btn sm" data-z="+" aria-label="Aumentar zoom">+</button><button type="button" class="btn sm" data-z="fit">Ajustar à tela</button></div></div><div class="cards" id="vert"></div>
+ <h2 class="sec" id="sp" hidden>Piso · ruas de poucos níveis</h2><div class="cards" id="piso"></div>
  <h2 class="sec" id="so">Fora do vertical e do piso · tendas e demais ruas</h2><div class="cards" id="outr"></div></div>
 <div class="pane" id="ind" hidden><div class="kp" id="kp"></div>
   <div class="vwb" style="margin-bottom:12px"><span class="mxl2">Colorir o espelho por</span><div class="seg" id="indmd"><button type="button" data-imd="d" class="on">Demanda</button><button type="button" data-imd="av">ABC valor</button><button type="button" data-imd="ad">ABC demanda</button><button type="button" data-imd="kg">Peso</button><button type="button" data-imd="ig">Idade</button></div></div>
@@ -1546,7 +1547,7 @@ function map(){const T={g:0,y:0,r:0,b:0,o:0,h1:0,h2:0,h3:0,h4:0,h5:0,h6:0,hN:0};
  const ty=r=>(RT.get(r)||{t:'o'}).t,V=ruas.filter(r=>ty(r)=='v'),Z=ruas.filter(r=>ty(r)=='p'),O=ruas.filter(r=>ty(r)=='o');
  const sel=rua=>{const r=RT.get(rua);if(!r||!r.isP)return '';return `<select class="rt" data-rt="${E(rua)}" title="Classificação automática pelos andares e sufixos A/B; escolha para forçar"><option value="" ${!r.ov?'selected':''}>Auto · ${r.auto=='v'?'vertical':'piso'} (até andar ${r.mx})</option><option value="v" ${r.ov=='v'?'selected':''}>Vertical</option><option value="p" ${r.ov=='p'?'selected':''}>Piso</option></select>`};
  const gr=rua=>{const t=ty(rua),vt=t=='v',ps=all.filter(p=>p.rua==rua),vs=ps.filter(p=>p.vis),ix=new Map(),cs0=[],an0=[],sd0=new Set(),ot=[],c={};let w=1;
-  ps.forEach(p=>{if(p.an==null||p.cn==null){ot.push(p);return}w=Math.max(w,p.cn.length);cs0.push(+p.cn);an0.push(p.an);sd0.add(p.sd);ix.set(+p.cn+'|'+p.an+'|'+p.sd,p)});
+  ps.forEach(p=>{if(p.an==null||p.cn==null){ot.push(p);return}w=Math.max(w,p.cn.length);cs0.push(+p.cn);an0.push(p.an);sd0.add(p.sd);const kx=+p.cn+'|'+p.an+'|'+p.sd;if(ix.has(kx)){ot.push(p);return}ix.set(kx,p)});
   const rg=a=>{const o=[];if(a.length)for(let i=Math.min(...a);i<=Math.max(...a);i++)o.push(i);return o},cs=rg(cs0),ar=rg(an0);
   if(sd0.has('A')||sd0.has('B')){sd0.add('A');sd0.add('B')}
   const sdd=sd0.size?[...sd0].sort():[''],ns=sdd.length,pad=i=>String(i).padStart(w,'0'),cw=vt?22:28,gap=a=>a.join('<span></span>'),yy=vt?[...ar].reverse():ar;
@@ -1565,6 +1566,7 @@ function map(){const T={g:0,y:0,r:0,b:0,o:0,h1:0,h2:0,h3:0,h4:0,h5:0,h6:0,hN:0};
   h+='</div>';
   return `<section class="card" data-r="${E(rua)}"><h3>${E(rua)}<small>${FA?vs.length+' de '+ps.length:ps.length} posições ocupadas</small>${sel(rua)}</h3>${bar(c)}${vt?'':'<p class="mu" style="font-size:11px;margin:4px 0">Número na célula = masters empilhadas na posição.</p>'}${h}${ot.length?`<p class="mu" style="font-size:11px;margin:8px 0 2px">Endereços fora do padrão (andar/coluna):</p><div class="chips">${ot.map(chipH).join('')}</div>`:''}</section>`};
  $('#vert').innerHTML=V.length?V.map(gr).join(''):'<p class="mu">Nenhuma rua classificada como vertical.</p>';
+  $('#piso').innerHTML=Z.map(gr).join('');$('#sp').hidden=!Z.length;
   $('#outr').innerHTML=O.map(r=>{const ps=all.filter(p=>p.rua==r).sort((a,b)=>(a.col+a.and).localeCompare(b.col+b.and,'pt',{numeric:true})),c={};if(!ps.length)return '';ps.forEach(p=>{if(p.vis)c[cls(p)]=(c[cls(p)]||0)+1});
   return `<section class="card" data-r="${E(r)}"><h3>${E(r)}<small>${FA?ps.filter(p=>p.vis).length+' de '+ps.length:ps.length} posições</small></h3>${bar(c)}<div class="chips">${ps.map(chipH).join('')}</div></section>`}).join('')||'<p class="mu">Nenhuma posição neste filtro.</p>';
  MAPT=T;$('#lgd').innerHTML=modeBar()+'<div class="leg">'+legSet().filter(([s])=>s!='o'||FA).map(([s,t])=>`<button class="lg ${s}${HID.has(s)?' ex':''}" data-s="${s}"><i></i><div><b>${T[s]}</b><span>${t}</span></div></button>`).join('')+vrBtn(all)+`</div><div class="mrow"><label class="klim"><input type="checkbox" id="abv" ${ABV?'checked':''}> A/B empilhados (B sobre A)</label><label class="klim"><input type="checkbox" id="sw" ${SW?'checked':''}> inverter eixos (Coluna × Andar)</label></div>`}
@@ -2074,7 +2076,7 @@ function conAll(box){const q=U($('#cq').value),all=parentsAll().map(parRow).filt
 
 /* ---- espelho: filtro de rua, zoom e ajuste à tela ---- */
 let MZ=null;
-function fitMap(){let z0=null;$$('#vert .card').forEach(card=>{const g=card.querySelector('.grid');if(!g||card.hidden||!card.clientWidth)return;g.style.zoom='';g.style.width='max-content';const w=g.offsetWidth;g.style.width='';const cs=getComputedStyle(card),av=card.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=MZ==null?Math.min(1,av/w):MZ;g.style.zoom=z;card.dataset.z=z;if(z0==null)z0=z});const e=$('#zin');if(e&&z0!=null)e.value=Math.round(z0*100)}
+function fitMap(){let z0=null;$$('#vert .card,#piso .card').forEach(card=>{const g=card.querySelector('.grid');if(!g||card.hidden||!card.clientWidth)return;g.style.zoom='';g.style.width='max-content';const w=g.offsetWidth;g.style.width='';const cs=getComputedStyle(card),av=card.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=MZ==null?Math.min(1,av/w):MZ;g.style.zoom=z;card.dataset.z=z;if(z0==null)z0=z});const e=$('#zin');if(e&&z0!=null)e.value=Math.round(z0*100)}
 const _map=map;map=function(){_map();fitMap()};
 const _tab=tab;tab=function(t,sc){_tab(t,sc);if(t=='mapa')requestAnimationFrame(fitMap)};
 addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{if(ready&&!$('#mapa').hidden)fitMap()},150)});

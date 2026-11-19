@@ -1541,11 +1541,11 @@ function classify(){RT=new Map();const by=new Map();POS.forEach(p=>{let a=by.get
   ps.forEach(p=>{const af=sf=='col'?p.and:p.col,cf=sf=='col'?p.col:p.and,an=/^\d+$/.test(af)?+af:null,m=String(cf).match(/^(\d+)([A-Za-z]?)$/);p.an=an;p.cn=an!=null&&m?m[1]:null;p.sd=m?m[2].toUpperCase():''});
   const ans=ps.filter(p=>p.cn!=null).map(p=>p.an),mx=ans.length?Math.max(...ans):0,hs=ps.some(p=>p.sd),isP=/^P\d+$/.test(rua);
   /* vertical = muitos andares (≥4 com lado A/B, ou ≥6); piso = poucos níveis empilhados */
-  const auto=!isP?'o':((hs&&mx>=4)||mx>=6)?'v':'p',ov=isP&&(OVR[rua]=='v'||OVR[rua]=='p')?OVR[rua]:null,t=ov||auto;
+  const auto=!isP?'o':'v',ov=null,t=auto; /* toda rua P## é vertical (P01…P08…); override 'piso' antigo é ignorado */
   RT.set(rua,{auto,t,mx,hs,isP,ov});ps.forEach(p=>p.v=t=='v')})}
 function map(){const T={g:0,y:0,r:0,b:0,o:0,h1:0,h2:0,h3:0,h4:0,h5:0,h6:0,hN:0};OCC=0;CAPV=0;const all=[...POS.values()],_h=all.forEach(p=>{p.h=p.vis?heat(p):''}),ruas=[...new Set(all.map(p=>p.rua))].sort((a,b)=>a.localeCompare(b,'pt',{numeric:true}));
  const ty=r=>(RT.get(r)||{t:'o'}).t,V=ruas.filter(r=>ty(r)=='v'),Z=ruas.filter(r=>ty(r)=='p'),O=ruas.filter(r=>ty(r)=='o');
- const sel=rua=>{const r=RT.get(rua);if(!r||!r.isP)return '';return `<select class="rt" data-rt="${E(rua)}" title="Classificação automática pelos andares e sufixos A/B; escolha para forçar"><option value="" ${!r.ov?'selected':''}>Auto · ${r.auto=='v'?'vertical':'piso'} (até andar ${r.mx})</option><option value="v" ${r.ov=='v'?'selected':''}>Vertical</option><option value="p" ${r.ov=='p'?'selected':''}>Piso</option></select>`};
+ const sel=rua=>{return '';const r=RT.get(rua);if(!r||!r.isP)return '';return `<select class="rt" data-rt="${E(rua)}" title="Classificação automática pelos andares e sufixos A/B; escolha para forçar"><option value="" ${!r.ov?'selected':''}>Auto · ${r.auto=='v'?'vertical':'piso'} (até andar ${r.mx})</option><option value="v" ${r.ov=='v'?'selected':''}>Vertical</option><option value="p" ${r.ov=='p'?'selected':''}>Piso</option></select>`};
  const gr=rua=>{const t=ty(rua),vt=t=='v',ps=all.filter(p=>p.rua==rua),vs=ps.filter(p=>p.vis),ix=new Map(),cs0=[],an0=[],sd0=new Set(),ot=[],c={};let w=1;
   ps.forEach(p=>{if(p.an==null||p.cn==null){ot.push(p);return}w=Math.max(w,p.cn.length);cs0.push(+p.cn);an0.push(p.an);sd0.add(p.sd);const kx=+p.cn+'|'+p.an+'|'+p.sd;if(ix.has(kx)){ot.push(p);return}ix.set(kx,p)});
   const rg=a=>{const o=[];if(a.length)for(let i=Math.min(...a);i<=Math.max(...a);i++)o.push(i);return o},cs=rg(cs0),ar=rg(an0);
